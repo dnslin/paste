@@ -47,4 +47,3 @@ data/
 .workflow_*.json
 .do_state_*.json
 tests/*.png
-helloagents

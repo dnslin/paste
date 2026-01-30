@@ -1,0 +1,591 @@
+{
+  "project": {
+    "title": "paste Roadmap 2026-01-30",
+    "owner": "@me",
+    "link": true
+  },
+  "milestones": [
+    {
+      "title": "Phase 1 - MVP (V1)"
+    },
+    {
+      "title": "Phase 2 - Enhancements (V2)"
+    }
+  ],
+  "labels": [
+    {
+      "name": "P1-High",
+      "color": "e99695",
+      "description": "High priority, must complete in current iteration"
+    },
+    {
+      "name": "P2-Medium",
+      "color": "fbca04",
+      "description": "Medium priority, planned completion"
+    },
+    {
+      "name": "type:epic",
+      "color": "5319e7",
+      "description": "Epic, contains multiple Sub-Issues"
+    },
+    {
+      "name": "type:feature",
+      "color": "1d76db",
+      "description": "New feature"
+    },
+    {
+      "name": "type:enhancement",
+      "color": "a2eeef",
+      "description": "Enhancement to existing feature"
+    },
+    {
+      "name": "version:v1.0",
+      "color": "c5def5",
+      "description": "Version 1.0"
+    },
+    {
+      "name": "version:v2.0",
+      "color": "c5def5",
+      "description": "Version 2.0"
+    }
+  ],
+  "issues": [
+    {
+      "key": "infra-app",
+      "title": "初始化项目骨架与基础配置",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 基础设施与安全基线\n\n## Background\n建立 Next.js 16 App Router 基础，统一项目结构与环境配置。\n\n## Scope\n**Included:**\n- Next.js 16 App Router 目录结构\n- TypeScript/ESLint/Prettier 基础配置\n- 环境变量模板与启动脚本\n\n**Excluded:**\n- 业务功能实现\n- UI 组件开发\n\n## Acceptance Criteria\n- [ ] 本地可启动并访问首页\n- [ ] 基础配置文件齐全且无报错\n- [ ] 启动与构建脚本可运行\n\n## Technical Implementation\n1. 初始化/校验 Next.js App Router 项目结构\n2. 配置 tsconfig/eslint/prettier 与基础脚本\n3. 补充 .env.example 与启动说明\n\n## Core Logic\n无复杂业务逻辑。\n\n\n## Testing Requirements\n- [ ] Smoke：本地启动开发服务器\n- [ ] Lint/TypeCheck 通过\n\n## Dependencies\n- Blocked by: none\n- Blocks: none\n- Related: EPIC: 基础设施与安全基线",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": []
+    },
+    {
+      "key": "infra-db",
+      "title": "SQLite + Drizzle 数据库与迁移初始化",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 基础设施与安全基线\n\n## Background\n建立可持续演进的数据库 schema 与迁移流程。\n\n## Scope\n**Included:**\n- 设计核心表：pastes/attachments/shares/settings/sessions/audit_logs\n- Drizzle schema 与迁移脚本\n- DB 连接与基础查询封装\n\n**Excluded:**\n- 业务 API 实现\n\n## Acceptance Criteria\n- [ ] 迁移可创建本地数据库文件\n- [ ] schema 与索引满足 PRD 需求\n- [ ] 基础查询可运行\n\n## Technical Implementation\n1. 定义表结构与索引\n2. 生成迁移并文档化\n3. 封装 DB client 与基础查询函数\n\n## Core Logic\n数据模型与索引约束定义。\n\n\n## Testing Requirements\n- [ ] 迁移执行成功\n- [ ] 简单 insert/select 通过\n\n## Dependencies\n- Blocked by: infra-app\n- Blocks: none\n- Related: EPIC: 基础设施与安全基线",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "infra-app"
+      ]
+    },
+    {
+      "key": "infra-crypto",
+      "title": "加密与哈希工具封装",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 基础设施与安全基线\n\n## Background\n实现正文强加密与安全凭证处理的基础能力。\n\n## Scope\n**Included:**\n- AES-256-GCM 加密/解密工具\n- 分享 token hash\n- 管理员密码 hash（argon2id/bcrypt）\n\n**Excluded:**\n- 业务调用逻辑\n\n## Acceptance Criteria\n- [ ] 加密解密可正确往返\n- [ ] hash 生成与校验通过\n- [ ] 错误处理与日志清晰\n\n## Technical Implementation\n1. 封装 crypto utils\n2. 定义 key/iv 管理策略\n3. 编写单元测试\n\n## Core Logic\n密钥管理与安全随机数生成。\n\n\n## Testing Requirements\n- [ ] 单测覆盖加密/解密/校验\n\n## Dependencies\n- Blocked by: infra-app\n- Blocks: none\n- Related: EPIC: 基础设施与安全基线",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "infra-app"
+      ]
+    },
+    {
+      "key": "infra-security",
+      "title": "安全头与统一 404 策略",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 基础设施与安全基线\n\n## Background\n落实安全基线与统一 404 策略，降低信息泄露风险。\n\n## Scope\n**Included:**\n- CSP/X-Content-Type-Options/Referrer-Policy 等安全头\n- 统一 404 响应策略\n- 分享页 noindex/robots\n\n**Excluded:**\n- 鉴权逻辑\n\n## Acceptance Criteria\n- [ ] 响应头符合安全要求\n- [ ] 所有失败场景统一 404\n- [ ] 分享页不可被索引\n\n## Technical Implementation\n1. 配置 Next.js headers\n2. 封装 404 响应工具\n3. 添加 noindex/robots meta\n\n## Core Logic\n统一错误策略与安全头控制。\n\n\n## Testing Requirements\n- [ ] 验证响应头\n- [ ] 访问不存在资源返回 404\n\n## Dependencies\n- Blocked by: infra-app\n- Blocks: none\n- Related: EPIC: 基础设施与安全基线",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "infra-app"
+      ]
+    },
+    {
+      "key": "infra-rate-audit",
+      "title": "频率限制与审计日志基础",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 基础设施与安全基线\n\n## Background\n建立限流与审计日志基础能力，覆盖登录/分享/游客创建等场景。\n\n## Scope\n**Included:**\n- rate-limiter-flexible 集成\n- 审计日志表结构与写入\n- 关键路径接入限流\n\n**Excluded:**\n- 后台审计 UI\n\n## Acceptance Criteria\n- [ ] 超限请求被正确限制\n- [ ] 审计日志可写入与查询\n- [ ] 关键接口限流生效\n\n## Technical Implementation\n1. 集成 rate-limiter-flexible\n2. 实现 audit_logs 写入函数\n3. 在登录/游客/分享访问路径接入\n\n## Core Logic\n限流窗口控制与审计记录聚合。\n\n\n## Testing Requirements\n- [ ] 模拟高频请求触发限流\n- [ ] 检查日志落库\n\n## Dependencies\n- Blocked by: infra-db\n- Blocks: none\n- Related: EPIC: 基础设施与安全基线",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "infra-db"
+      ]
+    },
+    {
+      "key": "ui-tokens",
+      "title": "建立设计令牌与全局样式",
+      "body": "## PRD Reference\n- Source: paste-prd.md, ui-design-guide.md\n- Related Epic: EPIC: UI 设计系统与组件\n\n## Background\n将 UI 风格指南落地为可复用的全局样式与设计令牌。\n\n## Scope\n**Included:**\n- 颜色/圆角/间距/字体/阴影 tokens\n- 全局基础样式\n- 像素字体与点缀配置\n\n**Excluded:**\n- 具体业务组件\n\n## Acceptance Criteria\n- [ ] 全局样式生效\n- [ ] tokens 可被组件复用\n- [ ] 字体加载符合限制\n\n## Technical Implementation\n1. 定义 CSS variables/Theme\n2. 配置字体与基础样式\n3. 补充设计令牌文档\n\n## Core Logic\n设计令牌映射与样式约束。\n\n## UI/UX Requirements\n- Layout: 单栏为主，内容居中\n- Interaction: 轻量 hover/active\n- Responsive: 移动端与桌面端均可用\n\n## Testing Requirements\n- [ ] 视觉回归检查\n- [ ] 检查字体加载体积\n\n## Dependencies\n- Blocked by: infra-app\n- Blocks: none\n- Related: EPIC: UI 设计系统与组件",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "infra-app"
+      ]
+    },
+    {
+      "key": "ui-components",
+      "title": "基础组件库（Button/Input/Card/Modal/Badge/Table/Toast）",
+      "body": "## PRD Reference\n- Source: paste-prd.md, ui-design-guide.md\n- Related Epic: EPIC: UI 设计系统与组件\n\n## Background\n构建一致的基础组件，承载后续业务页面。\n\n## Scope\n**Included:**\n- Button/Input/Card/Modal/Badge/Table/Toast\n- 状态样式（hover/active/disabled）\n- 主题化样式接入\n\n**Excluded:**\n- 业务页面\n\n## Acceptance Criteria\n- [ ] 组件具备基本交互状态\n- [ ] 圆角/阴影符合设计指南\n- [ ] 响应式布局可用\n\n## Technical Implementation\n1. 实现基础组件\n2. 添加示例页面/Story\n3. 补充组件使用说明\n\n## Core Logic\n无复杂业务逻辑。\n\n## UI/UX Requirements\n- Layout: 圆角卡片与按钮\n- Interaction: 150-250ms 过渡\n- Responsive: 按钮与表格在移动端可用\n\n## Testing Requirements\n- [ ] 组件渲染测试\n- [ ] 基础交互测试\n\n## Dependencies\n- Blocked by: ui-tokens\n- Blocks: none\n- Related: EPIC: UI 设计系统与组件",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "ui-tokens"
+      ]
+    },
+    {
+      "key": "ui-icons",
+      "title": "像素图标与空状态/加载动效",
+      "body": "## PRD Reference\n- Source: paste-prd.md, ui-design-guide.md\n- Related Epic: EPIC: UI 设计系统与组件\n\n## Background\n补齐像素装饰元素与空状态，提升产品气质。\n\n## Scope\n**Included:**\n- 像素图标（新建/删除/分享/复制等）\n- 空状态插画与文案\n- 加载动画（支持 reduced motion）\n\n**Excluded:**\n- 复杂插画系统\n\n## Acceptance Criteria\n- [ ] 图标可复用\n- [ ] 空状态在列表/分享页可用\n- [ ] 动效遵循减少动效设置\n\n## Technical Implementation\n1. 设计或引入像素图标资产\n2. 实现空状态与加载组件\n3. 接入到基础页面\n\n## Core Logic\n无复杂业务逻辑。\n\n## UI/UX Requirements\n- Layout: 小面积像素点缀\n- Interaction: 轻量动画\n- Responsive: 移动端保持清晰\n\n## Testing Requirements\n- [ ] 手动检查空状态与动效\n\n## Dependencies\n- Blocked by: ui-components\n- Blocks: none\n- Related: EPIC: UI 设计系统与组件",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "ui-components"
+      ]
+    },
+    {
+      "key": "auth-ui",
+      "title": "管理员登录页 UI",
+      "body": "## PRD Reference\n- Source: paste-prd.md, ui-design-guide.md\n- Related Epic: EPIC: 管理员登录与会话\n\n## Background\n提供简洁、安全的管理员登录入口。\n\n## Scope\n**Included:**\n- 登录表单\n- 错误提示与锁定提示\n- 基础布局与像素装饰\n\n**Excluded:**\n- 登录 API\n\n## Acceptance Criteria\n- [ ] 表单验证与提示清晰\n- [ ] 错误提示不泄露原因\n- [ ] 布局符合设计指南\n\n## Technical Implementation\n1. 实现登录页面与表单\n2. 添加错误/锁定 UI 状态\n3. 对齐设计令牌\n\n## Core Logic\n无复杂业务逻辑。\n\n## UI/UX Requirements\n- Layout: 居中卡片\n- Interaction: 错误提示与锁定提示清晰\n- Responsive: 移动端居中显示\n\n## Testing Requirements\n- [ ] 表单校验与可点击检查\n\n## Dependencies\n- Blocked by: ui-components\n- Blocks: none\n- Related: EPIC: 管理员登录与会话",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "ui-components"
+      ]
+    },
+    {
+      "key": "auth-session",
+      "title": "管理员登录 API + 会话 + 锁定 + 鉴权",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 管理员登录与会话\n\n## Background\n实现登录验证、会话管理与安全锁定策略。\n\n## Scope\n**Included:**\n- 密码验证与会话创建\n- 5 次失败锁定 15 分钟\n- HttpOnly/Secure/SameSite Cookie\n- 鉴权中间件与登出\n\n**Excluded:**\n- 登录 UI\n\n## Acceptance Criteria\n- [ ] 正确密码登录成功\n- [ ] 错误密码返回通用提示\n- [ ] 锁定策略生效\n- [ ] 受保护路由拦截未登录请求\n\n## Technical Implementation\n1. 实现登录 API 与密码校验\n2. 写入/读取 session 表\n3. 实现鉴权中间件与登出\n\n## Core Logic\n会话生命周期与锁定窗口控制。\n\n\n## Testing Requirements\n- [ ] 登录成功/失败用例\n- [ ] 锁定触发用例\n- [ ] Cookie 安全属性验证\n\n## Dependencies\n- Blocked by: infra-db, infra-crypto, infra-rate-audit\n- Blocks: none\n- Related: EPIC: 管理员登录与会话",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "infra-db",
+        "infra-crypto",
+        "infra-rate-audit"
+      ]
+    },
+    {
+      "key": "paste-api-crud",
+      "title": "粘贴 CRUD API（加密存储）",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 粘贴核心功能\n\n## Background\n提供粘贴内容的创建/编辑/删除基础接口。\n\n## Scope\n**Included:**\n- plain/code/markdown 类型\n- 标题/标签/过期时间\n- 正文 5MB 限制与加密存储\n\n**Excluded:**\n- 前端 UI\n\n## Acceptance Criteria\n- [ ] 创建返回粘贴 ID\n- [ ] 超限请求被拒绝\n- [ ] 正文落库为密文\n\n## Technical Implementation\n1. 实现 create/read/update/delete API\n2. 接入加密工具\n3. 添加大小与输入校验\n\n## Core Logic\n内容加密存储与校验逻辑。\n\n\n## Testing Requirements\n- [ ] CRUD API 测试\n- [ ] 5MB 限制测试\n\n## Dependencies\n- Blocked by: infra-db, infra-crypto\n- Blocks: none\n- Related: EPIC: 粘贴核心功能",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "infra-db",
+        "infra-crypto"
+      ]
+    },
+    {
+      "key": "paste-api-list",
+      "title": "粘贴列表/搜索/置顶/标签过滤 API",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 粘贴核心功能\n\n## Background\n支持管理员高效管理粘贴内容。\n\n## Scope\n**Included:**\n- 列表分页与排序\n- 标题搜索\n- 标签过滤\n- 置顶/取消置顶\n\n**Excluded:**\n- UI 页面\n\n## Acceptance Criteria\n- [ ] 置顶内容优先返回\n- [ ] 搜索与过滤结果正确\n- [ ] 分页可用\n\n## Technical Implementation\n1. 实现列表查询与排序\n2. 实现搜索/过滤条件\n3. 实现置顶标记更新\n\n## Core Logic\n列表查询与排序策略。\n\n\n## Testing Requirements\n- [ ] 列表/搜索/过滤用例\n\n## Dependencies\n- Blocked by: infra-db\n- Blocks: none\n- Related: EPIC: 粘贴核心功能",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "infra-db"
+      ]
+    },
+    {
+      "key": "paste-ui-editor",
+      "title": "粘贴创建/编辑 UI + CodeMirror",
+      "body": "## PRD Reference\n- Source: paste-prd.md, ui-design-guide.md\n- Related Epic: EPIC: 粘贴核心功能\n\n## Background\n为管理员提供高效的粘贴创建与编辑体验。\n\n## Scope\n**Included:**\n- 类型选择与语言选择\n- 标题/标签/过期时间输入\n- CodeMirror 编辑器\n\n**Excluded:**\n- 附件上传\n- 分享设置\n\n## Acceptance Criteria\n- [ ] 可创建/编辑粘贴\n- [ ] 代码输入体验良好\n- [ ] 表单校验清晰\n\n## Technical Implementation\n1. 接入 CodeMirror\n2. 实现创建/编辑表单\n3. 对接 CRUD API\n\n## Core Logic\n表单状态与编辑器内容同步。\n\n## UI/UX Requirements\n- Layout: 单栏表单 + 编辑区\n- Interaction: 保存反馈明确\n- Responsive: 移动端保持可用\n\n## Testing Requirements\n- [ ] 表单提交与校验用例\n\n## Dependencies\n- Blocked by: ui-components, paste-api-crud\n- Blocks: none\n- Related: EPIC: 粘贴核心功能",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "ui-components",
+        "paste-api-crud"
+      ]
+    },
+    {
+      "key": "paste-ui-view",
+      "title": "粘贴详情页渲染（plain/code/markdown）",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 粘贴核心功能\n\n## Background\n提供清晰、安全的粘贴阅读体验。\n\n## Scope\n**Included:**\n- plain 等宽展示\n- code 高亮 + 复制\n- markdown 安全渲染\n\n**Excluded:**\n- 分享页面\n\n## Acceptance Criteria\n- [ ] Markdown 无 XSS 风险\n- [ ] 代码高亮正确\n- [ ] 复制按钮可用\n\n## Technical Implementation\n1. 接入 shiki/高亮主题\n2. 接入 remark/rehype-sanitize\n3. 实现复制按钮\n\n## Core Logic\nMarkdown 安全渲染与高亮策略。\n\n## UI/UX Requirements\n- Layout: 阅读区突出\n- Interaction: 复制按钮明显\n- Responsive: 移动端可读\n\n## Testing Requirements\n- [ ] Markdown XSS 用例\n- [ ] 复制功能测试\n\n## Dependencies\n- Blocked by: paste-api-crud, ui-components\n- Blocks: none\n- Related: EPIC: 粘贴核心功能",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "paste-api-crud",
+        "ui-components"
+      ]
+    },
+    {
+      "key": "paste-ui-list",
+      "title": "粘贴列表 UI（搜索/过滤/置顶）",
+      "body": "## PRD Reference\n- Source: paste-prd.md, ui-design-guide.md\n- Related Epic: EPIC: 粘贴核心功能\n\n## Background\n提供粘贴列表的管理入口。\n\n## Scope\n**Included:**\n- 列表展示与分页\n- 搜索与标签过滤 UI\n- 置顶标识\n\n**Excluded:**\n- 批量清理\n\n## Acceptance Criteria\n- [ ] 搜索/过滤可用\n- [ ] 置顶标识清晰\n- [ ] 空状态友好\n\n## Technical Implementation\n1. 实现列表页与筛选栏\n2. 接入列表 API\n3. 增加空状态与交互\n\n## Core Logic\n列表筛选状态管理。\n\n## UI/UX Requirements\n- Layout: 列表 + 筛选栏\n- Interaction: 筛选即时更新\n- Responsive: 移动端堆叠布局\n\n## Testing Requirements\n- [ ] 列表与筛选 UI 测试\n\n## Dependencies\n- Blocked by: paste-api-list, ui-components\n- Blocks: none\n- Related: EPIC: 粘贴核心功能",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "paste-api-list",
+        "ui-components"
+      ]
+    },
+    {
+      "key": "attachment-api",
+      "title": "附件上传 API 与存储",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 附件上传\n\n## Background\n支持管理员上传图片/文件并安全存储。\n\n## Scope\n**Included:**\n- 25MB 单文件限制\n- 文件系统存储\n- 附件元数据落库\n\n**Excluded:**\n- UI 上传体验\n\n## Acceptance Criteria\n- [ ] 超限拒绝\n- [ ] 文件保存成功\n- [ ] 元数据写入 DB\n\n## Technical Implementation\n1. 实现上传 API\n2. 保存文件并记录元数据\n3. 处理错误与重试\n\n## Core Logic\n文件写入与元数据一致性。\n\n\n## Testing Requirements\n- [ ] 上传成功/失败用例\n- [ ] 大小限制用例\n\n## Dependencies\n- Blocked by: infra-db\n- Blocks: none\n- Related: EPIC: 附件上传",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "infra-db"
+      ]
+    },
+    {
+      "key": "attachment-ui",
+      "title": "附件上传 UI + 下载路由",
+      "body": "## PRD Reference\n- Source: paste-prd.md, ui-design-guide.md\n- Related Epic: EPIC: 附件上传\n\n## Background\n提供拖拽/粘贴上传体验与安全下载路径。\n\n## Scope\n**Included:**\n- 拖拽/粘贴上传\n- 上传进度\n- 下载路由权限校验与 MIME 防护\n\n**Excluded:**\n- 游客上传\n\n## Acceptance Criteria\n- [ ] 上传交互流畅\n- [ ] 下载需权限校验\n- [ ] MIME sniffing 防护生效\n\n## Technical Implementation\n1. 实现上传 UI 与进度\n2. 实现下载路由与权限校验\n3. 文件名净化与 MIME 处理\n\n## Core Logic\n上传状态机与权限校验。\n\n## UI/UX Requirements\n- Layout: 附件列表与上传区\n- Interaction: 进度反馈清晰\n- Responsive: 移动端支持粘贴上传\n\n## Testing Requirements\n- [ ] 上传/下载流程测试\n\n## Dependencies\n- Blocked by: attachment-api, ui-components\n- Blocks: none\n- Related: EPIC: 附件上传",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "attachment-api",
+        "ui-components"
+      ]
+    },
+    {
+      "key": "guest-api",
+      "title": "游客创建 API + 管理密钥",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 游客功能与管理密钥\n\n## Background\n支持游客临时创建粘贴并生成管理密钥。\n\n## Scope\n**Included:**\n- 游客开关与过期必填\n- 每 IP 每小时 10 次限频\n- 管理密钥生成与校验\n\n**Excluded:**\n- 附件支持\n\n## Acceptance Criteria\n- [ ] 未设置过期时间则拒绝\n- [ ] 限频生效\n- [ ] 密钥错误返回 404\n\n## Technical Implementation\n1. 实现游客创建 API\n2. 生成 32 字符密钥并绑定\n3. 实现编辑/删除校验\n\n## Core Logic\n密钥校验与限流策略。\n\n\n## Testing Requirements\n- [ ] 限频与密钥校验用例\n\n## Dependencies\n- Blocked by: infra-db, infra-crypto, infra-rate-audit\n- Blocks: none\n- Related: EPIC: 游客功能与管理密钥",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "infra-db",
+        "infra-crypto",
+        "infra-rate-audit"
+      ]
+    },
+    {
+      "key": "guest-ui",
+      "title": "游客创建/编辑 UI + 密钥复制",
+      "body": "## PRD Reference\n- Source: paste-prd.md, ui-design-guide.md\n- Related Epic: EPIC: 游客功能与管理密钥\n\n## Background\n为游客提供轻量的创建与管理体验。\n\n## Scope\n**Included:**\n- 游客创建表单\n- 密钥一次性展示与复制\n- 编辑/删除入口\n\n**Excluded:**\n- 管理员功能\n\n## Acceptance Criteria\n- [ ] 创建后自动复制密钥\n- [ ] 提示密钥仅展示一次\n- [ ] 编辑/删除可用\n\n## Technical Implementation\n1. 实现游客创建页面\n2. 实现密钥展示与复制\n3. 接入编辑/删除流程\n\n## Core Logic\n密钥展示一次性策略。\n\n## UI/UX Requirements\n- Layout: 简洁表单\n- Interaction: 复制反馈明显\n- Responsive: 移动端可用\n\n## Testing Requirements\n- [ ] 密钥复制与提示检查\n\n## Dependencies\n- Blocked by: guest-api, ui-components\n- Blocks: none\n- Related: EPIC: 游客功能与管理密钥",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "guest-api",
+        "ui-components"
+      ]
+    },
+    {
+      "key": "share-api",
+      "title": "分享链接创建/撤销与选项组合",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 分享链接\n\n## Background\n支持公开/密码/一次性/过期四种能力组合。\n\n## Scope\n**Included:**\n- 分享 token 生成与 hash\n- 创建/撤销分享\n- 选项组合存储\n\n**Excluded:**\n- 分享页面 UI\n\n## Acceptance Criteria\n- [ ] token 高熵且只存 hash\n- [ ] 撤销后访问 404\n- [ ] 组合选项生效\n\n## Technical Implementation\n1. 实现分享模型与存储\n2. 实现创建/撤销 API\n3. 接入选项组合逻辑\n\n## Core Logic\n分享配置与 token 管理策略。\n\n\n## Testing Requirements\n- [ ] 撤销与组合选项用例\n\n## Dependencies\n- Blocked by: infra-db, infra-crypto\n- Blocks: none\n- Related: EPIC: 分享链接",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "infra-db",
+        "infra-crypto"
+      ]
+    },
+    {
+      "key": "share-access-ui",
+      "title": "分享访问路由 + 分享页 UI",
+      "body": "## PRD Reference\n- Source: paste-prd.md, ui-design-guide.md\n- Related Epic: EPIC: 分享链接\n\n## Background\n提供安全的分享访问与只读分享页。\n\n## Scope\n**Included:**\n- 密码校验/一次性/过期逻辑\n- 分享页只读展示\n- 统一 404 与 noindex\n\n**Excluded:**\n- 编辑功能\n\n## Acceptance Criteria\n- [ ] 访问失败统一 404\n- [ ] 一次性访问后失效\n- [ ] 分享页可读且不可编辑\n\n## Technical Implementation\n1. 实现分享访问路由\n2. 实现分享页 UI\n3. 添加 noindex 与只读限制\n\n## Core Logic\n访问控制与一次性失效。\n\n## UI/UX Requirements\n- Layout: 阅读为主\n- Interaction: 密码输入清晰\n- Responsive: 移动端可读\n\n## Testing Requirements\n- [ ] 密码/过期/一次性访问用例\n\n## Dependencies\n- Blocked by: share-api, ui-components\n- Blocks: none\n- Related: EPIC: 分享链接",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "share-api",
+        "ui-components"
+      ]
+    },
+    {
+      "key": "admin-shell",
+      "title": "管理后台框架与导航",
+      "body": "## PRD Reference\n- Source: paste-prd.md, ui-design-guide.md\n- Related Epic: EPIC: 管理后台\n\n## Background\n搭建后台基础布局与导航结构。\n\n## Scope\n**Included:**\n- 后台布局与导航\n- 路由保护\n- 基础页面占位\n\n**Excluded:**\n- 配置/审计/清理功能\n\n## Acceptance Criteria\n- [ ] 后台路由受保护\n- [ ] 导航可用\n- [ ] 布局符合设计指南\n\n## Technical Implementation\n1. 实现后台布局\n2. 接入鉴权守卫\n3. 创建基础页面路由\n\n## Core Logic\n路由守卫与布局组织。\n\n## UI/UX Requirements\n- Layout: 功能性优先\n- Interaction: 按钮分组清晰\n- Responsive: 桌面优先\n\n## Testing Requirements\n- [ ] 鉴权拦截测试\n\n## Dependencies\n- Blocked by: auth-session, ui-components\n- Blocks: none\n- Related: EPIC: 管理后台",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "auth-session",
+        "ui-components"
+      ]
+    },
+    {
+      "key": "admin-settings",
+      "title": "系统配置管理（游客开关/过期上限/频率限制）",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 管理后台\n\n## Background\n提供管理员可实时调整系统配置的能力。\n\n## Scope\n**Included:**\n- 游客功能开关\n- 游客过期上限配置\n- 游客频率限制配置\n\n**Excluded:**\n- 审计日志\n\n## Acceptance Criteria\n- [ ] 配置修改立即生效\n- [ ] 参数校验可阻止非法值\n- [ ] 配置可持久化\n\n## Technical Implementation\n1. 实现 settings 表与 API\n2. 实现配置表单 UI\n3. 接入校验与提示\n\n## Core Logic\n配置存储与校验规则。\n\n## UI/UX Requirements\n- Layout: 表单分组\n- Interaction: 保存反馈清晰\n- Responsive: 桌面优先\n\n## Testing Requirements\n- [ ] 配置保存/校验用例\n\n## Dependencies\n- Blocked by: admin-shell, infra-db\n- Blocks: none\n- Related: EPIC: 管理后台",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "admin-shell",
+        "infra-db"
+      ]
+    },
+    {
+      "key": "admin-audit",
+      "title": "审计日志列表与筛选",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 管理后台\n\n## Background\n支持管理员查看登录失败与分享访问记录。\n\n## Scope\n**Included:**\n- 审计日志 API 列表/筛选\n- 后台列表 UI\n- 时间/类型筛选\n\n**Excluded:**\n- 导出功能\n\n## Acceptance Criteria\n- [ ] 筛选条件可用\n- [ ] 列表显示关键信息\n- [ ] 性能可接受\n\n## Technical Implementation\n1. 实现审计日志查询 API\n2. 实现列表 UI 与筛选栏\n3. 接入分页\n\n## Core Logic\n审计日志筛选与分页。\n\n## UI/UX Requirements\n- Layout: 表格清晰\n- Interaction: 筛选即时生效\n- Responsive: 桌面优先\n\n## Testing Requirements\n- [ ] 筛选与分页用例\n\n## Dependencies\n- Blocked by: admin-shell, infra-rate-audit\n- Blocks: none\n- Related: EPIC: 管理后台",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "admin-shell",
+        "infra-rate-audit"
+      ]
+    },
+    {
+      "key": "admin-cleanup",
+      "title": "批量清理过期内容与游客粘贴",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: 管理后台\n\n## Background\n提供批量清理过期内容的能力，避免空间耗尽。\n\n## Scope\n**Included:**\n- 过期粘贴清理\n- 游客粘贴清理\n- 二次确认\n\n**Excluded:**\n- 自动定时任务\n\n## Acceptance Criteria\n- [ ] 清理前需确认\n- [ ] 执行后可查看清理结果\n- [ ] 操作记录进入审计日志\n\n## Technical Implementation\n1. 实现清理 API\n2. 实现确认对话框与执行 UI\n3. 接入审计日志\n\n## Core Logic\n清理范围与安全确认。\n\n## UI/UX Requirements\n- Layout: 危险操作突出\n- Interaction: 二次确认\n- Responsive: 桌面优先\n\n## Testing Requirements\n- [ ] 清理流程用例\n\n## Dependencies\n- Blocked by: admin-shell, infra-db\n- Blocks: none\n- Related: EPIC: 管理后台",
+      "labels": [
+        "P1-High",
+        "type:feature",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "dependencies": [
+        "admin-shell",
+        "infra-db"
+      ]
+    },
+    {
+      "key": "v2-theme",
+      "title": "主题切换（深色/浅色）",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: Phase 2 Enhancements\n\n## Background\n提升可用性与个性化体验。\n\n## Scope\n**Included:**\n- 浅色/深色主题切换\n- 主题持久化\n- 主题对比度校验\n\n**Excluded:**\n- 复杂主题定制\n\n## Acceptance Criteria\n- [ ] 主题可切换且持久化\n- [ ] 深色主题对比度可读\n- [ ] 不影响性能\n\n## Technical Implementation\n1. 扩展设计令牌支持主题\n2. 实现主题切换与持久化\n3. 适配核心页面\n\n## Core Logic\n主题状态与持久化管理。\n\n\n## Testing Requirements\n- [ ] 主题切换回归测试\n\n## Dependencies\n- Blocked by: ui-tokens, ui-components\n- Blocks: none\n- Related: EPIC: Phase 2 Enhancements",
+      "labels": [
+        "P2-Medium",
+        "type:enhancement",
+        "version:v2.0"
+      ],
+      "milestone": "Phase 2 - Enhancements (V2)",
+      "dependencies": [
+        "ui-tokens",
+        "ui-components"
+      ]
+    },
+    {
+      "key": "v2-email-key",
+      "title": "游客邮箱通知管理密钥",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: Phase 2 Enhancements\n\n## Background\n降低管理密钥丢失风险。\n\n## Scope\n**Included:**\n- 游客填写邮箱\n- 发送密钥通知\n- 邮件模板\n\n**Excluded:**\n- 营销邮件\n\n## Acceptance Criteria\n- [ ] 邮件发送成功\n- [ ] 密钥内容正确\n- [ ] 失败有提示\n\n## Technical Implementation\n1. 增加邮箱字段\n2. 集成邮件服务\n3. 实现邮件模板\n\n## Core Logic\n邮件发送与失败重试策略。\n\n\n## Testing Requirements\n- [ ] 邮件发送模拟用例\n\n## Dependencies\n- Blocked by: guest-api\n- Blocks: none\n- Related: EPIC: Phase 2 Enhancements",
+      "labels": [
+        "P2-Medium",
+        "type:enhancement",
+        "version:v2.0"
+      ],
+      "milestone": "Phase 2 - Enhancements (V2)",
+      "dependencies": [
+        "guest-api"
+      ]
+    },
+    {
+      "key": "v2-audit-export",
+      "title": "审计日志高级筛选与导出",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: Phase 2 Enhancements\n\n## Background\n提升审计分析能力。\n\n## Scope\n**Included:**\n- 高级筛选（类型/时间/状态）\n- 导出 CSV\n\n**Excluded:**\n- 可视化报表\n\n## Acceptance Criteria\n- [ ] 筛选条件丰富\n- [ ] 导出文件可下载\n- [ ] 导出性能可接受\n\n## Technical Implementation\n1. 扩展查询 API\n2. 实现导出 API\n3. UI 增加导出入口\n\n## Core Logic\n筛选与导出性能控制。\n\n\n## Testing Requirements\n- [ ] 导出功能测试\n\n## Dependencies\n- Blocked by: admin-audit\n- Blocks: none\n- Related: EPIC: Phase 2 Enhancements",
+      "labels": [
+        "P2-Medium",
+        "type:enhancement",
+        "version:v2.0"
+      ],
+      "milestone": "Phase 2 - Enhancements (V2)",
+      "dependencies": [
+        "admin-audit"
+      ]
+    },
+    {
+      "key": "v2-versioning",
+      "title": "粘贴版本历史",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: Phase 2 Enhancements\n\n## Background\n支持查看与回溯粘贴修改历史。\n\n## Scope\n**Included:**\n- 版本表结构\n- 版本列表与回滚\n- UI 展示\n\n**Excluded:**\n- 差异对比\n\n## Acceptance Criteria\n- [ ] 版本记录可追溯\n- [ ] 可回滚到指定版本\n- [ ] UI 清晰\n\n## Technical Implementation\n1. 设计版本表结构\n2. 实现版本查询/回滚 API\n3. 实现版本列表 UI\n\n## Core Logic\n版本链与回滚策略。\n\n\n## Testing Requirements\n- [ ] 版本创建/回滚用例\n\n## Dependencies\n- Blocked by: paste-api-crud\n- Blocks: none\n- Related: EPIC: Phase 2 Enhancements",
+      "labels": [
+        "P2-Medium",
+        "type:enhancement",
+        "version:v2.0"
+      ],
+      "milestone": "Phase 2 - Enhancements (V2)",
+      "dependencies": [
+        "paste-api-crud"
+      ]
+    },
+    {
+      "key": "v2-api",
+      "title": "对外 API（第三方调用）",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n- Related Epic: EPIC: Phase 2 Enhancements\n\n## Background\n为第三方工具提供可编程访问能力。\n\n## Scope\n**Included:**\n- 认证方式\n- 粘贴 CRUD API\n- 分享 API\n\n**Excluded:**\n- SDK/客户端\n\n## Acceptance Criteria\n- [ ] API 鉴权可用\n- [ ] 核心接口可调用\n- [ ] 文档齐全\n\n## Technical Implementation\n1. 设计 API 认证方案\n2. 实现核心 API\n3. 补充 API 文档\n\n## Core Logic\nAPI 鉴权与访问控制。\n\n\n## Testing Requirements\n- [ ] API 集成测试\n\n## Dependencies\n- Blocked by: paste-api-crud, share-api\n- Blocks: none\n- Related: EPIC: Phase 2 Enhancements",
+      "labels": [
+        "P2-Medium",
+        "type:enhancement",
+        "version:v2.0"
+      ],
+      "milestone": "Phase 2 - Enhancements (V2)",
+      "dependencies": [
+        "paste-api-crud",
+        "share-api"
+      ]
+    }
+  ],
+  "epics": [
+    {
+      "key": "epic-infra",
+      "title": "EPIC: 基础设施与安全基线",
+      "labels": [
+        "type:epic",
+        "P1-High",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n\n## Background\n搭建项目基础设施与安全基线，支撑后续功能开发。\n\n## Objectives\n确保安全与基础设施可复用、可扩展。\n\n## Scope\n**Included:**\n- 项目骨架\n- 数据库与迁移\n- 加密/安全头/限流\n\n**Excluded:**\n- 业务功能实现\n\n## Acceptance Criteria\n- [ ] 基础设施可支持核心业务\n- [ ] 安全基线满足 PRD\n\n## Sub-Issues\n\n```[tasklist]\n### Tasks\n- [ ] {{infra-app}} 初始化项目骨架与基础配置\n- [ ] {{infra-db}} SQLite + Drizzle 数据库与迁移初始化\n- [ ] {{infra-crypto}} 加密与哈希工具封装\n- [ ] {{infra-security}} 安全头与统一 404 策略\n- [ ] {{infra-rate-audit}} 频率限制与审计日志基础\n```\n\n## Dependencies\n- Blocked by: none\n- Blocks: none\n\n## Technical Decisions\n遵循 PRD 与 UI 设计指南，优先保证可审查与并行开发。\n"
+    },
+    {
+      "key": "epic-ui",
+      "title": "EPIC: UI 设计系统与组件",
+      "labels": [
+        "type:epic",
+        "P1-High",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "body": "## PRD Reference\n- Source: paste-prd.md, ui-design-guide.md\n\n## Background\n构建统一的 UI 设计系统与基础组件库。\n\n## Objectives\n提供复用组件与一致视觉体验。\n\n## Scope\n**Included:**\n- 设计令牌\n- 基础组件\n- 像素图标/空状态\n\n**Excluded:**\n- 业务页面\n\n## Acceptance Criteria\n- [ ] 组件库可复用\n- [ ] 视觉符合设计指南\n\n## Sub-Issues\n\n```[tasklist]\n### Tasks\n- [ ] {{ui-tokens}} 建立设计令牌与全局样式\n- [ ] {{ui-components}} 基础组件库（Button/Input/Card/Modal/Badge/Table/Toast）\n- [ ] {{ui-icons}} 像素图标与空状态/加载动效\n```\n\n## Dependencies\n- Blocked by: none\n- Blocks: none\n\n## Technical Decisions\n遵循 PRD 与 UI 设计指南，优先保证可审查与并行开发。\n"
+    },
+    {
+      "key": "epic-auth",
+      "title": "EPIC: 管理员登录与会话",
+      "labels": [
+        "type:epic",
+        "P1-High",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n\n## Background\n实现管理员登录与会话管理。\n\n## Objectives\n提供安全的登录体验与访问控制。\n\n## Scope\n**Included:**\n- 登录 UI\n- 登录 API\n- 会话与锁定\n\n**Excluded:**\n- 游客登录\n\n## Acceptance Criteria\n- [ ] 管理员可安全登录\n- [ ] 未登录用户被拦截\n\n## Sub-Issues\n\n```[tasklist]\n### Tasks\n- [ ] {{auth-ui}} 管理员登录页 UI\n- [ ] {{auth-session}} 管理员登录 API + 会话 + 锁定 + 鉴权\n```\n\n## Dependencies\n- Blocked by: none\n- Blocks: none\n\n## Technical Decisions\n遵循 PRD 与 UI 设计指南，优先保证可审查与并行开发。\n"
+    },
+    {
+      "key": "epic-paste",
+      "title": "EPIC: 粘贴核心功能",
+      "labels": [
+        "type:epic",
+        "P1-High",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n\n## Background\n构建粘贴核心创建/查看/管理能力。\n\n## Objectives\n让管理员高效管理粘贴内容。\n\n## Scope\n**Included:**\n- CRUD API\n- 列表管理\n- 创建/详情/列表 UI\n\n**Excluded:**\n- 附件与分享\n\n## Acceptance Criteria\n- [ ] 管理员可创建与管理粘贴\n- [ ] 内容安全渲染\n\n## Sub-Issues\n\n```[tasklist]\n### Tasks\n- [ ] {{paste-api-crud}} 粘贴 CRUD API（加密存储）\n- [ ] {{paste-api-list}} 粘贴列表/搜索/置顶/标签过滤 API\n- [ ] {{paste-ui-editor}} 粘贴创建/编辑 UI + CodeMirror\n- [ ] {{paste-ui-view}} 粘贴详情页渲染（plain/code/markdown）\n- [ ] {{paste-ui-list}} 粘贴列表 UI（搜索/过滤/置顶）\n```\n\n## Dependencies\n- Blocked by: none\n- Blocks: none\n\n## Technical Decisions\n遵循 PRD 与 UI 设计指南，优先保证可审查与并行开发。\n"
+    },
+    {
+      "key": "epic-attachment",
+      "title": "EPIC: 附件上传",
+      "labels": [
+        "type:epic",
+        "P1-High",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n\n## Background\n支持管理员附件上传与下载。\n\n## Objectives\n保证上传安全与可控。\n\n## Scope\n**Included:**\n- 上传 API\n- 下载路由\n- 上传 UI\n\n**Excluded:**\n- 游客上传\n\n## Acceptance Criteria\n- [ ] 附件可上传与下载\n- [ ] 权限校验生效\n\n## Sub-Issues\n\n```[tasklist]\n### Tasks\n- [ ] {{attachment-api}} 附件上传 API 与存储\n- [ ] {{attachment-ui}} 附件上传 UI + 下载路由\n```\n\n## Dependencies\n- Blocked by: none\n- Blocks: none\n\n## Technical Decisions\n遵循 PRD 与 UI 设计指南，优先保证可审查与并行开发。\n"
+    },
+    {
+      "key": "epic-guest",
+      "title": "EPIC: 游客功能与管理密钥",
+      "labels": [
+        "type:epic",
+        "P1-High",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n\n## Background\n提供游客临时创建粘贴能力。\n\n## Objectives\n让非管理员快速使用并可管理自己的粘贴。\n\n## Scope\n**Included:**\n- 游客创建 API\n- 管理密钥机制\n- 游客 UI\n\n**Excluded:**\n- 附件支持\n\n## Acceptance Criteria\n- [ ] 游客可创建并管理粘贴\n- [ ] 密钥一次性展示\n\n## Sub-Issues\n\n```[tasklist]\n### Tasks\n- [ ] {{guest-api}} 游客创建 API + 管理密钥\n- [ ] {{guest-ui}} 游客创建/编辑 UI + 密钥复制\n```\n\n## Dependencies\n- Blocked by: none\n- Blocks: none\n\n## Technical Decisions\n遵循 PRD 与 UI 设计指南，优先保证可审查与并行开发。\n"
+    },
+    {
+      "key": "epic-share",
+      "title": "EPIC: 分享链接",
+      "labels": [
+        "type:epic",
+        "P1-High",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n\n## Background\n实现分享链接能力。\n\n## Objectives\n支持公开/密码/一次性/过期组合。\n\n## Scope\n**Included:**\n- 分享 API\n- 分享访问路由\n- 分享页\n\n**Excluded:**\n- 编辑共享内容\n\n## Acceptance Criteria\n- [ ] 分享访问安全可控\n- [ ] 访问失败统一 404\n\n## Sub-Issues\n\n```[tasklist]\n### Tasks\n- [ ] {{share-api}} 分享链接创建/撤销与选项组合\n- [ ] {{share-access-ui}} 分享访问路由 + 分享页 UI\n```\n\n## Dependencies\n- Blocked by: none\n- Blocks: none\n\n## Technical Decisions\n遵循 PRD 与 UI 设计指南，优先保证可审查与并行开发。\n"
+    },
+    {
+      "key": "epic-admin",
+      "title": "EPIC: 管理后台",
+      "labels": [
+        "type:epic",
+        "P1-High",
+        "version:v1.0"
+      ],
+      "milestone": "Phase 1 - MVP (V1)",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n\n## Background\n建设管理后台核心能力。\n\n## Objectives\n实时配置、审计与清理。\n\n## Scope\n**Included:**\n- 后台框架\n- 系统配置\n- 审计日志\n- 批量清理\n\n**Excluded:**\n- 高级导出\n\n## Acceptance Criteria\n- [ ] 管理员可实时配置并查看审计\n- [ ] 清理流程可用\n\n## Sub-Issues\n\n```[tasklist]\n### Tasks\n- [ ] {{admin-shell}} 管理后台框架与导航\n- [ ] {{admin-settings}} 系统配置管理（游客开关/过期上限/频率限制）\n- [ ] {{admin-audit}} 审计日志列表与筛选\n- [ ] {{admin-cleanup}} 批量清理过期内容与游客粘贴\n```\n\n## Dependencies\n- Blocked by: none\n- Blocks: none\n\n## Technical Decisions\n遵循 PRD 与 UI 设计指南，优先保证可审查与并行开发。\n"
+    },
+    {
+      "key": "epic-phase2",
+      "title": "EPIC: Phase 2 Enhancements",
+      "labels": [
+        "type:epic",
+        "P2-Medium",
+        "version:v2.0"
+      ],
+      "milestone": "Phase 2 - Enhancements (V2)",
+      "body": "## PRD Reference\n- Source: paste-prd.md\n\n## Background\nPhase 2 增强功能。\n\n## Objectives\n在 MVP 之上提升体验与扩展能力。\n\n## Scope\n**Included:**\n- 主题切换\n- 邮件通知\n- 审计导出\n- 版本历史\n- 对外 API\n\n**Excluded:**\n- 多管理员/2FA\n\n## Acceptance Criteria\n- [ ] Phase 2 功能完整\n\n## Sub-Issues\n\n```[tasklist]\n### Tasks\n- [ ] {{v2-theme}} 主题切换（深色/浅色）\n- [ ] {{v2-email-key}} 游客邮箱通知管理密钥\n- [ ] {{v2-audit-export}} 审计日志高级筛选与导出\n- [ ] {{v2-versioning}} 粘贴版本历史\n- [ ] {{v2-api}} 对外 API（第三方调用）\n```\n\n## Dependencies\n- Blocked by: none\n- Blocks: none\n\n## Technical Decisions\n遵循 PRD 与 UI 设计指南，优先保证可审查与并行开发。\n"
+    }
+  ]
+}

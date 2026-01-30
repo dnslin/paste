@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1769765957600,
+      "tag": "0000_flaky_nomad",
+      "breakpoints": true
+    }
+  ]
+}

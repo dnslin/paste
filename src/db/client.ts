@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
@@ -10,6 +11,10 @@ const filePath = dbUrl.startsWith("file:") ? dbUrl.slice(5) : dbUrl;
 const resolvedPath = path.isAbsolute(filePath)
   ? filePath
   : path.join(process.cwd(), filePath);
+
+if (!filePath.includes(":memory:")) {
+  fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+}
 
 const sqlite = new Database(resolvedPath);
 

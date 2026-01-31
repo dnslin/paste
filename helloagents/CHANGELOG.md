@@ -2,6 +2,26 @@
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-01-31
+
+### 修复
+- **[share]**: 一次性分享并发访问竞态处理
+  - 方案: [202601312137_share-access-race-fix](archive/2026-01/202601312137_share-access-race-fix/)
+
+## [0.4.1] - 2026-01-31
+
+### 新增
+- **[share]**: 分享访问校验（token hash / 过期 / 撤销 / 一次性）
+  - 方案: [202601312052_share-access-validation](archive/2026-01/202601312052_share-access-validation/)
+
+## [0.4.0] - 2026-01-31
+
+### 新增
+- **[app]**: 全站安全头与 CSP 基线（CSP/X-Content-Type-Options/Referrer-Policy 等）
+  - 方案: [202601311858_security-headers-404-noindex](archive/2026-01/202601311858_security-headers-404-noindex/)
+- **[share]**: 分享访问失败统一 404 + noindex/noarchive
+  - 方案: [202601311858_security-headers-404-noindex](archive/2026-01/202601311858_security-headers-404-noindex/)
+
 ## [0.3.0] - 2026-01-31
 
 ### 新增

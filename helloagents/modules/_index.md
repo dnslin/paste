@@ -13,6 +13,7 @@
 | share | 分享链接与访问策略 | 📝 | [share.md](./share.md) |
 | guest | 游客创建与管理密钥 | 📝 | [guest.md](./guest.md) |
 | admin-console | 管理后台配置/审计/清理 | 📝 | [admin-console.md](./admin-console.md) |
+| crypto | 加密/哈希工具封装 | 🚧 | [crypto.md](./crypto.md) |
 
 ## 模块依赖关系
 

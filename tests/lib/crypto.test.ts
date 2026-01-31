@@ -44,6 +44,25 @@ test("password hash verify (bcrypt)", async () => {
   assert.equal(await verifyPassword("wrong", digest, baseConfig), false);
 });
 
+test("password hash verify (argon2id)", async () => {
+  const config = createCryptoConfig({
+    encryptionKey: Buffer.alloc(32, 3),
+    tokenHashSecret: Buffer.from("another-secret-value", "utf8"),
+    password: {
+      algorithm: "argon2id",
+      argon2: {
+        timeCost: 1,
+        memoryCost: 8192,
+        parallelism: 1,
+      },
+    },
+  });
+  const password = "super-secret";
+  const digest = await hashPassword(password, config);
+  assert.equal(await verifyPassword(password, digest, config), true);
+  assert.equal(await verifyPassword("wrong", digest, config), false);
+});
+
 test("encrypt fails with invalid key length", () => {
   const badConfig = {
     ...baseConfig,

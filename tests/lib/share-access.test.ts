@@ -4,16 +4,20 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import { drizzle, type BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { eq } from "drizzle-orm";
-import { pastes, shares } from "../../src/db/schema";
+import * as schema from "../../src/db/schema";
 import { createCryptoConfig, hashToken } from "../../src/lib/crypto";
 import { resolveShareAccess } from "../../src/lib/share-access";
 
+type DbInstance = BetterSQLite3Database<typeof schema> & {
+  $client: Database.Database;
+};
+
 type DbFixture = {
   sqlite: Database.Database;
-  db: ReturnType<typeof drizzle>;
+  db: DbInstance;
   tempDir: string;
 };
 
@@ -21,7 +25,7 @@ const createFixture = (): DbFixture => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "paste-share-"));
   const dbPath = path.join(tempDir, "paste.db");
   const sqlite = new Database(dbPath);
-  const db = drizzle(sqlite, { schema: { pastes, shares } });
+  const db = drizzle(sqlite, { schema }) as DbInstance;
   migrate(db, { migrationsFolder: path.join(process.cwd(), "drizzle") });
   return { sqlite, db, tempDir };
 };
@@ -37,8 +41,8 @@ const createConfig = () =>
     tokenHashSecret: Buffer.from("share-secret-1234", "utf8"),
   });
 
-const insertPaste = (db: ReturnType<typeof drizzle>, id: string) => {
-  db.insert(pastes)
+const insertPaste = (db: DbInstance, id: string) => {
+  db.insert(schema.pastes)
     .values({
       id,
       ownerType: "admin",
@@ -61,7 +65,7 @@ test("valid share updates lastAccessAt", () => {
   try {
     insertPaste(fixture.db, "paste-1");
     fixture.db
-      .insert(shares)
+      .insert(schema.shares)
       .values({
         id: "share-1",
         pasteId: "paste-1",
@@ -83,8 +87,8 @@ test("valid share updates lastAccessAt", () => {
 
     const record = fixture.db
       .select()
-      .from(shares)
-      .where(eq(shares.id, "share-1"))
+      .from(schema.shares)
+      .where(eq(schema.shares.id, "share-1"))
       .get();
 
     assert.equal(record?.lastAccessAt, now);
@@ -104,7 +108,7 @@ test("expired share returns null", () => {
   try {
     insertPaste(fixture.db, "paste-2");
     fixture.db
-      .insert(shares)
+      .insert(schema.shares)
       .values({
         id: "share-2",
         pasteId: "paste-2",
@@ -137,7 +141,7 @@ test("revoked share returns null", () => {
   try {
     insertPaste(fixture.db, "paste-3");
     fixture.db
-      .insert(shares)
+      .insert(schema.shares)
       .values({
         id: "share-3",
         pasteId: "paste-3",
@@ -170,7 +174,7 @@ test("one-time share revokes after first access", () => {
   try {
     insertPaste(fixture.db, "paste-4");
     fixture.db
-      .insert(shares)
+      .insert(schema.shares)
       .values({
         id: "share-4",
         pasteId: "paste-4",
@@ -190,8 +194,8 @@ test("one-time share revokes after first access", () => {
 
     const record = fixture.db
       .select()
-      .from(shares)
-      .where(eq(shares.id, "share-4"))
+      .from(schema.shares)
+      .where(eq(schema.shares.id, "share-4"))
       .get();
 
     assert.equal(record?.revokedAt, now);

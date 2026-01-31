@@ -1,19 +1,22 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getTableConfig } from "drizzle-orm/sqlite-core";
+import {
+  getTableConfig,
+  type AnySQLiteColumn,
+  type AnySQLiteTable,
+} from "drizzle-orm/sqlite-core";
+import * as schema from "../../src/db/schema";
 
-const loadSchema = async () => {
-  const schemaModule = await import("../../src/db/schema.ts");
-  return (schemaModule.default ?? schemaModule) as any;
-};
-
-const getColumn = (table: any, name: string) => {
+const getColumn = (
+  table: AnySQLiteTable,
+  name: string
+): AnySQLiteColumn | undefined => {
   const config = getTableConfig(table);
-  return config.columns.find((col: any) => col.name === name);
+  return config.columns.find((col) => col.name === name);
 };
 
 test("pastes schema constraints", async () => {
-  const { pastes } = await loadSchema();
+  const { pastes } = schema;
   const id = getColumn(pastes, "id");
   const ownerType = getColumn(pastes, "owner_type");
   const cipher = getColumn(pastes, "content_ciphertext");
@@ -30,22 +33,24 @@ test("pastes schema constraints", async () => {
 });
 
 test("shares has unique token_hash index", async () => {
-  const { shares } = await loadSchema();
+  const { shares } = schema;
   const config = getTableConfig(shares);
-  const tokenIndex = config.indexes.find((idx: any) => idx.config?.name === "shares_token_hash_uniq");
+  const tokenIndex = config.indexes.find(
+    (idx) => idx.config?.name === "shares_token_hash_uniq"
+  );
   assert.ok(tokenIndex, "shares_token_hash_uniq index should exist");
   assert.equal(tokenIndex?.config?.unique, true);
 });
 
 test("sessions has expires_at index", async () => {
-  const { sessions } = await loadSchema();
+  const { sessions } = schema;
   const config = getTableConfig(sessions);
-  const indexNames = config.indexes.map((idx: any) => idx.config?.name);
+  const indexNames = config.indexes.map((idx) => idx.config?.name);
   assert.ok(indexNames.includes("sessions_expires_at_idx"));
 });
 
 test("settings value_json is required", async () => {
-  const { settings } = await loadSchema();
+  const { settings } = schema;
   const valueJson = getColumn(settings, "value_json");
   assert.equal(valueJson?.notNull, true);
 });

@@ -14,6 +14,8 @@
 | guest | 游客创建与管理密钥 | 📝 | [guest.md](./guest.md) |
 | admin-console | 管理后台配置/审计/清理 | 📝 | [admin-console.md](./admin-console.md) |
 | crypto | 加密/哈希工具封装 | 🚧 | [crypto.md](./crypto.md) |
+| rate-limit | 限流配置、key 生成与统一错误响应 | 🚧 | [rate-limit.md](./rate-limit.md) |
+| audit-log | 审计日志写入与查询 | 🚧 | [audit-log.md](./audit-log.md) |
 
 ## 模块依赖关系
 

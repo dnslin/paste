@@ -17,10 +17,10 @@ test("migrations run on empty database and are repeatable", () => {
   migrate(db, { migrationsFolder: path.join(process.cwd(), "drizzle") });
   migrate(db, { migrationsFolder: path.join(process.cwd(), "drizzle") });
 
-  const tables = sqlite
+  const rows = sqlite
     .prepare("SELECT name FROM sqlite_master WHERE type='table'")
-    .all()
-    .map((row: any) => row.name);
+    .all() as Array<{ name: string }>;
+  const tables = rows.map((row) => row.name);
 
   const expected = [
     "pastes",

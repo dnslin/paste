@@ -6,11 +6,12 @@ import path from "node:path";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import type { ReactElement } from "react";
 import { pastes, shares } from "../../src/db/schema";
 import { createCryptoConfig, hashToken } from "../../src/lib/crypto";
 
 let sharePage:
-  | ((props: { params: { token: string } }) => JSX.Element)
+  | ((props: { params: { token: string } }) => ReactElement)
   | null = null;
 let cleanup: (() => void) | null = null;
 
@@ -69,8 +70,8 @@ const setupSharePage = async () => {
 
   sqlite.close();
 
-  const module = await import("../../src/app/share/[token]/page");
-  sharePage = module.default;
+  const pageModule = await import("../../src/app/share/[token]/page");
+  sharePage = pageModule.default;
 
   cleanup = () => {
     if (envSnapshot.DATABASE_URL === undefined) {

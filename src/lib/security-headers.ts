@@ -9,17 +9,17 @@ export type CspOptions = {
 
 export const buildCsp = ({ isDev }: CspOptions): string => {
   const directives = [
-    "default-src self",
-    "base-uri self",
-    "object-src none",
-    "frame-ancestors none",
-    "form-action self",
-    "img-src self data: blob:",
-    "font-src self data:",
-    "style-src self unsafe-inline",
-    `script-src self unsafe-inline${isDev ? " unsafe-eval" : ""}`,
-    `connect-src self${isDev ? " ws: wss:" : ""}`,
-    "manifest-src self",
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "form-action 'self'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    "style-src 'self' 'unsafe-inline'",
+    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+    `connect-src 'self'${isDev ? " ws: wss:" : ""}`,
+    "manifest-src 'self'",
   ];
 
   if (!isDev) {

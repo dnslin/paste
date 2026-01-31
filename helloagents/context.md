@@ -30,7 +30,7 @@
 | CodeMirror 6 | 待定 | 代码编辑器 |
 | shiki | 待定 | 代码高亮 |
 | remark/rehype/rehype-sanitize | 待定 | Markdown 渲染与安全 |
-| rate-limiter-flexible | 待定 | 频率限制 |
+| rate-limiter-flexible | 9.0.1 | 频率限制 |
 | zod | 待定 | 输入校验 |
 | argon2 | ^0.44.0 | 密码 hash（argon2id） |
 | bcrypt | ^5.1.1 | 密码 hash（兼容） |

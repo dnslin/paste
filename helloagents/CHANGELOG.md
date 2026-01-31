@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-01-31
+
+### 新增
+- **[rate-limit]**: 限流基础服务与统一错误结构
+  - 方案: [202601312223_rate-limit-audit](archive/2026-01/202601312223_rate-limit-audit/)
+  - 决策: rate-limit-audit#D001(选用rate-limiter-flexible)
+- **[audit-log]**: 审计日志写入与查询能力
+  - 方案: [202601312223_rate-limit-audit](archive/2026-01/202601312223_rate-limit-audit/)
+
 ## [0.4.2] - 2026-01-31
 
 ### 修复

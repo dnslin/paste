@@ -32,6 +32,8 @@
 | remark/rehype/rehype-sanitize | 待定 | Markdown 渲染与安全 |
 | rate-limiter-flexible | 待定 | 频率限制 |
 | zod | 待定 | 输入校验 |
+| argon2 | ^0.44.0 | 密码 hash（argon2id） |
+| bcrypt | ^5.1.1 | 密码 hash（兼容） |
 
 ## 3. 项目概述
 

@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-01-31
+
+### 新增
+- **[crypto]**: 加密与哈希工具封装（AES-256-GCM、token hash、密码 hash）
+  - 方案: [202601311413_crypto-utils](archive/2026-01/202601311413_crypto-utils/)
+  - 决策: crypto-utils#D001(HMAC-SHA256), crypto-utils#D002(argon2id+兼容bcrypt)
+
 ## [0.2.0] - 2026-01-30
 
 ### 新增

@@ -9,6 +9,7 @@
 |--------|------|------|---------|------|------|
 | 202601301516 | gh-issue-create | standard | repo/pm/issue | gh-issue-create#D001 | ⏸ 未执行 |
 | 202601301721 | db-schema-migrations | implementation | db | db-schema-migrations#D001 | ✅完成 |
+| 202601311413 | crypto-utils | implementation | crypto | crypto-utils#D001,crypto-utils#D002 | ✅完成 |
 | {YYYYMMDDHHMM} | {feature} | {类型} | {模块列表} | {feature}#D001,#D002 | ✅完成 |
 
 ## 按月归档
@@ -16,6 +17,7 @@
 ### 2026-01
 - [202601301516_gh-issue-create](./2026-01/202601301516_gh-issue-create/) - 清理遗留方案包（未执行）
 - [202601301721_db-schema-migrations](./2026-01/202601301721_db-schema-migrations/) - 数据库 schema 与迁移
+- [202601311413_crypto-utils](./2026-01/202601311413_crypto-utils/) - 加密/哈希工具封装
 
 ### YYYY-MM
 - [YYYYMMDDHHMM_feature](./YYYY-MM/YYYYMMDDHHMM_feature/) - 一句话功能描述

@@ -6,6 +6,7 @@
 
 | 模块 | 职责 | 状态 | 文档 |
 |------|------|------|------|
+| ui-system | 设计令牌、全局样式与排版基线 | 📝 | [ui-system.md](./ui-system.md) |
 | db | 数据模型、迁移与数据库连接 | 🚧 | [db.md](./db.md) |
 | auth | 管理员登录、会话、鉴权 | 📝 | [auth.md](./auth.md) |
 | paste | 粘贴创建/编辑/删除/展示/列表 | 📝 | [paste.md](./paste.md) |

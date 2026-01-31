@@ -14,6 +14,7 @@
 | 202601312052 | share-access-validation | implementation | share | - | ✅完成 |
 | 202601312137 | share-access-race-fix | implementation | share | - | ✅完成 |
 | 202601312223 | rate-limit-audit | implementation | rate-limit/audit-log | rate-limit-audit#D001 | ✅完成 |
+| 202601312244 | design-tokens-global-styles | implementation | ui-system/app | - | ✅完成 |
 | {YYYYMMDDHHMM} | {feature} | {类型} | {模块列表} | {feature}#D001,#D002 | ✅完成 |
 
 ## 按月归档
@@ -26,6 +27,7 @@
 - [202601312052_share-access-validation](./2026-01/202601312052_share-access-validation/) - 分享访问校验/过期/一次性
 - [202601312137_share-access-race-fix](./2026-01/202601312137_share-access-race-fix/) - 一次性分享竞态修复
 - [202601312223_rate-limit-audit](./2026-01/202601312223_rate-limit-audit/) - 限流与审计日志基础设施
+- [202601312244_design-tokens-global-styles](./2026-01/202601312244_design-tokens-global-styles/) - 设计令牌与全局样式基线
 
 ### YYYY-MM
 - [YYYYMMDDHHMM_feature](./YYYY-MM/YYYYMMDDHHMM_feature/) - 一句话功能描述

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-01-31
+
+### 新增
+- **[ui-system]**: 设计令牌与全局样式基线（配色/圆角/字体/间距/像素点缀）
+  - 方案: [202601312244_design-tokens-global-styles](archive/2026-01/202601312244_design-tokens-global-styles/)
+
 ## [0.5.0] - 2026-01-31
 
 ### 新增

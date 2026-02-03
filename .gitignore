@@ -44,3 +44,4 @@ next-env.d.ts
 *.db-shm
 *.tmp
 pnpm-buildscripts.txt
+.sisyphus/

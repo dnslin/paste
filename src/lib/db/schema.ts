@@ -15,3 +15,14 @@ export const pastes = sqliteTable('pastes', {
 
 export type Paste = InferSelectModel<typeof pastes>;
 export type NewPaste = InferInsertModel<typeof pastes>;
+
+export const passwordAttempts = sqliteTable('password_attempts', {
+  id: text('id').primaryKey(),
+  pasteId: text('paste_id').notNull(),
+  ip: text('ip').notNull(),
+  attempts: integer('attempts').notNull().default(0),
+  lockedUntil: integer('locked_until', { mode: 'timestamp' }),
+});
+
+export type PasswordAttempt = InferSelectModel<typeof passwordAttempts>;
+export type NewPasswordAttempt = InferInsertModel<typeof passwordAttempts>;

@@ -94,7 +94,7 @@ export function CodeEditor({ value, onChange, language, maxLength = 500000 }: Co
         </button>
       </div>
 
-      <div className="relative min-h-[300px]">
+      <div className="relative min-h-[250px] sm:min-h-[300px]">
         {activeTab === 'edit' ? (
           <textarea
             data-testid="code-editor"
@@ -103,10 +103,10 @@ export function CodeEditor({ value, onChange, language, maxLength = 500000 }: Co
             onKeyDown={handleKeyDown}
             placeholder="Paste your code here..."
             spellCheck={false}
-            className="w-full h-full min-h-[300px] p-4 font-mono text-sm bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] resize-none outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-inset transition-shadow"
+            className="w-full h-full min-h-[250px] sm:min-h-[300px] p-3 sm:p-4 font-mono text-sm bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] resize-none outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-inset transition-shadow"
           />
         ) : (
-          <div className="w-full h-full min-h-[300px] p-4 overflow-auto">
+          <div className="w-full h-full min-h-[250px] sm:min-h-[300px] p-3 sm:p-4 overflow-auto">
             {isHighlighting ? (
               <div className="flex items-center justify-center h-full text-[var(--text-secondary)]">
                 Highlighting...
@@ -125,7 +125,7 @@ export function CodeEditor({ value, onChange, language, maxLength = 500000 }: Co
         )}
       </div>
 
-      <div className="flex items-center justify-between px-4 py-2 border-t border-[var(--border-subtle)] text-xs">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-t border-[var(--border-subtle)] text-xs">
         <span className={isOverLimit ? 'text-red-500 font-medium' : 'text-[var(--text-tertiary)]'}>
           {value.length.toLocaleString()} / {maxLength.toLocaleString()}
         </span>

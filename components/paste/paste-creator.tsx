@@ -79,7 +79,7 @@ export function PasteCreator() {
 
   return (
     <motion.div
-      className="flex flex-col gap-5 w-full"
+      className="flex flex-col gap-4 sm:gap-5 w-full"
       initial="initial"
       animate="animate"
       variants={stagger}

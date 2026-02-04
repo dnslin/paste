@@ -41,8 +41,8 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
   const burnValue = value.burnAfterRead === null ? 'off' : String(value.burnAfterRead)
 
   return (
-    <div className="flex gap-4 items-center flex-wrap">
-      <div className="relative w-[200px]">
+    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
+      <div className="relative w-full sm:w-[200px]">
         <Input
           type={showPassword ? 'text' : 'password'}
           placeholder="Optional password"
@@ -62,7 +62,7 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
       </div>
 
       <Select value={expiryValue} onValueChange={handleExpiryChange}>
-        <SelectTrigger data-testid="expiry-select" className="w-[140px]">
+        <SelectTrigger data-testid="expiry-select" className="w-full sm:w-[140px]">
           <SelectValue placeholder="过期时间" />
         </SelectTrigger>
         <SelectContent>
@@ -77,7 +77,7 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
       </Select>
 
       <Select value={burnValue} onValueChange={handleBurnChange}>
-        <SelectTrigger data-testid="burn-select" className="w-[140px]">
+        <SelectTrigger data-testid="burn-select" className="w-full sm:w-[140px]">
           <SelectValue placeholder="阅后即焚" />
         </SelectTrigger>
         <SelectContent>

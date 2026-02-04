@@ -1,11 +1,16 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-const SESSION_SECRET = new TextEncoder().encode(
-  process.env.SESSION_SECRET || 'fallback-secret-for-development'
-);
 const SESSION_COOKIE_NAME = 'admin_session';
 const SESSION_DURATION = 60 * 60 * 24 * 7;
+
+function getSessionSecret(): Uint8Array {
+  const secretKey = process.env.SESSION_SECRET;
+  if (!secretKey && process.env.NODE_ENV === 'production') {
+    throw new Error('SESSION_SECRET environment variable must be set in production');
+  }
+  return new TextEncoder().encode(secretKey || 'fallback-secret-for-development');
+}
 
 interface SessionPayload {
   isAdmin: boolean;
@@ -18,12 +23,12 @@ export async function encrypt(payload: Omit<SessionPayload, 'iat' | 'exp'>): Pro
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_DURATION}s`)
-    .sign(SESSION_SECRET);
+    .sign(getSessionSecret());
 }
 
 export async function decrypt(token: string): Promise<SessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, SESSION_SECRET, {
+    const { payload } = await jwtVerify(token, getSessionSecret(), {
       algorithms: ['HS256'],
     });
     return payload as unknown as SessionPayload;

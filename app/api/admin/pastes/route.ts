@@ -3,14 +3,8 @@ import { db } from '@/src/lib/db';
 import { pastes } from '@/src/lib/db/schema';
 import { desc, count } from 'drizzle-orm';
 import { verifySession } from '@/lib/admin/session';
+import { getPasteStatus } from '@/lib/admin/utils';
 import { success, error, UNAUTHORIZED, INTERNAL_ERROR } from '@/lib/api-response';
-
-function getPasteStatus(paste: { expiresAt: Date | null; burnCount: number | null }): string {
-  const now = new Date();
-  if (paste.expiresAt && paste.expiresAt < now) return 'expired';
-  if (paste.burnCount !== null && paste.burnCount <= 0) return 'destroyed';
-  return 'active';
-}
 
 export async function GET(request: NextRequest) {
   try {

@@ -4,14 +4,8 @@ import { pastes } from '@/src/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { decrypt } from '@/src/lib/crypto';
 import { verifySession } from '@/lib/admin/session';
+import { getPasteStatus } from '@/lib/admin/utils';
 import { success, error, UNAUTHORIZED, NOT_FOUND, INTERNAL_ERROR } from '@/lib/api-response';
-
-function getPasteStatus(paste: { expiresAt: Date | null; burnCount: number | null }): string {
-  const now = new Date();
-  if (paste.expiresAt && paste.expiresAt < now) return 'expired';
-  if (paste.burnCount !== null && paste.burnCount <= 0) return 'destroyed';
-  return 'active';
-}
 
 interface RouteParams {
   params: Promise<{ id: string }>;

@@ -21,27 +21,38 @@ interface DeleteConfirmModalProps {
 
 export function DeleteConfirmModal({ pasteId, open, onOpenChange, onConfirm }: DeleteConfirmModalProps) {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleDelete = async () => {
     if (!pasteId) return
     
     setLoading(true)
+    setError(null)
     try {
       const res = await fetch(`/api/admin/pastes/${pasteId}`, { method: 'DELETE' })
       const data = await res.json()
       if (data.success) {
         onConfirm()
         onOpenChange(false)
+      } else {
+        setError(data.error?.message || 'Failed to delete paste')
       }
-    } catch (error) {
-      console.error('Delete error:', error)
+    } catch {
+      setError('Failed to delete paste. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      setError(null)
+    }
+    onOpenChange(newOpen)
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md bg-[var(--bg-surface)]">
         <DialogHeader>
           <div className="flex items-center gap-3">
@@ -54,8 +65,15 @@ export function DeleteConfirmModal({ pasteId, open, onOpenChange, onConfirm }: D
             Are you sure you want to delete this paste? This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
+        
+        {error && (
+          <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3">
+            <p className="text-sm text-red-500">{error}</p>
+          </div>
+        )}
+        
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+          <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={loading}>
             Cancel
           </Button>
           <Button variant="destructive" onClick={handleDelete} disabled={loading}>

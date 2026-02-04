@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Database, CalendarPlus, Activity } from 'lucide-react'
+import { Database, CalendarPlus, Activity, AlertCircle } from 'lucide-react'
 
 interface Stats {
   total: number
@@ -12,6 +12,7 @@ interface Stats {
 export function StatsCards() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/admin/stats')
@@ -19,9 +20,11 @@ export function StatsCards() {
       .then((data) => {
         if (data.success) {
           setStats(data.data)
+        } else {
+          setError(data.error?.message || 'Failed to load stats')
         }
       })
-      .catch(console.error)
+      .catch(() => setError('Failed to load stats'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -30,6 +33,15 @@ export function StatsCards() {
     { label: 'Today', value: stats?.todayCount ?? 0, icon: CalendarPlus },
     { label: 'Active', value: stats?.activeCount ?? 0, icon: Activity },
   ]
+
+  if (error) {
+    return (
+      <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-3">
+        <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+        <p className="text-sm text-red-500">{error}</p>
+      </div>
+    )
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

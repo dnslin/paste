@@ -10,7 +10,11 @@
   --accent-primary: #f59e0b;
   --text-primary: #fafafa;
   --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --text-tertiary: #52525b;
   --border-subtle: #27272a;
+  --border-default: #3f3f46;
+  --border-strong: #52525b;
   --space-6: 24px;
   --radius: 0.625rem;
 }
@@ -112,4 +116,34 @@
   -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
   opacity: 0.4;
   pointer-events: none;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
+.scrollbar-sm::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) var(--bg-base);
 }

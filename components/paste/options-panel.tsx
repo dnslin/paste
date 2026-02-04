@@ -44,12 +44,13 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {/* Password Protection */}
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
+        <label htmlFor="password-input" className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
           <Lock className="size-4" />
           密码保护
         </label>
         <div className="relative">
           <Input
+            id="password-input"
             type={showPassword ? 'text' : 'password'}
             placeholder="留空则不设密码"
             value={value.password}
@@ -72,12 +73,12 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
 
       {/* Expiration Time */}
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
+        <label id="expiry-label" className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
           <Clock className="size-4" />
           过期时间
         </label>
         <Select value={expiryValue} onValueChange={handleExpiryChange}>
-          <SelectTrigger data-testid="expiry-select" className="w-full">
+          <SelectTrigger data-testid="expiry-select" aria-labelledby="expiry-label" className="w-full">
             <SelectValue placeholder="选择过期时间" />
           </SelectTrigger>
           <SelectContent>
@@ -95,12 +96,12 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
 
       {/* Burn After Read */}
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
+        <label id="burn-label" className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
           <Flame className="size-4" />
           阅后即焚
         </label>
         <Select value={burnValue} onValueChange={handleBurnChange}>
-          <SelectTrigger data-testid="burn-select" className="w-full">
+          <SelectTrigger data-testid="burn-select" aria-labelledby="burn-label" className="w-full">
             <SelectValue placeholder="选择查看次数" />
           </SelectTrigger>
           <SelectContent>

@@ -26,7 +26,7 @@ export default async function PastePage({ params }: PageProps) {
     paste = result[0]
   } catch {
     return (
-      <div className="relative min-h-screen bg-(--bg-base) overflow-hidden">
+      <div className="relative min-h-screen bg-(--bg-base)">
         <div className="retro-grid" />
         <main className="relative mx-auto flex min-h-screen max-w-225 flex-col items-center px-6 py-8">
           <div className="w-full max-w-175">
@@ -66,7 +66,7 @@ export default async function PastePage({ params }: PageProps) {
   }
   
   return (
-    <div className="relative min-h-screen bg-(--bg-base) overflow-hidden">
+    <div className="relative min-h-screen bg-(--bg-base)">
       <div className="retro-grid" />
       <main className="relative mx-auto flex min-h-screen max-w-225 flex-col items-center px-6 py-8">
         <div className="w-full max-w-175">

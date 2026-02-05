@@ -51,7 +51,7 @@ function StatCard({ label, value, icon: Icon, trend, changePercent }: StatCardPr
       </div>
       {trend && trend.length > 0 && (
         <div className="mt-4 h-10">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
             <AreaChart data={trend}>
               <defs>
                 <linearGradient id={`gradient-${label}`} x1="0" y1="0" x2="0" y2="1">

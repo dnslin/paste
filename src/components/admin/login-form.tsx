@@ -53,6 +53,7 @@ export function LoginForm() {
         onChange={(e) => setPassword(e.target.value)}
         disabled={status === 'loading'}
         className="bg-(--bg-base)"
+        autoComplete="current-password"
         autoFocus
       />
 

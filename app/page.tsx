@@ -3,9 +3,9 @@ import { Logo } from '@/components/logo'
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen bg-(--bg-base) overflow-hidden">
+    <div className="relative min-h-screen bg-(--bg-base)">
       <div className="retro-grid" />
-      <main className="relative mx-auto flex h-screen max-w-225 flex-col items-center px-6 py-8">
+      <main className="relative mx-auto flex min-h-screen max-w-225 flex-col items-center px-6 py-8">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-2">
             <Logo />

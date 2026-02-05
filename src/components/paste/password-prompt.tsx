@@ -80,6 +80,7 @@ export function PasswordPrompt({ pasteId, onSuccess }: PasswordPromptProps) {
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLocked || status === 'loading'}
             className="bg-(--bg-base)"
+            autoComplete="off"
             autoFocus
           />
 

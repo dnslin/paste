@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Eye, Trash2, Loader2 } from 'lucide-react'
+import { Eye, Trash2, Loader2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Pagination } from './pagination'
 import { PasteDetailModal } from './paste-detail-modal'
@@ -25,6 +25,7 @@ interface PastesResponse {
 export function PastesTable() {
   const [data, setData] = useState<PastesResponse | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [selectedPasteId, setSelectedPasteId] = useState<string | null>(null)
   const [detailModalOpen, setDetailModalOpen] = useState(false)
@@ -32,14 +33,17 @@ export function PastesTable() {
 
   const fetchPastes = useCallback(async () => {
     setLoading(true)
+    setError(null)
     try {
       const res = await fetch(`/api/admin/pastes?page=${page}`)
       const result = await res.json()
       if (result.success) {
         setData(result.data)
+      } else {
+        setError(result.error?.message || 'Failed to load pastes')
       }
-    } catch (error) {
-      console.error('Fetch error:', error)
+    } catch {
+      setError('Failed to load pastes. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -72,6 +76,20 @@ export function PastesTable() {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="w-6 h-6 animate-spin text-[var(--text-secondary)]" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          <p className="text-sm text-red-500">{error}</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={fetchPastes}>
+          Retry
+        </Button>
       </div>
     )
   }

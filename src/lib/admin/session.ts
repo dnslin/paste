@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-const SESSION_COOKIE_NAME = 'admin_session';
+export const SESSION_COOKIE_NAME = 'admin_session';
 const SESSION_DURATION = 60 * 60 * 24 * 7;
 
 function getSessionSecret(): Uint8Array {

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { decrypt } from '@/lib/admin/session';
-
-const SESSION_COOKIE_NAME = 'admin_session';
+import { decrypt, SESSION_COOKIE_NAME } from '@/lib/admin/session';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

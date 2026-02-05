@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Database, CalendarPlus, Activity, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react'
+import { Database, CalendarPlus, Activity } from 'lucide-react'
 import { AreaChart, Area, ResponsiveContainer } from 'recharts'
 
 interface DailyTrend {
@@ -16,19 +15,8 @@ interface Stats {
   dailyTrend: DailyTrend[]
 }
 
-function StatCardSkeleton() {
-  return (
-    <div className="rounded-lg bg-(--bg-surface) border border-(--border-subtle) p-6">
-      <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-full bg-(--bg-elevated) animate-pulse" />
-        <div className="flex-1">
-          <div className="h-8 w-20 bg-(--bg-elevated) rounded animate-pulse mb-1" />
-          <div className="h-4 w-24 bg-(--bg-elevated) rounded animate-pulse" />
-        </div>
-      </div>
-      <div className="mt-4 h-10 bg-(--bg-elevated) rounded animate-pulse" />
-    </div>
-  )
+interface StatsCardsProps {
+  data: Stats
 }
 
 interface StatCardProps {
@@ -57,11 +45,6 @@ function StatCard({ label, value, icon: Icon, trend, changePercent }: StatCardPr
         </div>
         {showChange && (
           <div className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-            {isPositive ? (
-              <TrendingUp className="w-4 h-4" />
-            ) : (
-              <TrendingDown className="w-4 h-4" />
-            )}
             <span>{isPositive ? '+' : ''}{changePercent.toFixed(0)}%</span>
           </div>
         )}
@@ -91,45 +74,8 @@ function StatCard({ label, value, icon: Icon, trend, changePercent }: StatCardPr
   )
 }
 
-export function StatsCards() {
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    fetch('/api/admin/stats')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setStats(data.data)
-        } else {
-          setError(data.error?.message || 'Failed to load stats')
-        }
-      })
-      .catch(() => setError('Failed to load stats'))
-      .finally(() => setLoading(false))
-  }, [])
-
-  if (error) {
-    return (
-      <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-3">
-        <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
-        <p className="text-sm text-red-500">{error}</p>
-      </div>
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCardSkeleton />
-        <StatCardSkeleton />
-        <StatCardSkeleton />
-      </div>
-    )
-  }
-
-  const dailyTrend = stats?.dailyTrend || []
+export function StatsCards({ data }: StatsCardsProps) {
+  const dailyTrend = data.dailyTrend || []
   const todayCount = dailyTrend.length > 0 ? dailyTrend[dailyTrend.length - 1]?.count || 0 : 0
   const yesterdayCount = dailyTrend.length > 1 ? dailyTrend[dailyTrend.length - 2]?.count || 0 : 0
   const changePercent = yesterdayCount > 0 ? ((todayCount - yesterdayCount) / yesterdayCount) * 100 : 0
@@ -137,19 +83,19 @@ export function StatsCards() {
   const cards = [
     { 
       label: 'Total Pastes', 
-      value: stats?.total ?? 0, 
+      value: data.total, 
       icon: Database,
       trend: dailyTrend,
     },
     { 
       label: 'Today', 
-      value: stats?.todayCount ?? 0, 
+      value: data.todayCount, 
       icon: CalendarPlus,
       changePercent: changePercent,
     },
     { 
       label: 'Active', 
-      value: stats?.activeCount ?? 0, 
+      value: data.activeCount, 
       icon: Activity,
     },
   ]

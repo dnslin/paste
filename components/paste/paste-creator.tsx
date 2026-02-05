@@ -86,7 +86,7 @@ export function PasteCreator() {
     >
       <motion.div variants={fadeUp}>
         <div className="flex items-center gap-3 mb-2">
-          <span className="text-sm font-medium text-[var(--text-secondary)]">
+          <span className="text-sm font-medium text-(--text-secondary)">
             Language
           </span>
           <LanguageSelector value={language} onChange={setLanguage} />

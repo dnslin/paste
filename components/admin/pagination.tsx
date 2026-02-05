@@ -12,7 +12,7 @@ interface PaginationProps {
 export function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
   return (
     <div className="flex items-center justify-between">
-      <p className="text-sm text-[var(--text-secondary)]">
+      <p className="text-sm text-(--text-secondary)">
         Page {page} of {totalPages}
       </p>
       <div className="flex gap-2">

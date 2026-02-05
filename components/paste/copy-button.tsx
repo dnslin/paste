@@ -61,7 +61,7 @@ export function CopyButton({ content, className }: CopyButtonProps) {
       onClick={handleCopy}
       className={cn(
         'transition-colors',
-        copied && 'text-[var(--success)]',
+        copied && 'text-(--success)',
         className
       )}
       aria-label={copied ? 'Copied' : 'Copy to clipboard'}

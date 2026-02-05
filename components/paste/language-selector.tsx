@@ -37,7 +37,7 @@ export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-50 justify-between"
           data-testid="language-selector"
         >
           <span className="flex items-center gap-2">
@@ -47,7 +47,7 @@ export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-50 p-0">
         <Command
           filter={(value, search) => {
             const lang = LANGUAGES.find((l) => l.id === value)
@@ -60,7 +60,7 @@ export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
           }}
         >
           <CommandInput placeholder="Search language..." />
-          <CommandList className="max-h-[300px]">
+          <CommandList className="max-h-75">
             <CommandEmpty>No language found.</CommandEmpty>
             <CommandGroup>
               {LANGUAGES.map((lang) => (

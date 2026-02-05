@@ -8,12 +8,12 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen bg-[var(--bg-base)]">
+    <div className="flex min-h-screen bg-(--bg-base)">
       {/* Sidebar */}
-      <aside className="w-60 border-r border-[var(--border-subtle)] bg-[var(--bg-surface)] flex flex-col">
+      <aside className="w-60 border-r border-(--border-subtle) bg-(--bg-surface) flex flex-col">
         {/* Logo */}
-        <div className="p-6 border-b border-[var(--border-subtle)]">
-          <h1 className="text-lg font-semibold text-[var(--accent-primary)]">
+        <div className="p-6 border-b border-(--border-subtle)">
+          <h1 className="text-lg font-semibold text-(--accent-primary)">
             Paste Admin
           </h1>
         </div>
@@ -22,7 +22,7 @@ export default function AdminLayout({
         <nav className="flex-1 p-4">
           <Link
             href="/admin"
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--bg-elevated) transition-colors"
           >
             <ClipboardList className="w-5 h-5" />
             <span>Pastes</span>
@@ -30,7 +30,7 @@ export default function AdminLayout({
         </nav>
 
         {/* Logout */}
-        <div className="p-4 border-t border-[var(--border-subtle)]">
+        <div className="p-4 border-t border-(--border-subtle)">
           <LogoutButton />
         </div>
       </aside>

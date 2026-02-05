@@ -59,15 +59,15 @@ export function PasswordPrompt({ pasteId, onSuccess }: PasswordPromptProps) {
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-md mx-auto"
     >
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-8">
+      <div className="rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-8">
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-12 h-12 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-subtle)] flex items-center justify-center mb-4">
-            <Lock className="w-6 h-6 text-[var(--accent-primary)]" aria-hidden="true" />
+          <div className="w-12 h-12 rounded-full bg-(--bg-elevated) border border-(--border-subtle) flex items-center justify-center mb-4">
+            <Lock className="w-6 h-6 text-(--accent-primary)" aria-hidden="true" />
           </div>
-          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+          <h2 className="text-xl font-semibold text-(--text-primary) mb-2">
             Password Required
           </h2>
-          <p className="text-sm text-[var(--text-secondary)]">
+          <p className="text-sm text-(--text-secondary)">
             This paste is password protected
           </p>
         </div>
@@ -79,7 +79,7 @@ export function PasswordPrompt({ pasteId, onSuccess }: PasswordPromptProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLocked || status === 'loading'}
-            className="bg-[var(--bg-base)]"
+            className="bg-(--bg-base)"
             autoFocus
           />
 
@@ -110,9 +110,9 @@ export function PasswordPrompt({ pasteId, onSuccess }: PasswordPromptProps) {
             }`}
           >
             {isLocked ? (
-              <Clock className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+              <Clock className="w-4 h-4 shrink-0" aria-hidden="true" />
             ) : (
-              <AlertCircle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+              <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
             )}
             <span>{errorMessage}</span>
           </motion.div>

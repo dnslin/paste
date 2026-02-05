@@ -104,30 +104,30 @@ export function PasteViewer({
 
   if (initialStatus === 'not_found') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center" role="status">
-        <FileX className="size-16 text-[var(--text-muted)] mb-4" aria-hidden="true" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Paste Not Found</h2>
-        <p className="mt-2 text-[var(--text-secondary)]">This paste doesn&apos;t exist or has been deleted.</p>
+      <div className="flex flex-col items-center justify-center min-h-100 text-center" role="status">
+        <FileX className="size-16 text-(--text-muted) mb-4" aria-hidden="true" />
+        <h2 className="text-xl font-semibold text-(--text-primary)">Paste Not Found</h2>
+        <p className="mt-2 text-(--text-secondary)">This paste doesn&apos;t exist or has been deleted.</p>
       </div>
     )
   }
 
   if (initialStatus === 'expired') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center" role="status">
-        <Clock className="size-16 text-[var(--text-muted)] mb-4" aria-hidden="true" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Paste Expired</h2>
-        <p className="mt-2 text-[var(--text-secondary)]">This paste has expired and is no longer available.</p>
+      <div className="flex flex-col items-center justify-center min-h-100 text-center" role="status">
+        <Clock className="size-16 text-(--text-muted) mb-4" aria-hidden="true" />
+        <h2 className="text-xl font-semibold text-(--text-primary)">Paste Expired</h2>
+        <p className="mt-2 text-(--text-secondary)">This paste has expired and is no longer available.</p>
       </div>
     )
   }
 
   if (initialStatus === 'destroyed') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center" role="status">
+      <div className="flex flex-col items-center justify-center min-h-100 text-center" role="status">
         <Flame className="size-16 text-amber-500 mb-4" aria-hidden="true" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Paste Destroyed</h2>
-        <p className="mt-2 text-[var(--text-secondary)]">This paste has been viewed the maximum number of times and is now destroyed.</p>
+        <h2 className="text-xl font-semibold text-(--text-primary)">Paste Destroyed</h2>
+        <p className="mt-2 text-(--text-secondary)">This paste has been viewed the maximum number of times and is now destroyed.</p>
       </div>
     )
   }
@@ -152,12 +152,12 @@ export function PasteViewer({
         )}
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-[var(--text-secondary)]">{currentLanguage}</span>
+          <span className="text-sm text-(--text-secondary)">{currentLanguage}</span>
           <CopyButton content={content} />
         </div>
 
         <div 
-          className="rounded-lg overflow-hidden border border-[var(--border-subtle)] bg-[#121212] p-4 text-sm font-mono overflow-x-auto"
+          className="rounded-lg overflow-hidden border border-(--border-subtle) bg-[#121212] p-4 text-sm font-mono overflow-x-auto"
           dangerouslySetInnerHTML={{ __html: highlightedHtml || `<pre>${escapeHtml(content)}</pre>` }} 
         />
       </div>

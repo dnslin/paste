@@ -44,7 +44,7 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {/* Password Protection */}
       <div className="space-y-2">
-        <label htmlFor="password-input" className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
+        <label htmlFor="password-input" className="flex items-center gap-2 text-sm font-medium text-(--text-secondary)">
           <Lock className="size-4" />
           密码保护
         </label>
@@ -68,12 +68,12 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
             {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
           </button>
         </div>
-        <p className="text-xs text-[var(--text-muted)]">访问时需要输入密码</p>
+        <p className="text-xs text-(--text-muted)">访问时需要输入密码</p>
       </div>
 
       {/* Expiration Time */}
       <div className="space-y-2">
-        <label id="expiry-label" className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
+        <label id="expiry-label" className="flex items-center gap-2 text-sm font-medium text-(--text-secondary)">
           <Clock className="size-4" />
           过期时间
         </label>
@@ -91,12 +91,12 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
             <SelectItem value="never">永不过期</SelectItem>
           </SelectContent>
         </Select>
-        <p className="text-xs text-[var(--text-muted)]">到期后自动删除</p>
+        <p className="text-xs text-(--text-muted)">到期后自动删除</p>
       </div>
 
       {/* Burn After Read */}
       <div className="space-y-2">
-        <label id="burn-label" className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
+        <label id="burn-label" className="flex items-center gap-2 text-sm font-medium text-(--text-secondary)">
           <Flame className="size-4" />
           阅后即焚
         </label>
@@ -112,7 +112,7 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
             <SelectItem value="10">10次后删除</SelectItem>
           </SelectContent>
         </Select>
-        <p className="text-xs text-[var(--text-muted)]">达到次数后自动删除</p>
+        <p className="text-xs text-(--text-muted)">达到次数后自动删除</p>
       </div>
     </div>
   )

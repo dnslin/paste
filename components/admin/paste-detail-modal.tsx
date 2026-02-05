@@ -51,32 +51,32 @@ export function PasteDetailModal({ pasteId, open, onOpenChange }: PasteDetailMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl bg-[var(--bg-surface)]">
+      <DialogContent className="max-w-2xl bg-(--bg-surface)">
         <DialogHeader>
           <DialogTitle>Paste Details</DialogTitle>
         </DialogHeader>
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-[var(--text-secondary)]" />
+            <Loader2 className="w-6 h-6 animate-spin text-(--text-secondary)" />
           </div>
         ) : paste ? (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-[var(--text-secondary)]">ID</p>
-                <p className="font-mono text-[var(--text-primary)]">{paste.id}</p>
+                <p className="text-(--text-secondary)">ID</p>
+                <p className="font-mono text-(--text-primary)">{paste.id}</p>
               </div>
               <div>
-                <p className="text-[var(--text-secondary)]">Language</p>
-                <p className="text-[var(--text-primary)] capitalize">{paste.language}</p>
+                <p className="text-(--text-secondary)">Language</p>
+                <p className="text-(--text-primary) capitalize">{paste.language}</p>
               </div>
               <div>
-                <p className="text-[var(--text-secondary)]">Created</p>
-                <p className="text-[var(--text-primary)]">{formatDate(paste.createdAt)}</p>
+                <p className="text-(--text-secondary)">Created</p>
+                <p className="text-(--text-primary)">{formatDate(paste.createdAt)}</p>
               </div>
               <div>
-                <p className="text-[var(--text-secondary)]">Status</p>
+                <p className="text-(--text-secondary)">Status</p>
                 <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
                   paste.status === 'active' ? 'bg-green-500/20 text-green-400' :
                   paste.status === 'expired' ? 'bg-zinc-500/20 text-zinc-400' :
@@ -87,21 +87,21 @@ export function PasteDetailModal({ pasteId, open, onOpenChange }: PasteDetailMod
               </div>
               {paste.expiresAt && (
                 <div>
-                  <p className="text-[var(--text-secondary)]">Expires</p>
-                  <p className="text-[var(--text-primary)]">{formatDate(paste.expiresAt)}</p>
+                  <p className="text-(--text-secondary)">Expires</p>
+                  <p className="text-(--text-primary)">{formatDate(paste.expiresAt)}</p>
                 </div>
               )}
               {paste.burnCount !== null && (
                 <div>
-                  <p className="text-[var(--text-secondary)]">Burn Count</p>
-                  <p className="text-[var(--text-primary)]">{paste.burnCount}</p>
+                  <p className="text-(--text-secondary)">Burn Count</p>
+                  <p className="text-(--text-primary)">{paste.burnCount}</p>
                 </div>
               )}
             </div>
 
             <div>
-              <p className="text-[var(--text-secondary)] text-sm mb-2">Content</p>
-              <pre className="bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-lg p-4 overflow-auto max-h-[300px] text-sm font-mono text-[var(--text-primary)]">
+              <p className="text-(--text-secondary) text-sm mb-2">Content</p>
+              <pre className="bg-(--bg-base) border border-(--border-subtle) rounded-lg p-4 overflow-auto max-h-75 text-sm font-mono text-(--text-primary)">
                 {paste.content}
               </pre>
             </div>

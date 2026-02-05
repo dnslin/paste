@@ -53,7 +53,7 @@ export function DeleteConfirmModal({ pasteId, open, onOpenChange, onConfirm }: D
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-md bg-[var(--bg-surface)]">
+      <DialogContent className="max-w-md bg-(--bg-surface)">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">

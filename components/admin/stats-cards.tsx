@@ -37,7 +37,7 @@ export function StatsCards() {
   if (error) {
     return (
       <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-3">
-        <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+        <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
         <p className="text-sm text-red-500">{error}</p>
       </div>
     )
@@ -48,19 +48,19 @@ export function StatsCards() {
       {cards.map((card) => (
         <div
           key={card.label}
-          className="rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] p-6"
+          className="rounded-lg bg-(--bg-surface) border border-(--border-subtle) p-6"
         >
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-[var(--bg-elevated)] flex items-center justify-center">
-              <card.icon className="w-5 h-5 text-[var(--accent-primary)]" />
+            <div className="w-10 h-10 rounded-full bg-(--bg-elevated) flex items-center justify-center">
+              <card.icon className="w-5 h-5 text-(--accent-primary)" />
             </div>
             <div>
               {loading ? (
-                <div className="h-8 w-16 bg-[var(--bg-elevated)] rounded animate-pulse" />
+                <div className="h-8 w-16 bg-(--bg-elevated) rounded animate-pulse" />
               ) : (
-                <p className="text-2xl font-bold text-[var(--text-primary)]">{card.value}</p>
+                <p className="text-2xl font-bold text-(--text-primary)">{card.value}</p>
               )}
-              <p className="text-sm text-[var(--text-secondary)]">{card.label}</p>
+              <p className="text-sm text-(--text-secondary)">{card.label}</p>
             </div>
           </div>
         </div>

@@ -75,7 +75,7 @@ export function PastesTable() {
   if (loading && !data) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-[var(--text-secondary)]" />
+        <Loader2 className="w-6 h-6 animate-spin text-(--text-secondary)" />
       </div>
     )
   }
@@ -84,7 +84,7 @@ export function PastesTable() {
     return (
       <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
           <p className="text-sm text-red-500">{error}</p>
         </div>
         <Button variant="outline" size="sm" onClick={fetchPastes}>
@@ -96,7 +96,7 @@ export function PastesTable() {
 
   if (!data || data.items.length === 0) {
     return (
-      <div className="text-center py-12 text-[var(--text-secondary)]">
+      <div className="text-center py-12 text-(--text-secondary)">
         No pastes found
       </div>
     )
@@ -104,27 +104,27 @@ export function PastesTable() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+      <div className="rounded-lg border border-(--border-subtle) overflow-hidden">
         <table className="w-full">
-          <thead className="bg-[var(--bg-elevated)]">
+          <thead className="bg-(--bg-elevated)">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-secondary)]">ID</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-secondary)]">Created</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-secondary)]">Language</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-secondary)]">Status</th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-[var(--text-secondary)]">Actions</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">ID</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">Created</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">Language</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">Status</th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-(--text-secondary)">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--border-subtle)]">
+          <tbody className="divide-y divide-(--border-subtle)">
             {data.items.map((item) => (
-              <tr key={item.id} className="hover:bg-[var(--bg-elevated)]/50">
-                <td className="px-4 py-3 font-mono text-sm text-[var(--text-primary)]">
+              <tr key={item.id} className="hover:bg-(--bg-elevated)/50">
+                <td className="px-4 py-3 font-mono text-sm text-(--text-primary)">
                   {item.id.slice(0, 8)}
                 </td>
-                <td className="px-4 py-3 text-sm text-[var(--text-primary)]">
+                <td className="px-4 py-3 text-sm text-(--text-primary)">
                   {formatDate(item.createdAt)}
                 </td>
-                <td className="px-4 py-3 text-sm text-[var(--text-primary)] capitalize">
+                <td className="px-4 py-3 text-sm text-(--text-primary) capitalize">
                   {item.language}
                 </td>
                 <td className="px-4 py-3">

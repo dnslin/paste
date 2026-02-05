@@ -67,16 +67,16 @@ export function SuccessDialog({
               animate={reduced ? {} : { scale: 1 }}
               transition={{ type: 'spring', stiffness: 500, damping: 25 }}
             >
-              <Sparkles className="size-5 text-[var(--accent-primary)]" />
+              <Sparkles className="size-5 text-(--accent-primary)" />
             </motion.span>
             Paste Created!
           </DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)]">
-            <Link className="size-4 text-[var(--text-tertiary)] shrink-0" />
-            <code className="flex-1 text-sm text-[var(--text-primary)] break-all font-mono">
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-(--bg-elevated) border border-(--border-subtle)">
+            <Link className="size-4 text-(--text-tertiary) shrink-0" />
+            <code className="flex-1 text-sm text-(--text-primary) break-all font-mono">
               {url}
             </code>
           </div>
@@ -87,7 +87,7 @@ export function SuccessDialog({
                 initial={reduced ? {} : { opacity: 0, y: -10 }}
                 animate={reduced ? {} : { opacity: 1, y: 0 }}
                 exit={reduced ? {} : { opacity: 0 }}
-                className="text-sm text-[var(--accent-primary)] flex items-center gap-1.5"
+                className="text-sm text-(--accent-primary) flex items-center gap-1.5"
               >
                 <Check className="size-4" />
                 Link copied to clipboard!

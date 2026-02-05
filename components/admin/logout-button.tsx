@@ -26,7 +26,7 @@ export function LogoutButton() {
       size="sm"
       onClick={handleLogout}
       disabled={loading}
-      className="w-full justify-start text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      className="w-full justify-start text-(--text-secondary) hover:text-(--text-primary)"
     >
       {loading ? (
         <Loader2 className="w-4 h-4 animate-spin mr-2" />

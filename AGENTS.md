@@ -17,15 +17,17 @@ paste/
 │   ├── api/admin/       # Admin API (login/stats/manage)
 │   ├── admin/           # Admin dashboard pages
 │   └── [id]/            # Dynamic paste viewer
-├── components/
-│   ├── paste/           # Core business components (creator/viewer)
-│   ├── ui/              # shadcn/ui (DO NOT MODIFY)
-│   └── admin/           # Admin dashboard components
-├── src/lib/             # Core business logic
-│   ├── db/              # Drizzle ORM + SQLite schema
-│   ├── admin/           # Admin session/auth utils
-│   └── *.ts             # crypto, nanoid, rate-limit, api-response
-├── lib/                 # Shared utilities (languages, utils)
+├── src/
+│   ├── components/
+│   │   ├── paste/       # Core business components (creator/viewer)
+│   │   ├── ui/          # shadcn/ui (DO NOT MODIFY)
+│   │   └── admin/       # Admin dashboard components
+│   └── lib/             # All utilities and business logic
+│       ├── db/          # Drizzle ORM + SQLite schema
+│       ├── admin/       # Admin session/auth utils
+│       ├── utils.ts     # shadcn cn() utility
+│       ├── languages.ts # Shiki supported languages
+│       └── *.ts         # crypto, nanoid, rate-limit, api-response
 ├── data/                # SQLite database file
 └── drizzle/             # Database migrations
 ```
@@ -34,18 +36,18 @@ paste/
 
 | Task | Location | Notes |
 |------|----------|-------|
-| 创建 paste | `components/paste/paste-creator.tsx` | Client component, framer-motion |
-| 查看 paste | `components/paste/paste-viewer.tsx` | Shiki 高亮, burn-after-read |
+| 创建 paste | `src/components/paste/paste-creator.tsx` | Client component, framer-motion |
+| 查看 paste | `src/components/paste/paste-viewer.tsx` | Shiki 高亮, burn-after-read |
 | Paste API | `app/api/pastes/route.ts` | POST 创建, 含 rate-limit |
 | 数据库 schema | `src/lib/db/schema.ts` | pastes + passwordAttempts 表 |
 | 加密逻辑 | `src/lib/crypto.ts` | AES-256-GCM, 需 ENCRYPTION_KEY |
 | Admin 认证 | `src/lib/admin/session.ts` | JWT via jose, 需 SESSION_SECRET |
 | 路由保护 | `middleware.ts` | /admin/* 路由拦截 |
-| 语言列表 | `lib/languages.ts` | Shiki 支持的语言 |
+| 语言列表 | `src/lib/languages.ts` | Shiki 支持的语言 |
 
 ## CONVENTIONS
 
-**路径别名**: `@/*` 映射到根目录和 `./src/*`（双映射，优先用 `@/src/lib` 或 `@/components`）
+**路径别名**: `@/*` 映射到 `./src/*`（单一映射，如 `@/lib/*`、`@/components/*`）
 
 **组件模式**:
 - Server Component 默认，需交互时加 `'use client'`
@@ -60,7 +62,7 @@ paste/
 
 | 禁止 | 原因 |
 |------|------|
-| 修改 `components/ui/*` | shadcn/ui 组件，升级会覆盖 |
+| 修改 `src/components/ui/*` | shadcn/ui 组件，升级会覆盖 |
 | `as any` / `@ts-ignore` | 严格模式，PR 检查会拒绝 |
 | Barrel imports (`import * from`) | 影响 tree-shaking |
 | 串行 await（可并行时） | 性能问题 |

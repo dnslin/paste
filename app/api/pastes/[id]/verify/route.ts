@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHash, timingSafeEqual } from 'crypto';
-import { db } from '@/src/lib/db';
-import { pastes, passwordAttempts } from '@/src/lib/db/schema';
+import { db } from '@/lib/db';
+import { pastes, passwordAttempts } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { decrypt } from '@/src/lib/crypto';
-import { success, error, NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, INTERNAL_ERROR } from '@/src/lib/api-response';
+import { decrypt } from '@/lib/crypto';
+import { success, error, NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, INTERNAL_ERROR } from '@/lib/api-response';
 
 function getClientIp(request: NextRequest): string {
   return request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHash } from 'crypto';
-import { db } from '@/src/lib/db';
-import { pastes } from '@/src/lib/db/schema';
-import { encrypt } from '@/src/lib/crypto';
-import { generateId } from '@/src/lib/nanoid';
-import { success, error, VALIDATION_ERROR, RATE_LIMITED, INTERNAL_ERROR } from '@/src/lib/api-response';
-import { defaultRateLimiter } from '@/src/lib/rate-limit';
+import { db } from '@/lib/db';
+import { pastes } from '@/lib/db/schema';
+import { encrypt } from '@/lib/crypto';
+import { generateId } from '@/lib/nanoid';
+import { success, error, VALIDATION_ERROR, RATE_LIMITED, INTERNAL_ERROR } from '@/lib/api-response';
+import { defaultRateLimiter } from '@/lib/rate-limit';
 
 const VALID_EXPIRES = [5, 30, 60, 1440, 10080, 43200];
 

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/src/lib/db';
-import { pastes } from '@/src/lib/db/schema';
+import { db } from '@/lib/db';
+import { pastes } from '@/lib/db/schema';
 import { count, and, or, gt, isNull } from 'drizzle-orm';
 import { verifySession } from '@/lib/admin/session';
 import { success, error, UNAUTHORIZED, INTERNAL_ERROR } from '@/lib/api-response';

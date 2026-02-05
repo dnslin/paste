@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
-import { db } from '@/src/lib/db'
-import { pastes } from '@/src/lib/db/schema'
+import { db } from '@/lib/db'
+import { pastes } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { decrypt } from '@/src/lib/crypto'
+import { decrypt } from '@/lib/crypto'
 import { PasteViewer } from '@/components/paste/paste-viewer'
 
 interface PageProps {

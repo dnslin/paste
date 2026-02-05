@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/src/lib/db';
-import { pastes } from '@/src/lib/db/schema';
+import { db } from '@/lib/db';
+import { pastes } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { decrypt } from '@/src/lib/crypto';
+import { decrypt } from '@/lib/crypto';
 import { verifySession } from '@/lib/admin/session';
 import { getPasteStatus } from '@/lib/admin/utils';
 import { success, error, UNAUTHORIZED, NOT_FOUND, INTERNAL_ERROR } from '@/lib/api-response';

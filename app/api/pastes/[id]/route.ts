@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/src/lib/db';
-import { pastes } from '@/src/lib/db/schema';
+import { db } from '@/lib/db';
+import { pastes } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { success, error, NOT_FOUND, INTERNAL_ERROR } from '@/src/lib/api-response';
+import { success, error, NOT_FOUND, INTERNAL_ERROR } from '@/lib/api-response';
 
 export async function GET(
   request: NextRequest,

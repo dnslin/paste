@@ -1,0 +1,29 @@
+services:
+  paste:
+    build:
+      context: .
+      args:
+        - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+        - SESSION_SECRET=${SESSION_SECRET}
+        - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH}
+    image: paste:latest
+    container_name: paste
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH}
+      - DATABASE_URL=file:./data/paste.db
+    volumes:
+      - paste_data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  paste_data:

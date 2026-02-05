@@ -55,7 +55,10 @@ export function PastesTable() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    return {
+      date: date.toLocaleDateString(),
+      time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
   }
 
   const handleView = (id: string) => {
@@ -104,27 +107,31 @@ export function PastesTable() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-(--border-subtle) overflow-hidden">
-        <table className="w-full">
+      <div className="rounded-lg border border-(--border-subtle) overflow-x-auto">
+        <table className="w-full min-w-[600px]">
           <thead className="bg-(--bg-elevated)">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">ID</th>
               <th className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">Created</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">Language</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary) hidden md:table-cell">Language</th>
               <th className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">Status</th>
               <th className="px-4 py-3 text-right text-sm font-medium text-(--text-secondary)">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-(--border-subtle)">
-            {data.items.map((item) => (
+            {data.items.map((item) => {
+              const { date, time } = formatDate(item.createdAt)
+              return (
               <tr key={item.id} className="hover:bg-(--bg-elevated)/50">
                 <td className="px-4 py-3 font-mono text-sm text-(--text-primary)">
-                  {item.id.slice(0, 8)}
+                  <span className="md:hidden">{item.id.slice(0, 4)}</span>
+                  <span className="hidden md:inline">{item.id.slice(0, 8)}</span>
                 </td>
                 <td className="px-4 py-3 text-sm text-(--text-primary)">
-                  {formatDate(item.createdAt)}
+                  <span>{date}</span>
+                  <span className="hidden md:inline"> {time}</span>
                 </td>
-                <td className="px-4 py-3 text-sm text-(--text-primary) capitalize">
+                <td className="px-4 py-3 text-sm text-(--text-primary) capitalize hidden md:table-cell">
                   {item.language}
                 </td>
                 <td className="px-4 py-3">
@@ -158,7 +165,8 @@ export function PastesTable() {
                   </div>
                 </td>
               </tr>
-            ))}
+              )
+            })}
           </tbody>
         </table>
       </div>

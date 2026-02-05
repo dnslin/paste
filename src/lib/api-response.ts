@@ -2,6 +2,7 @@ export const VALIDATION_ERROR = 'VALIDATION_ERROR';
 export const NOT_FOUND = 'NOT_FOUND';
 export const RATE_LIMITED = 'RATE_LIMITED';
 export const INTERNAL_ERROR = 'INTERNAL_ERROR';
+export const UNAUTHORIZED = 'UNAUTHORIZED';
 
 export type ApiResponse<T> =
   | { success: true; data: T }

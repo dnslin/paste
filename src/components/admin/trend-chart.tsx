@@ -1,8 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { AlertCircle } from 'lucide-react'
 
 interface TrendData {
   date: string
@@ -10,17 +8,7 @@ interface TrendData {
 }
 
 interface TrendChartProps {
-  data?: TrendData[]
-  loading?: boolean
-}
-
-function ChartSkeleton() {
-  return (
-    <div className="rounded-lg bg-(--bg-surface) border border-(--border-subtle) p-6">
-      <div className="h-5 w-32 bg-(--bg-elevated) rounded animate-pulse mb-4" />
-      <div className="h-[200px] md:h-[300px] bg-(--bg-elevated) rounded animate-pulse" />
-    </div>
-  )
+  data: TrendData[]
 }
 
 interface CustomTooltipProps {
@@ -49,43 +37,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
   )
 }
 
-export function TrendChart({ data: externalData, loading: externalLoading }: TrendChartProps) {
-  const [internalData, setInternalData] = useState<TrendData[]>([])
-  const [internalLoading, setInternalLoading] = useState(!externalData)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (externalData) return
-
-    fetch('/api/admin/stats')
-      .then((res) => res.json())
-      .then((result) => {
-        if (result.success && result.data.dailyTrend) {
-          setInternalData(result.data.dailyTrend)
-        } else {
-          setError('Failed to load trend data')
-        }
-      })
-      .catch(() => setError('Failed to load trend data'))
-      .finally(() => setInternalLoading(false))
-  }, [externalData])
-
-  const data = externalData || internalData
-  const loading = externalLoading ?? internalLoading
-
-  if (loading) {
-    return <ChartSkeleton />
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-3">
-        <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
-        <p className="text-sm text-red-500">{error}</p>
-      </div>
-    )
-  }
-
+export function TrendChart({ data }: TrendChartProps) {
   const formatXAxis = (dateStr: string) => {
     const date = new Date(dateStr)
     return date.toLocaleDateString('en-US', { weekday: 'short' })

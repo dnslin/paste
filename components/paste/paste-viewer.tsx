@@ -97,9 +97,12 @@ export function PasteViewer({
     }
   }, [content, currentLanguage])
 
-  const handlePasswordSuccess = useCallback((decryptedContent: string, decryptedLanguage: string) => {
+  const handlePasswordSuccess = useCallback((decryptedContent: string, decryptedLanguage: string, newRemainingViews: number | null) => {
     setContent(decryptedContent)
     setCurrentLanguage(decryptedLanguage)
+    if (newRemainingViews !== null) {
+      setRemainingViews(newRemainingViews)
+    }
   }, [])
 
   if (initialStatus === 'not_found') {

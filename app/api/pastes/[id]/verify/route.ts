@@ -142,8 +142,21 @@ export async function POST(
 
     const content = decrypt(paste.content, paste.iv!);
 
+    // Handle burn-after-read for password-protected pastes
+    let remainingViews: number | null = null;
+    if (paste.burnCount !== null && paste.burnCount > 0) {
+      const result = await db
+        .update(pastes)
+        .set({ burnCount: paste.burnCount - 1 })
+        .where(eq(pastes.id, id))
+        .returning({ burnCount: pastes.burnCount });
+      remainingViews = result[0]?.burnCount ?? 0;
+    } else if (paste.burnCount !== null) {
+      remainingViews = paste.burnCount;
+    }
+
     return NextResponse.json(
-      success({ content, language: paste.language }),
+      success({ content, language: paste.language, remainingViews }),
       { status: 200 }
     );
   } catch {

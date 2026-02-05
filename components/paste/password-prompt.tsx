@@ -8,7 +8,7 @@ import { motion } from 'framer-motion'
 
 interface PasswordPromptProps {
   pasteId: string
-  onSuccess: (content: string, language: string) => void
+  onSuccess: (content: string, language: string, remainingViews: number | null) => void
 }
 
 type Status = 'idle' | 'loading' | 'error' | 'locked'
@@ -35,7 +35,7 @@ export function PasswordPrompt({ pasteId, onSuccess }: PasswordPromptProps) {
       const data = await res.json()
 
       if (data.success) {
-        onSuccess(data.data.content, data.data.language)
+        onSuccess(data.data.content, data.data.language, data.data.remainingViews ?? null)
       } else {
         if (res.status === 429) {
           setStatus('locked')

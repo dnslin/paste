@@ -27,23 +27,34 @@ interface PasteDetailModalProps {
 }
 
 export function PasteDetailModal({ pasteId, open, onOpenChange }: PasteDetailModalProps) {
-  const [paste, setPaste] = useState<PasteDetail | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [data, setData] = useState<{ paste: PasteDetail | null; fetchedId: string | null }>({
+    paste: null,
+    fetchedId: null,
+  })
 
   useEffect(() => {
-    if (pasteId && open) {
-      setLoading(true)
-      fetch(`/api/admin/pastes/${pasteId}`)
+    if (pasteId && open && data.fetchedId !== pasteId) {
+      const controller = new AbortController()
+
+      fetch(`/api/admin/pastes/${pasteId}`, { signal: controller.signal })
         .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            setPaste(data.data)
+        .then((result) => {
+          if (result.success) {
+            setData({ paste: result.data, fetchedId: pasteId })
           }
         })
-        .catch(console.error)
-        .finally(() => setLoading(false))
+        .catch((err) => {
+          if (err.name !== 'AbortError') {
+            console.error(err)
+          }
+        })
+
+      return () => controller.abort()
     }
-  }, [pasteId, open])
+  }, [pasteId, open, data.fetchedId])
+
+  const loading = open && !!pasteId && data.fetchedId !== pasteId
+  const paste = data.fetchedId === pasteId ? data.paste : null
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleString()

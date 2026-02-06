@@ -32,6 +32,14 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# database files
+data/
+*.db
+*.db-wal
+*.db-shm
+*.tmp
 
 # vercel
 .vercel
@@ -39,9 +47,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-*.db
-*.db-wal
-*.db-shm
-*.tmp
 pnpm-buildscripts.txt
 .sisyphus/

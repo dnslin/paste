@@ -39,6 +39,8 @@ pnpm dev
 
 访问 http://localhost:3000 即可使用！
 
+> 💡 **遇到问题？** 查看 [快速部署指南](docs/quick-deployment-guide.md) 了解详细说明
+
 ### 手动配置
 
 如果需要手动配置环境变量：
@@ -136,17 +138,22 @@ POST /api/pastes/[id]/verify
 
 ## 部署
 
-项目配置为 `standalone` 输出模式，适合 Docker 部署：
+使用 Docker Compose 一键部署（推荐）：
 
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY .next/standalone ./
-COPY .next/static ./.next/static
-COPY public ./public
-EXPOSE 3000
-CMD ["node", "server.js"]
+```bash
+# 生成配置
+pnpm setup
+
+# 启动服务
+docker-compose up -d
 ```
+
+数据库会在容器启动时自动初始化！
+
+📚 **详细部署指南**:
+- [快速部署指南](docs/quick-deployment-guide.md) - 3 分钟快速上手
+- [完整部署文档](docs/deployment.md) - 包含 Docker、生产环境等详细说明
+- [数据库初始化](docs/database-initialization.md) - 数据库相关详细说明
 
 ## License
 

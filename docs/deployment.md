@@ -62,6 +62,11 @@ Running `pnpm setup` starts an interactive wizard that automatically generates t
 1. **自己输入密码 / Enter your own password** - 您可以设置自己记得的密码
 2. **自动生成密码 / Auto-generate password** - 系统生成随机强密码
 
+> ⏱️ **密码生成时机**: 在 `pnpm setup` 阶段（部署第 2 步，服务启动**之前**）
+> - 原因：服务启动时需要读取 .env 中的密码哈希
+> - 使用：访问 /admin 登录时使用原始密码验证
+> - 详细说明：参见 [快速部署指南 - 密码生成时机](./quick-deployment-guide.md#密码生成时机说明)
+
 ### 手动配置 / Manual Configuration
 
 如果您需要手动配置，可以复制示例文件并编辑：

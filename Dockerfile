@@ -54,11 +54,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Copy migration files and scripts for database initialization
 COPY --from=builder --chown=nextjs:nodejs /app/drizzle ./drizzle
-COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
-
-# Make entrypoint executable
-USER root
-RUN chmod +x /app/scripts/docker-entrypoint.sh
+COPY --chmod=755 --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 
 # Create data directory for SQLite
 RUN mkdir -p data && chown nextjs:nodejs data

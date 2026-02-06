@@ -159,7 +159,7 @@ cp -r data/ backup_$(date +%Y%m%d)/
 
 通过这次改进，部署 Paste 服务变得非常简单：
 
-**之前**: 7 个手动步骤，容易出错
+**之前**: 7 个手动步骤， 容易出错
 ```bash
 1. cp .env.example .env
 2. openssl rand -hex 32  # 手动复制到 .env

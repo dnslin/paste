@@ -8,7 +8,12 @@ echo "🚀 Starting Paste service..."
 # Run database migration if migration files exist
 if [ -d "/app/drizzle" ] && [ "$(ls -A /app/drizzle/*.sql 2>/dev/null)" ]; then
   echo "🔄 Running database migrations..."
-  node /app/scripts/migrate.js || echo "⚠️  Migration failed or already applied"
+  if node /app/scripts/migrate.js; then
+    echo "✅ Database migration completed successfully"
+  else
+    echo "❌ Database migration failed"
+    exit 1
+  fi
 else
   echo "ℹ️  No migration files found, skipping migration"
 fi

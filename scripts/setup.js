@@ -50,21 +50,41 @@ async function main() {
 
   console.log('\n📝 配置管理员账户 / Configure Admin Account\n');
   
-  let adminPassword;
-  let confirmPassword;
+  // Ask user if they want to generate a password or set their own
+  const passwordChoice = await question('选择密码设置方式 / Choose password setup method:\n  1. 自己输入密码 / Enter my own password\n  2. 自动生成随机密码 / Auto-generate random password\n请选择 / Choose (1/2): ');
   
-  do {
-    adminPassword = await question('输入管理员密码 / Enter admin password: ');
-    if (!adminPassword || adminPassword.length < 8) {
-      console.log('❌ 密码至少需要 8 个字符 / Password must be at least 8 characters');
-      continue;
-    }
+  let adminPassword;
+  
+  if (passwordChoice === '2') {
+    // Generate random password
+    adminPassword = randomBytes(16).toString('base64').slice(0, 16);
+    console.log('\n✨ 已生成随机密码 / Random password generated:');
+    console.log(`   🔑 密码 / Password: ${adminPassword}`);
+    console.log('   ⚠️  请务必保存此密码！/ Please save this password!\n');
     
-    confirmPassword = await question('确认管理员密码 / Confirm admin password: ');
-    if (adminPassword !== confirmPassword) {
-      console.log('❌ 密码不匹配，请重新输入 / Passwords do not match, please try again\n');
+    const confirm = await question('确认使用此密码？/ Confirm using this password? (y/N): ');
+    if (confirm.toLowerCase() !== 'y') {
+      console.log('❌ 设置已取消 / Setup cancelled');
+      readline.close();
+      process.exit(0);
     }
-  } while (adminPassword !== confirmPassword || !adminPassword || adminPassword.length < 8);
+  } else {
+    // User enters their own password
+    let confirmPassword;
+    
+    do {
+      adminPassword = await question('\n输入管理员密码 / Enter admin password: ');
+      if (!adminPassword || adminPassword.length < 8) {
+        console.log('❌ 密码至少需要 8 个字符 / Password must be at least 8 characters');
+        continue;
+      }
+      
+      confirmPassword = await question('确认管理员密码 / Confirm admin password: ');
+      if (adminPassword !== confirmPassword) {
+        console.log('❌ 密码不匹配，请重新输入 / Passwords do not match, please try again\n');
+      }
+    } while (adminPassword !== confirmPassword || !adminPassword || adminPassword.length < 8);
+  }
 
   console.log('\n⏳ 生成配置中 / Generating configuration...\n');
 

@@ -55,8 +55,12 @@ Running `pnpm setup` starts an interactive wizard that automatically generates t
 
 - ✅ `ENCRYPTION_KEY` - 自动生成 64 位十六进制密钥
 - ✅ `SESSION_SECRET` - 自动生成会话密钥
-- ✅ `ADMIN_PASSWORD_HASH` - 基于您输入的密码生成 bcrypt 哈希
+- ✅ `ADMIN_PASSWORD_HASH` - 基于您选择的密码（自己输入或自动生成）生成 bcrypt 哈希
 - ✅ `DATABASE_URL` - 自动设置为 `file:./data/paste.db`
+
+**密码设置选项 / Password Setup Options:**
+1. **自己输入密码 / Enter your own password** - 您可以设置自己记得的密码
+2. **自动生成密码 / Auto-generate password** - 系统生成随机强密码
 
 ### 手动配置 / Manual Configuration
 

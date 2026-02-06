@@ -15,14 +15,17 @@ pnpm setup
 这个交互式向导会：
 - ✅ 自动生成 64 位加密密钥（ENCRYPTION_KEY）
 - ✅ 自动生成会话密钥（SESSION_SECRET）
-- ✅ 自动生成管理员密码哈希（ADMIN_PASSWORD_HASH）
+- ✅ 让您选择自己输入密码或自动生成随机密码
+- ✅ 基于密码生成管理员密码哈希（ADMIN_PASSWORD_HASH）
 - ✅ 自动创建 .env 文件
 - ✅ 显示配置摘要
 
 ### 问题 2: 密码生成繁琐
 **之前**: 需要手动运行 `openssl rand -hex 32`、`openssl rand -base64 32` 和 `node -e "require('bcryptjs').hash(...)"`
 
-**现在**: `pnpm setup` 全部搞定！只需输入一个管理员密码即可。
+**现在**: `pnpm setup` 全部搞定！您可以选择：
+- 选项 1: 自己输入密码（需要至少 8 个字符）
+- 选项 2: 让系统生成随机密码
 
 ### 问题 3: 数据库初始化不清楚
 **之前**: 需要手动运行 `pnpm drizzle-kit push`，不知道数据库在哪里、如何创建

@@ -16,15 +16,18 @@ node scripts/setup.js
 ```
 
 **What it does:**
-- Prompts for admin password (minimum 8 characters)
+- Prompts user to choose: enter own password OR auto-generate random password
+- For manual entry: prompts for admin password (minimum 8 characters) with confirmation
+- For auto-generation: generates secure random password and displays it
 - Generates `ENCRYPTION_KEY` (64-char hex, 32 bytes)
 - Generates `SESSION_SECRET` (base64 encoded)
-- Generates `ADMIN_PASSWORD_HASH` (bcrypt with cost=10)
+- Generates `ADMIN_PASSWORD_HASH` (bcrypt with cost=10) from chosen password
 - Creates `.env` file with all required variables
 - Shows configuration summary
 
 **Features:**
-- Password validation (min 8 chars, confirmation required)
+- Two password setup modes: manual or auto-generated
+- Password validation (min 8 chars, confirmation required for manual entry)
 - Warns if `.env` already exists
 - Bilingual output (English/Chinese)
 

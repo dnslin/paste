@@ -52,6 +52,14 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Copy migration files and scripts for database initialization
+COPY --from=builder --chown=nextjs:nodejs /app/drizzle ./drizzle
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+
+# Make entrypoint executable
+USER root
+RUN chmod +x /app/scripts/docker-entrypoint.sh
+
 # Create data directory for SQLite
 RUN mkdir -p data && chown nextjs:nodejs data
 
@@ -59,5 +67,5 @@ USER nextjs
 
 EXPOSE 3000
 
-ENTRYPOINT ["dumb-init", "--"]
+ENTRYPOINT ["/app/scripts/docker-entrypoint.sh"]
 CMD ["node", "server.js"]

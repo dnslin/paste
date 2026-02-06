@@ -21,32 +21,69 @@
 
 ## 快速开始
 
+### 一键设置（推荐）
+
 ```bash
 # 安装依赖
 pnpm install
 
-# 配置环境变量
-cp .env.example .env
-# 编辑 .env 填入必需变量
+# 运行设置向导（自动生成 .env 配置）
+pnpm setup
 
 # 初始化数据库
-pnpm drizzle-kit push
+pnpm db:migrate
 
 # 启动开发服务器
 pnpm dev
 ```
 
+访问 http://localhost:3000 即可使用！
+
+### 手动配置
+
+如果需要手动配置环境变量：
+
+```bash
+# 复制环境变量模板
+cp .env.example .env
+
+# 生成加密密钥
+openssl rand -hex 32
+
+# 生成会话密钥
+openssl rand -base64 32
+
+# 生成管理员密码哈希
+node -e "require('bcryptjs').hash('your-password', 10).then(console.log)"
+
+# 编辑 .env 填入生成的值
+# 然后运行数据库迁移
+pnpm db:migrate
+
+# 启动服务
+pnpm dev
+```
+
+📚 详细部署指南请参考 [deployment.md](docs/deployment.md)
+
 ## 环境变量
 
-| 变量 | 说明 | 示例 |
-|------|------|------|
+所有环境变量可通过 `pnpm setup` 自动生成。手动配置参考：
+
+| 变量 | 说明 | 生成命令 |
+|------|------|----------|
 | `ENCRYPTION_KEY` | 64 位 hex (32 字节 AES 密钥) | `openssl rand -hex 32` |
-| `SESSION_SECRET` | Admin JWT 签名密钥 | 任意强密码 |
-| `ADMIN_PASSWORD_HASH` | bcrypt 哈希 (cost=10) | `htpasswd -nbBC 10 "" password` |
+| `SESSION_SECRET` | Admin JWT 签名密钥 | `openssl rand -base64 32` |
+| `ADMIN_PASSWORD_HASH` | bcrypt 哈希 (cost=10) | `node -e "require('bcryptjs').hash('password', 10).then(console.log)"` |
+| `DATABASE_URL` | 数据库路径 | `file:./data/paste.db` (默认) |
 
 ## 命令
 
 ```bash
+pnpm setup        # 交互式设置向导（生成 .env 配置）
+pnpm db:migrate   # 运行数据库迁移
+pnpm db:generate  # 生成新的迁移文件
+pnpm db:studio    # 打开 Drizzle Studio 数据库管理界面
 pnpm dev          # 开发服务器 (http://localhost:3000)
 pnpm build        # 生产构建 (standalone 输出)
 pnpm start        # 生产服务器

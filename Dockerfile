@@ -62,7 +62,7 @@ RUN apk add --no-cache --virtual .build-deps python3 make g++ && \
     mkdir -p /tmp/deps && cd /tmp/deps && \
     npm init -y && \
     npm install bcryptjs better-sqlite3 && \
-    mkdir -p /app/node_modules && \
+    rm -rf /app/node_modules/bcryptjs /app/node_modules/better-sqlite3 /app/node_modules/bindings /app/node_modules/file-uri-to-path /app/node_modules/prebuild-install 2>/dev/null; \
     cp -r node_modules/* /app/node_modules/ && \
     cd /app && rm -rf /tmp/deps && \
     apk del .build-deps

@@ -57,17 +57,13 @@ COPY --chown=nextjs:nodejs docker-entrypoint.sh /app/
 COPY --chown=nextjs:nodejs scripts/migrate.js /app/scripts/
 RUN chmod +x /app/docker-entrypoint.sh
 
-# Install bcryptjs for password hashing at runtime
-# better-sqlite3 is a native module, needs build tools
-# Install in separate directory to avoid pnpm node_modules conflict
+# Install bcryptjs and better-sqlite3 with all dependencies
 RUN apk add --no-cache --virtual .build-deps python3 make g++ && \
     mkdir -p /tmp/deps && cd /tmp/deps && \
     npm init -y && \
     npm install bcryptjs better-sqlite3 && \
     mkdir -p /app/node_modules && \
-    rm -rf /app/node_modules/bcryptjs /app/node_modules/better-sqlite3 && \
-    cp -r node_modules/bcryptjs /app/node_modules/ && \
-    cp -r node_modules/better-sqlite3 /app/node_modules/ && \
+    cp -r node_modules/* /app/node_modules/ && \
     cd /app && rm -rf /tmp/deps && \
     apk del .build-deps
 

@@ -36,7 +36,7 @@ RUN mkdir -p data && \
 # ============================================
 FROM node:22-alpine AS runner
 
-RUN apk add --no-cache dumb-init && \
+RUN apk add --no-cache dumb-init openssl su-exec && \
     addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
@@ -52,12 +52,21 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Create data directory for SQLite
-RUN mkdir -p data && chown nextjs:nodejs data
+# Copy entrypoint and migration scripts
+COPY --chown=nextjs:nodejs docker-entrypoint.sh /app/
+COPY --chown=nextjs:nodejs scripts/migrate.js /app/scripts/
+RUN chmod +x /app/docker-entrypoint.sh
 
-USER nextjs
+# Install bcryptjs for password hashing at runtime
+# better-sqlite3 is a native module, needs build tools
+RUN apk add --no-cache --virtual .build-deps python3 make g++ && \
+    npm install --no-save bcryptjs better-sqlite3 && \
+    apk del .build-deps
+
+# Create data directory for SQLite (writable by nextjs user)
+RUN mkdir -p data && chown -R nextjs:nodejs data
 
 EXPOSE 3000
 
-ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "server.js"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["dumb-init", "--", "node", "server.js"]

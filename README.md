@@ -38,11 +38,21 @@ pnpm dev
 
 ## 环境变量
 
+### Docker 部署 (推荐)
+
+| 变量 | 说明 | 必需 |
+|------|------|------|
+| `ADMIN_PASSWORD` | 管理员密码 (明文) | ✅ |
+
+其他密钥 (`ENCRYPTION_KEY`, `SESSION_SECRET`) 首次启动时自动生成并持久化。
+
+### 本地开发
+
 | 变量 | 说明 | 示例 |
 |------|------|------|
 | `ENCRYPTION_KEY` | 64 位 hex (32 字节 AES 密钥) | `openssl rand -hex 32` |
-| `SESSION_SECRET` | Admin JWT 签名密钥 | 任意强密码 |
-| `ADMIN_PASSWORD_HASH` | bcrypt 哈希 (cost=10) | `htpasswd -nbBC 10 "" password` |
+| `SESSION_SECRET` | Admin JWT 签名密钥 | `openssl rand -base64 32` |
+| `ADMIN_PASSWORD_HASH` | bcrypt 哈希 (cost=10) | `node -e "require('bcryptjs').hash('pwd', 10).then(console.log)"` |
 
 ## 命令
 
@@ -99,16 +109,29 @@ POST /api/pastes/[id]/verify
 
 ## 部署
 
-项目配置为 `standalone` 输出模式，适合 Docker 部署：
+### Docker Compose (推荐)
 
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY .next/standalone ./
-COPY .next/static ./.next/static
-COPY public ./public
-EXPOSE 3000
-CMD ["node", "server.js"]
+```bash
+# 1. 创建 .env 文件
+echo "ADMIN_PASSWORD=your-secure-password" > .env
+
+# 2. 启动服务
+docker compose up -d
+```
+
+首次启动时自动完成：
+- 生成加密密钥 (持久化到 volume)
+- 初始化数据库
+- 计算密码哈希
+
+### 手动 Docker 构建
+
+```bash
+docker build -t paste .
+docker run -d -p 3000:3000 \
+  -e ADMIN_PASSWORD=your-password \
+  -v paste_data:/app/data \
+  paste
 ```
 
 ## License

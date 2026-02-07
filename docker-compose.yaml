@@ -2,19 +2,13 @@ services:
   paste:
     build:
       context: .
-      args:
-        - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-        - SESSION_SECRET=${SESSION_SECRET}
-        - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH}
     image: paste:latest
     container_name: paste
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - SESSION_SECRET=${SESSION_SECRET}
-      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - DATABASE_URL=file:./data/paste.db
     volumes:
       - paste_data:/app/data

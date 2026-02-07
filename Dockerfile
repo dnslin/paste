@@ -58,11 +58,14 @@ COPY --chown=nextjs:nodejs scripts/migrate.js /app/scripts/
 RUN chmod +x /app/docker-entrypoint.sh
 
 # Install bcryptjs and better-sqlite3 with all dependencies
+# Replace pnpm symlinks in standalone with real modules
 RUN apk add --no-cache --virtual .build-deps python3 make g++ && \
     mkdir -p /tmp/deps && cd /tmp/deps && \
     npm init -y && \
     npm install bcryptjs better-sqlite3 && \
-    rm -rf /app/node_modules/bcryptjs /app/node_modules/better-sqlite3 /app/node_modules/bindings /app/node_modules/file-uri-to-path /app/node_modules/prebuild-install 2>/dev/null; \
+    rm -rf /app/node_modules/.pnpm && \
+    rm -rf /app/node_modules/better-sqlite3 && \
+    rm -rf /app/node_modules/bcryptjs && \
     cp -r node_modules/* /app/node_modules/ && \
     cd /app && rm -rf /tmp/deps && \
     apk del .build-deps

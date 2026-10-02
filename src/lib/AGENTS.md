@@ -10,6 +10,10 @@ lib/
 ├── nanoid.ts        # 短 ID 生成 (8 字符)
 ├── rate-limit.ts    # 内存限流器 (10 次/分钟)
 ├── api-response.ts  # API 响应封装 (success/error)
+├── paste.ts         # Paste 状态、解密与原子内容领取
+├── paste-rules.ts   # 创建/读取/表单共用的长度与密码规则
+├── request-client.ts # 受信入口 IP 与公开来源
+├── highlight.ts     # Shiki 高亮与安全纯文本
 ├── languages.ts     # Shiki 支持的语言列表
 ├── utils.ts         # shadcn cn() 工具
 ├── db/
@@ -17,7 +21,6 @@ lib/
 │   └── schema.ts    # 表定义 (pastes, passwordAttempts)
 ├── admin/
 │   ├── session.ts   # JWT 会话管理 (7 天有效期)
-│   └── utils.ts     # Admin 工具函数
 └── __tests__/       # 单元测试 (46 用例)
 ```
 
@@ -30,7 +33,7 @@ lib/
 | 修改限流规则 | `rate-limit.ts` | 默认 10 次/分钟 |
 | 添加数据库字段 | `db/schema.ts` | 需运行 `pnpm drizzle-kit generate` |
 | 修改会话时长 | `admin/session.ts:5` | SESSION_DURATION 常量 |
-| 添加语言支持 | `languages.ts` | 需同步 paste/language-selector |
+| 添加语言支持 | `languages.ts` | 直接使用已安装 Shiki 语法目录与别名 |
 
 ## CONVENTIONS
 

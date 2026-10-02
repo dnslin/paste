@@ -1,171 +1,57 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { Flame, Clock, FileX } from 'lucide-react'
-import { PasswordPrompt } from './password-prompt'
+import { useState } from 'react'
+import Link from 'next/link'
+import { Flame, Clock, FileX, AlertCircle } from 'lucide-react'
+import { PasteAccessForm, type PasteContent } from './paste-access-form'
 import { CopyButton } from './copy-button'
-
-type PasteStatus = 'active' | 'expired' | 'destroyed' | 'not_found'
+import { CodeDisplay } from './code-display'
+import { getLanguageName } from '@/lib/languages'
 
 interface PasteViewerProps {
   pasteId: string
-  initialStatus: PasteStatus
+  initialStatus: 'active' | 'expired' | 'destroyed' | 'not_found' | 'error'
   hasPassword: boolean
   language: string
   burnCount: number | null
   initialContent?: string
 }
 
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+const unavailable = {
+  not_found: { icon: FileX, title: '内容不存在', description: '链接无效，或内容已被删除。' },
+  expired: { icon: Clock, title: '内容已过期', description: '这条内容已停止公开访问。' },
+  destroyed: { icon: Flame, title: '查看次数已用完', description: '这条内容已停止公开访问。' },
+  error: { icon: AlertCircle, title: '暂时无法读取内容', description: '服务发生错误，请稍后刷新页面重试。' },
 }
 
-export function PasteViewer({
-  pasteId,
-  initialStatus,
-  hasPassword,
-  language,
-  burnCount,
-  initialContent
-}: PasteViewerProps) {
-  const [content, setContent] = useState<string | null>(initialContent ?? null)
-  const [currentLanguage, setCurrentLanguage] = useState(language)
-  const [remainingViews, setRemainingViews] = useState(burnCount)
-  const [highlightedHtml, setHighlightedHtml] = useState<string>('')
-  const viewRecordedRef = useRef(false)
+export function PasteViewer({ pasteId, initialStatus, hasPassword, language, burnCount, initialContent }: PasteViewerProps) {
+  const [paste, setPaste] = useState<PasteContent | null>(initialContent === undefined ? null : { content: initialContent, language, remainingViews: burnCount })
+  const [wrap, setWrap] = useState(false)
 
-  useEffect(() => {
-    if (!content || remainingViews === null || remainingViews <= 0 || viewRecordedRef.current || hasPassword) {
-      return
-    }
-
-    let cancelled = false
-    viewRecordedRef.current = true
-
-    const recordView = async () => {
-      try {
-        const res = await fetch(`/api/pastes/${pasteId}/view`, { method: 'POST' })
-        if (cancelled) return
-        if (res.ok) {
-          const data = await res.json()
-          if (data.success && data.data && typeof data.data.remainingViews === 'number') {
-            setRemainingViews(data.data.remainingViews)
-          }
-        }
-      } catch {
-        // View recording failure is non-critical
-      }
-    }
-
-    recordView()
-
-    return () => {
-      cancelled = true
-    }
-  }, [content, pasteId, remainingViews, hasPassword])
-
-  useEffect(() => {
-    if (!content) return
-
-    let cancelled = false
-
-    const highlight = async () => {
-      try {
-        const { codeToHtml } = await import('shiki')
-        if (cancelled) return
-        const html = await codeToHtml(content, { 
-          lang: currentLanguage || 'text', 
-          theme: 'vitesse-dark' 
-        })
-        if (!cancelled) {
-          setHighlightedHtml(html)
-        }
-      } catch {
-        if (!cancelled) {
-          setHighlightedHtml(`<pre><code>${escapeHtml(content)}</code></pre>`)
-        }
-      }
-    }
-
-    highlight()
-
-    return () => {
-      cancelled = true
-    }
-  }, [content, currentLanguage])
-
-  const handlePasswordSuccess = useCallback((decryptedContent: string, decryptedLanguage: string, newRemainingViews: number | null) => {
-    setContent(decryptedContent)
-    setCurrentLanguage(decryptedLanguage)
-    if (newRemainingViews !== null) {
-      setRemainingViews(newRemainingViews)
-    }
-  }, [])
-
-  if (initialStatus === 'not_found') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-100 text-center" role="status">
-        <FileX className="size-16 text-(--text-muted) mb-4" aria-hidden="true" />
-        <h2 className="text-xl font-semibold text-(--text-primary)">Paste Not Found</h2>
-        <p className="mt-2 text-(--text-secondary)">This paste doesn&apos;t exist or has been deleted.</p>
-      </div>
-    )
+  if (initialStatus !== 'active') {
+    const { icon: Icon, title, description } = unavailable[initialStatus]
+    return <div className="flex min-h-100 flex-col items-center justify-center gap-3 text-center" role="status">
+      <Icon className="size-12 text-(--text-secondary)" aria-hidden="true" />
+      <h2 className="text-xl font-semibold">{title}</h2>
+      <p className="text-(--text-secondary)">{description}</p>
+      <Link href="/" className="mt-2 text-(--accent-primary) underline underline-offset-4">返回首页</Link>
+    </div>
   }
 
-  if (initialStatus === 'expired') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-100 text-center" role="status">
-        <Clock className="size-16 text-(--text-muted) mb-4" aria-hidden="true" />
-        <h2 className="text-xl font-semibold text-(--text-primary)">Paste Expired</h2>
-        <p className="mt-2 text-(--text-secondary)">This paste has expired and is no longer available.</p>
-      </div>
-    )
-  }
-
-  if (initialStatus === 'destroyed') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-100 text-center" role="status">
-        <Flame className="size-16 text-amber-500 mb-4" aria-hidden="true" />
-        <h2 className="text-xl font-semibold text-(--text-primary)">Paste Destroyed</h2>
-        <p className="mt-2 text-(--text-secondary)">This paste has been viewed the maximum number of times and is now destroyed.</p>
-      </div>
-    )
-  }
-
-  if (hasPassword && !content) {
-    return <PasswordPrompt pasteId={pasteId} onSuccess={handlePasswordSuccess} />
-  }
-
-  if (content) {
-    return (
-      <div className="space-y-4">
-        {remainingViews !== null && remainingViews > 0 && (
-          <div 
-            className="flex items-center gap-2 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500"
-            role="alert"
-          >
-            <Flame className="size-5" aria-hidden="true" />
-            <span className="text-sm font-medium">
-              {remainingViews} view{remainingViews !== 1 ? 's' : ''} remaining before destruction
-            </span>
-          </div>
-        )}
-
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-(--text-secondary)">{currentLanguage}</span>
-          <CopyButton content={content} />
+  return <div className="space-y-4">
+    <Link href="/" className="inline-block text-sm text-(--accent-primary) underline underline-offset-4">返回首页</Link>
+    {paste ? <>
+      {paste.remainingViews !== null ? <p role="status" className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
+        {paste.remainingViews === 0 ? '这是最后一次查看。此后将停止公开访问，当前页面仍可阅读和复制。' : `还可查看 ${paste.remainingViews} 次，次数用完后停止公开访问。`}
+      </p> : null}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="text-sm text-(--text-secondary)">{getLanguageName(paste.language)}</span>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 text-sm text-(--text-secondary)"><input type="checkbox" checked={wrap} onChange={(event) => setWrap(event.target.checked)} />长行换行</label>
+          <CopyButton content={paste.content} />
         </div>
-
-        <div 
-          className="rounded-lg overflow-hidden border border-(--border-subtle) bg-[#121212] p-4 text-sm font-mono overflow-x-auto"
-          dangerouslySetInnerHTML={{ __html: highlightedHtml || `<pre>${escapeHtml(content)}</pre>` }} 
-        />
       </div>
-    )
-  }
-
-  return null
+      <div className="overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-surface) py-4"><CodeDisplay code={paste.content} language={paste.language} wrap={wrap} /></div>
+    </> : <PasteAccessForm pasteId={pasteId} hasPassword={hasPassword} burnCount={burnCount} onSuccess={setPaste} />}
+  </div>
 }

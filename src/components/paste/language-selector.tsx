@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import { useState } from 'react'
 import { Check, ChevronsUpDown, Code2 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -26,7 +26,7 @@ interface LanguageSelectorProps {
 }
 
 export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
 
   const selectedLanguage = LANGUAGES.find((lang) => lang.id === value)
 
@@ -35,6 +35,7 @@ export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
+          id="code-language"
           role="combobox"
           aria-expanded={open}
           className="w-50 justify-between"
@@ -42,33 +43,24 @@ export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
         >
           <span className="flex items-center gap-2">
             <Code2 className="size-4" />
-            {selectedLanguage?.name ?? 'Plain Text'}
+            {selectedLanguage?.name ?? '纯文本'}
           </span>
           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-50 p-0">
-        <Command
-          filter={(value, search) => {
-            const lang = LANGUAGES.find((l) => l.id === value)
-            if (!lang) return 0
-            const searchLower = search.toLowerCase()
-            if (lang.name.toLowerCase().includes(searchLower)) return 1
-            if (lang.id.toLowerCase().includes(searchLower)) return 1
-            if (lang.aliases?.some((a) => a.toLowerCase().includes(searchLower))) return 1
-            return 0
-          }}
-        >
-          <CommandInput placeholder="Search language..." />
+      <PopoverContent className="w-50 p-0 animate-none!">
+        <Command>
+          <CommandInput placeholder="搜索语言或别名…" aria-label="搜索代码语言" />
           <CommandList className="max-h-75">
-            <CommandEmpty>No language found.</CommandEmpty>
+            <CommandEmpty>未找到对应语言</CommandEmpty>
             <CommandGroup>
               {LANGUAGES.map((lang) => (
                 <CommandItem
                   key={lang.id}
                   value={lang.id}
-                  onSelect={(currentValue) => {
-                    onChange(currentValue)
+                  keywords={[lang.name, ...lang.aliases]}
+                  onSelect={() => {
+                    onChange(lang.id)
                     setOpen(false)
                   }}
                 >

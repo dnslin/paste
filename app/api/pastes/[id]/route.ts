@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { pastes } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { getPasteStatus } from '@/lib/paste';
 import { success, error, NOT_FOUND, INTERNAL_ERROR } from '@/lib/api-response';
 
 export async function GET(
@@ -15,19 +16,9 @@ export async function GET(
 
     if (!paste) {
       return NextResponse.json(
-        error(NOT_FOUND, 'Paste not found'),
+        error(NOT_FOUND, '内容不存在'),
         { status: 404 }
       );
-    }
-
-    let status: 'active' | 'expired' | 'destroyed';
-
-    if (paste.expiresAt && paste.expiresAt < new Date()) {
-      status = 'expired';
-    } else if (paste.burnCount !== null && paste.burnCount <= 0) {
-      status = 'destroyed';
-    } else {
-      status = 'active';
     }
 
     return NextResponse.json(
@@ -36,12 +27,13 @@ export async function GET(
         language: paste.language,
         hasPassword: !!paste.passwordHash,
         burnCount: paste.burnCount,
-        status,
+        status: getPasteStatus(paste),
       })
     );
-  } catch {
+  } catch (err) {
+    console.error(`Get paste ${id} metadata failed:`, err);
     return NextResponse.json(
-      error(INTERNAL_ERROR, 'Internal server error'),
+      error(INTERNAL_ERROR, '服务发生错误，请稍后重试'),
       { status: 500 }
     );
   }

@@ -29,10 +29,11 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 
   const data = payload[0];
   const date = new Date(data.payload.date);
-  const formattedDate = date.toLocaleDateString("en-US", {
+  const formattedDate = date.toLocaleDateString("zh-CN", {
     weekday: "short",
     month: "short",
     day: "numeric",
+    timeZone: "UTC",
   });
 
   return (
@@ -44,7 +45,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
         <span className="font-medium text-(--accent-primary)">
           {data.value}
         </span>{" "}
-        pastes
+        条分享
       </p>
     </div>
   );
@@ -53,13 +54,13 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 export function TrendChart({ data }: TrendChartProps) {
   const formatXAxis = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", { weekday: "short" });
+    return date.toLocaleDateString("zh-CN", { weekday: "short", timeZone: "UTC" });
   };
 
   return (
     <div className="rounded-lg bg-(--bg-surface) border border-(--border-subtle) p-6">
       <h3 className="text-sm font-medium text-(--text-secondary) mb-4">
-        7-Day Activity
+        近 7 天的分享（UTC）
       </h3>
       <div className="h-50 md:h-75">
         <ResponsiveContainer
@@ -95,6 +96,7 @@ export function TrendChart({ data }: TrendChartProps) {
               cursor={{ fill: "var(--bg-elevated)", opacity: 0.5 }}
             />
             <Bar
+              isAnimationActive={false}
               dataKey="count"
               fill="var(--accent-primary)"
               radius={[4, 4, 0, 0]}
@@ -106,4 +108,3 @@ export function TrendChart({ data }: TrendChartProps) {
     </div>
   );
 }
-

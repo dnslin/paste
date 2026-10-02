@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { getPasswordError } from '@/lib/paste-rules'
 import { Eye, EyeOff, Lock, Clock, Flame } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
@@ -24,6 +25,7 @@ interface OptionsPanelProps {
 
 export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
   const [showPassword, setShowPassword] = useState(false)
+  const passwordError = getPasswordError(value.password)
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({ ...value, password: e.target.value })
@@ -57,6 +59,8 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
             onChange={handlePasswordChange}
             data-testid="password-input"
             className="pr-10"
+            aria-invalid={!!passwordError}
+            aria-describedby="password-help"
           />
           <button
             type="button"
@@ -68,7 +72,7 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
             {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
           </button>
         </div>
-        <p className="text-xs text-(--text-muted)">访问时需要输入密码</p>
+        <p id="password-help" className={passwordError ? "text-xs text-red-400" : "text-xs text-(--text-secondary)"}>{passwordError || "访问时需要输入密码，最多 72 个 UTF-8 字节。"}</p>
       </div>
 
       {/* Expiration Time */}
@@ -81,7 +85,7 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
           <SelectTrigger data-testid="expiry-select" aria-labelledby="expiry-label" className="w-full">
             <SelectValue placeholder="选择过期时间" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="animate-none!">
             <SelectItem value="5">5分钟</SelectItem>
             <SelectItem value="30">30分钟</SelectItem>
             <SelectItem value="60">1小时</SelectItem>
@@ -91,28 +95,28 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
             <SelectItem value="never">永不过期</SelectItem>
           </SelectContent>
         </Select>
-        <p className="text-xs text-(--text-muted)">到期后自动删除</p>
+        <p className="text-xs text-(--text-secondary)">到期后停止公开访问</p>
       </div>
 
       {/* Burn After Read */}
       <div className="space-y-2">
         <label id="burn-label" className="flex items-center gap-2 text-sm font-medium text-(--text-secondary)">
           <Flame className="size-4" />
-          阅后即焚
+          查看次数限制
         </label>
         <Select value={burnValue} onValueChange={handleBurnChange}>
           <SelectTrigger data-testid="burn-select" aria-labelledby="burn-label" className="w-full">
             <SelectValue placeholder="选择查看次数" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="animate-none!">
             <SelectItem value="off">关闭</SelectItem>
-            <SelectItem value="1">1次后删除</SelectItem>
-            <SelectItem value="3">3次后删除</SelectItem>
-            <SelectItem value="5">5次后删除</SelectItem>
-            <SelectItem value="10">10次后删除</SelectItem>
+            <SelectItem value="1">1 次</SelectItem>
+            <SelectItem value="3">3 次</SelectItem>
+            <SelectItem value="5">5 次</SelectItem>
+            <SelectItem value="10">10 次</SelectItem>
           </SelectContent>
         </Select>
-        <p className="text-xs text-(--text-muted)">达到次数后自动删除</p>
+        <p className="text-xs text-(--text-secondary)">次数用完后停止公开访问</p>
       </div>
     </div>
   )

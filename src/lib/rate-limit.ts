@@ -73,4 +73,4 @@ export function createRateLimiter(options: RateLimitOptions): RateLimiter {
   return new RateLimiter(options);
 }
 
-export const defaultRateLimiter = createRateLimiter({ maxTokens: 60, refillRate: 60, refillInterval: 60000 });
+export const defaultRateLimiter = createRateLimiter({ maxTokens: 10, refillRate: 10, refillInterval: 60000 });

@@ -42,12 +42,12 @@ export function Logo() {
     <button
       type="button"
       onClick={handleClick}
-      className="focus:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary) rounded-lg transition-transform hover:scale-105 active:scale-95"
-      aria-label="Logo"
+      className="focus:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary) rounded-lg"
+      aria-label="Paste 管理入口"
     >
       <Image
         src="/logo.svg"
-        alt="Paste Creator Logo"
+        alt="Paste"
         width={48}
         height={48}
         priority

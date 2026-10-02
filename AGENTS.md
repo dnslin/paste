@@ -35,7 +35,7 @@ paste/
 | Task | Location | Notes |
 |------|----------|-------|
 | 创建 paste | `src/components/paste/paste-creator.tsx` | Client, framer-motion 动画 |
-| 查看 paste | `src/components/paste/paste-viewer.tsx` | Shiki 高亮, burn-after-read |
+| 查看 paste | `src/components/paste/paste-viewer.tsx` | 共享 Shiki 高亮, 显式内容领取 |
 | Paste API | `app/api/pastes/route.ts` | POST 创建, 10 次/分钟限流 |
 | 数据库 schema | `src/lib/db/schema.ts` | pastes + passwordAttempts 表 |
 | 加密逻辑 | `src/lib/crypto.ts` | AES-256-GCM, 需 ENCRYPTION_KEY |
@@ -101,12 +101,12 @@ pnpm lint         # ESLint 检查
 |------|------|--------|
 | 无 CI/CD | 手动部署 | MEDIUM |
 | SQLite 本地 | 不适合多实例 | HIGH |
-| 无 API/E2E 测试 | 覆盖不足 | MEDIUM |
+| 无自动浏览器 E2E | API/组件已覆盖，浏览器仍需专项验收 | MEDIUM |
 | Admin layout 是 client | Bundle 增大 | LOW |
 
 ## TESTING
 
 - **框架**: Vitest 4.0 + RTL 16.3 + jsdom
-- **覆盖**: 工具库 (4) + 组件 (2)，共 64 用例
+- **覆盖**: 工具库、公开/后台 API、迁移及组件，共 17 个文件、120 用例
 - **Mock**: framer-motion → 静态元素，matchMedia → 固定值
-- **缺失**: API 路由、E2E、覆盖率报告
+- **缺失**: 自动浏览器 E2E、覆盖率报告

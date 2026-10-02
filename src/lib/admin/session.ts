@@ -64,8 +64,3 @@ export async function verifySession(): Promise<boolean> {
   const payload = await decrypt(token);
   return payload?.isAdmin === true;
 }
-
-export async function getSessionToken(): Promise<string | undefined> {
-  const cookieStore = await cookies();
-  return cookieStore.get(SESSION_COOKIE_NAME)?.value;
-}

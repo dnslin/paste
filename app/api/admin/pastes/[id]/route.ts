@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { pastes } from '@/lib/db/schema';
+import { pastes, passwordAttempts } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { decrypt } from '@/lib/crypto';
 import { verifySession } from '@/lib/admin/session';
-import { getPasteStatus } from '@/lib/admin/utils';
+import { getPasteStatus, decryptPaste } from '@/lib/paste';
 import { success, error, UNAUTHORIZED, NOT_FOUND, INTERNAL_ERROR } from '@/lib/api-response';
 
 interface RouteParams {
@@ -15,7 +14,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const isAuthenticated = await verifySession();
     if (!isAuthenticated) {
-      return NextResponse.json(error(UNAUTHORIZED, 'Not authenticated'), { status: 401 });
+      return NextResponse.json(error(UNAUTHORIZED, '登录已失效，请重新登录'), { status: 401 });
     }
 
     const { id } = await params;
@@ -27,21 +26,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .limit(1);
 
     if (!paste) {
-      return NextResponse.json(error(NOT_FOUND, 'Paste not found'), { status: 404 });
-    }
-
-    let content = paste.content;
-    if (paste.encrypted && paste.iv) {
-      try {
-        content = decrypt(paste.content, paste.iv);
-      } catch {
-        content = '[Decryption failed]';
-      }
+      return NextResponse.json(error(NOT_FOUND, '内容不存在'), { status: 404 });
     }
 
     return NextResponse.json(success({
       id: paste.id,
-      content,
+      content: decryptPaste(paste),
       language: paste.language || 'plaintext',
       createdAt: paste.createdAt.toISOString(),
       expiresAt: paste.expiresAt?.toISOString() || null,
@@ -51,7 +41,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }));
   } catch (err) {
     console.error('Get paste error:', err);
-    return NextResponse.json(error(INTERNAL_ERROR, 'Failed to fetch paste'), { status: 500 });
+    return NextResponse.json(error(INTERNAL_ERROR, '无法读取内容，请稍后重试'), { status: 500 });
   }
 }
 
@@ -59,21 +49,25 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const isAuthenticated = await verifySession();
     if (!isAuthenticated) {
-      return NextResponse.json(error(UNAUTHORIZED, 'Not authenticated'), { status: 401 });
+      return NextResponse.json(error(UNAUTHORIZED, '登录已失效，请重新登录'), { status: 401 });
     }
 
     const { id } = await params;
 
-    const result = await db.delete(pastes).where(eq(pastes.id, id));
-
-    // Check if any row was deleted (better-sqlite3 returns changes count)
-    if ((result as { changes?: number }).changes === 0) {
-      return NextResponse.json(error(NOT_FOUND, 'Paste not found'), { status: 404 });
+    const deleted = db.transaction((tx) => {
+      const result = tx.delete(pastes).where(eq(pastes.id, id)).run();
+      if (result.changes) {
+        tx.delete(passwordAttempts).where(eq(passwordAttempts.pasteId, id)).run();
+      }
+      return result.changes;
+    });
+    if (!deleted) {
+      return NextResponse.json(error(NOT_FOUND, '内容不存在'), { status: 404 });
     }
 
     return NextResponse.json(success({ message: 'Paste deleted' }));
   } catch (err) {
     console.error('Delete paste error:', err);
-    return NextResponse.json(error(INTERNAL_ERROR, 'Failed to delete paste'), { status: 500 });
+    return NextResponse.json(error(INTERNAL_ERROR, '删除失败，请稍后重试'), { status: 500 });
   }
 }

@@ -1,191 +1,68 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
-import '@testing-library/jest-dom/vitest'
-import type { ReactNode } from 'react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { CopyButton } from '../copy-button'
 import { SuccessDialog } from '../success-dialog'
 
-interface MockProps {
-  children?: ReactNode
-  [key: string]: unknown
+const writeText = vi.fn()
+const url = 'https://example.com/abc123'
+
+beforeEach(() => {
+  writeText.mockReset().mockResolvedValue(undefined)
+  Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+})
+afterEach(() => { vi.useRealTimers() })
+
+function renderDialog(open = true) {
+  return render(<SuccessDialog open={open} onOpenChange={() => {}} url={url} onCreateAnother={() => {}} />)
 }
 
-vi.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: MockProps) => <div {...props}>{children}</div>,
-    span: ({ children, ...props }: MockProps) => <span {...props}>{children}</span>,
-    p: ({ children, ...props }: MockProps) => <p {...props}>{children}</p>,
-  },
-  AnimatePresence: ({ children }: MockProps) => children,
-}))
+describe('复制链接与内容', () => {
+  it('首次open=true挂载自动复制；关闭后重新打开也复制', async () => {
+    const { rerender } = renderDialog()
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1))
+    rerender(<SuccessDialog open={false} onOpenChange={() => {}} url={url} onCreateAnother={() => {}} />)
+    rerender(<SuccessDialog open onOpenChange={() => {}} url={url} onCreateAnother={() => {}} />)
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(2))
+  })
 
-describe('Copy Functionality', () => {
-  const mockUrl = 'https://paste.example.com/abc123'
-  let clipboardWriteText: ReturnType<typeof vi.fn>
+  it('自动复制被拒绝时展示错误和链接，允许手动重试', async () => {
+    writeText.mockRejectedValueOnce(new Error('denied'))
+    renderDialog()
+    expect(await screen.findByRole('alert')).toHaveTextContent('浏览器拒绝了复制')
+    expect(screen.getByRole('link', { name: url })).toBeInTheDocument()
+    expect(screen.queryByText('链接已复制到剪贴板。')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '复制链接' }))
+    expect(await screen.findByText('链接已复制到剪贴板。')).toBeInTheDocument()
+  })
 
-  beforeEach(() => {
-    clipboardWriteText = vi.fn().mockResolvedValue(undefined)
-    Object.assign(navigator, {
-      clipboard: {
-        writeText: clipboardWriteText,
-      },
-    })
-    Object.defineProperty(window, 'matchMedia', {
-      writable: true,
-      value: vi.fn().mockImplementation((query) => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      })),
-    })
+  it('不支持或拒绝复制时不显示假成功', async () => {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined })
+    render(<CopyButton content="正文" />)
+    fireEvent.click(screen.getByRole('button', { name: '复制内容' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('复制失败')
+    expect(screen.queryByRole('button', { name: '已复制' })).not.toBeInTheDocument()
+  })
+
+  it('重复复制会重置反馈定时器，卸载会清除定时器', async () => {
     vi.useFakeTimers()
+    const { unmount } = render(<CopyButton content="正文" />)
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: '复制内容' })) })
+    act(() => { vi.advanceTimersByTime(1500) })
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: '已复制' })) })
+    act(() => { vi.advanceTimersByTime(1000) })
+    expect(screen.getByRole('button', { name: '已复制' })).toBeInTheDocument()
+    act(() => { vi.advanceTimersByTime(1000) })
+    expect(screen.getByRole('button', { name: '复制内容' })).toBeInTheDocument()
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: '复制内容' })) })
+    unmount()
+    expect(vi.getTimerCount()).toBe(0)
   })
 
-  afterEach(() => {
-    vi.useRealTimers()
-    vi.clearAllMocks()
-  })
-
-  it('auto-copies URL to clipboard when dialog opens', async () => {
-    vi.useRealTimers()
-    
-    const { rerender } = render(
-      <SuccessDialog
-        open={false}
-        onOpenChange={() => {}}
-        url={mockUrl}
-        onCreateAnother={() => {}}
-      />
-    )
-
-    rerender(
-      <SuccessDialog
-        open={true}
-        onOpenChange={() => {}}
-        url={mockUrl}
-        onCreateAnother={() => {}}
-      />
-    )
-
-    await waitFor(() => {
-      expect(clipboardWriteText).toHaveBeenCalledWith(mockUrl)
-    })
-    
-    vi.useFakeTimers()
-  })
-
-  it('shows "Link copied to clipboard!" message after auto-copy', async () => {
-    vi.useRealTimers()
-    
-    const { rerender } = render(
-      <SuccessDialog
-        open={false}
-        onOpenChange={() => {}}
-        url={mockUrl}
-        onCreateAnother={() => {}}
-      />
-    )
-
-    rerender(
-      <SuccessDialog
-        open={true}
-        onOpenChange={() => {}}
-        url={mockUrl}
-        onCreateAnother={() => {}}
-      />
-    )
-
-    await waitFor(() => {
-      expect(screen.getByText(/link copied to clipboard/i)).toBeInTheDocument()
-    })
-    
-    vi.useFakeTimers()
-  })
-
-  it('copies URL when copy button is clicked', async () => {
-    render(
-      <SuccessDialog
-        open={true}
-        onOpenChange={() => {}}
-        url={mockUrl}
-        onCreateAnother={() => {}}
-      />
-    )
-
-    // Clear the auto-copy call
-    clipboardWriteText.mockClear()
-
-    const copyButton = screen.getByRole('button', { name: /copy link/i })
-    await act(async () => {
-      fireEvent.click(copyButton)
-    })
-
-    expect(clipboardWriteText).toHaveBeenCalledWith(mockUrl)
-  })
-
-  it('shows "Copied!" text after clicking copy button', async () => {
-    render(
-      <SuccessDialog
-        open={true}
-        onOpenChange={() => {}}
-        url={mockUrl}
-        onCreateAnother={() => {}}
-      />
-    )
-
-    const copyButton = screen.getByRole('button', { name: /copy link/i })
-    await act(async () => {
-      fireEvent.click(copyButton)
-    })
-
-    expect(screen.getByText(/copied!/i)).toBeInTheDocument()
-  })
-
-  it('reverts to "Copy Link" after 2 seconds', async () => {
-    render(
-      <SuccessDialog
-        open={true}
-        onOpenChange={() => {}}
-        url={mockUrl}
-        onCreateAnother={() => {}}
-      />
-    )
-
-    const copyButton = screen.getByRole('button', { name: /copy link/i })
-    await act(async () => {
-      fireEvent.click(copyButton)
-    })
-
-    expect(screen.getByText(/copied!/i)).toBeInTheDocument()
-
-    await act(async () => {
-      vi.advanceTimersByTime(2000)
-    })
-
-    expect(screen.getByRole('button', { name: /copy link/i })).toBeInTheDocument()
-  })
-
-  it('calls onCreateAnother when "Create Another" button is clicked', async () => {
-    const onCreateAnother = vi.fn()
-    const onOpenChange = vi.fn()
-
-    render(
-      <SuccessDialog
-        open={true}
-        onOpenChange={onOpenChange}
-        url={mockUrl}
-        onCreateAnother={onCreateAnother}
-      />
-    )
-
-    const createAnotherButton = screen.getByRole('button', { name: /create another/i })
-    fireEvent.click(createAnotherButton)
-
-    expect(onOpenChange).toHaveBeenCalledWith(false)
-    expect(onCreateAnother).toHaveBeenCalled()
+  it('新内容不会继承上一条的成功反馈', async () => {
+    const { rerender } = render(<CopyButton content="旧正文" />)
+    fireEvent.click(screen.getByRole('button', { name: '复制内容' }))
+    expect(await screen.findByRole('button', { name: '已复制' })).toBeInTheDocument()
+    rerender(<CopyButton content="新正文" />)
+    expect(screen.getByRole('button', { name: '复制内容' })).toBeInTheDocument()
   })
 })

@@ -1,153 +1,67 @@
-"use client";
+'use client'
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useId, useRef, useState, type KeyboardEvent } from 'react'
+import { MAX_CONTENT_LENGTH } from '@/lib/paste-rules'
+import { CodeDisplay } from './code-display'
 
 interface CodeEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-  language: string;
-  maxLength?: number;
+  value: string
+  onChange: (value: string) => void
+  language: string
+  maxLength?: number
 }
 
-export function CodeEditor({
-  value,
-  onChange,
-  language,
-  maxLength = 500000,
-}: CodeEditorProps) {
-  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
-  const [highlightedHtml, setHighlightedHtml] = useState<string>("");
-  const [isHighlighting, setIsHighlighting] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+export function CodeEditor({ value, onChange, language, maxLength = MAX_CONTENT_LENGTH }: CodeEditorProps) {
+  const editorId = useId()
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit')
+  const leaveEditor = useRef(false)
+  const isOverLimit = value.length > maxLength
 
-  const isOverLimit = value.length > maxLength;
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Escape') { leaveEditor.current = true; return }
+    if (event.key !== 'Tab') { leaveEditor.current = false; return }
+    if (event.shiftKey || leaveEditor.current) { leaveEditor.current = false; return }
+    event.preventDefault()
+    const target = event.currentTarget
+    const start = target.selectionStart
+    onChange(value.slice(0, start) + '  ' + value.slice(target.selectionEnd))
+    requestAnimationFrame(() => { target.selectionStart = target.selectionEnd = start + 2 })
+  }
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === "Tab") {
-        e.preventDefault();
-        const target = e.currentTarget;
-        const start = target.selectionStart;
-        const end = target.selectionEnd;
-        const newValue =
-          value.substring(0, start) + "  " + value.substring(end);
-        onChange(newValue);
-        requestAnimationFrame(() => {
-          target.selectionStart = target.selectionEnd = start + 2;
-        });
-      }
-    },
-    [value, onChange],
-  );
-
-  useEffect(() => {
-    if (activeTab !== "preview" || !value) {
-      setHighlightedHtml("");
-      return;
-    }
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    debounceRef.current = setTimeout(async () => {
-      setIsHighlighting(true);
-      try {
-        const { codeToHtml } = await import("shiki");
-        const html = await codeToHtml(value, {
-          lang: language || "text",
-          theme: "vitesse-dark",
-        });
-        setHighlightedHtml(html);
-      } catch {
-        setHighlightedHtml(
-          `<pre><code>${value.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>`,
-        );
-      } finally {
-        setIsHighlighting(false);
-      }
-    }, 300);
-
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, [value, language, activeTab]);
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    let nextTab: 'edit' | 'preview'
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') nextTab = activeTab === 'edit' ? 'preview' : 'edit'
+    else if (event.key === 'Home') nextTab = 'edit'
+    else if (event.key === 'End') nextTab = 'preview'
+    else return
+    event.preventDefault()
+    setActiveTab(nextTab)
+    event.currentTarget.ownerDocument.getElementById(`${editorId}-${nextTab}`)?.focus()
+  }
 
   return (
-    <div className="flex flex-col rounded-xl border border-(--border-subtle) bg-(--bg-surface) overflow-hidden">
-      <div className="flex border-b border-(--border-subtle)">
-        <button
-          type="button"
-          onClick={() => setActiveTab("edit")}
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === "edit"
-              ? "text-(--accent-primary) border-b-2 border-(--accent-primary)"
-              : "text-(--text-secondary) hover:text-(--text-primary)"
-          }`}
-        >
-          Edit
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("preview")}
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === "preview"
-              ? "text-(--accent-primary) border-b-2 border-(--accent-primary)"
-              : "text-(--text-secondary) hover:text-(--text-primary)"
-          }`}
-        >
-          Preview
-        </button>
+    <div className="overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-surface)">
+      <label htmlFor={editorId} className="sr-only">代码或文本内容</label>
+      <div role="tablist" aria-label="编辑与预览" className="flex border-b border-(--border-subtle)">
+        {(['edit', 'preview'] as const).map((tab) => <button
+          key={tab} id={`${editorId}-${tab}`} type="button" role="tab" aria-selected={activeTab === tab}
+          aria-controls={`${editorId}-panel`} tabIndex={activeTab === tab ? 0 : -1}
+          onClick={() => setActiveTab(tab)} onKeyDown={handleTabKeyDown}
+          className={`px-4 py-2 text-sm font-medium ${activeTab === tab ? 'border-b-2 border-(--accent-primary) text-(--accent-primary)' : 'text-(--text-secondary) hover:text-(--text-primary)'}`}
+        >{tab === 'edit' ? '编辑' : '预览'}</button>)}
       </div>
-
-      <div className="relative h-75 sm:h-87.5 max-h-[50vh]">
-        {activeTab === "edit" ? (
-          <textarea
-            data-testid="code-editor"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Paste your code here..."
-            spellCheck={false}
-            className="w-full h-full p-3 sm:p-4 font-mono text-sm bg-transparent text-(--text-primary) placeholder:text-(--text-tertiary) resize-none outline-none focus:ring-2 focus:ring-(--accent-primary) focus:ring-inset transition-shadow"
-          />
-        ) : (
-          <div className="w-full h-full p-3 sm:p-4 overflow-auto">
-            {isHighlighting ? (
-              <div className="flex items-center justify-center h-full text-(--text-secondary)">
-                Highlighting...
-              </div>
-            ) : highlightedHtml ? (
-              <div
-                className="font-mono text-sm [&_pre]:bg-transparent! [&_pre]:p-0! [&_pre]:overflow-visible [&_code]:bg-transparent! [&_code]:whitespace-pre"
-                dangerouslySetInnerHTML={{ __html: highlightedHtml }}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-(--text-tertiary)">
-                No content to preview
-              </div>
-            )}
-          </div>
-        )}
+      <div id={`${editorId}-panel`} role="tabpanel" aria-labelledby={`${editorId}-${activeTab}`} tabIndex={activeTab === 'preview' ? 0 : undefined} className="h-75 max-h-[50vh] sm:h-87.5">
+        {activeTab === 'edit' ? <textarea
+          id={editorId} data-testid="code-editor" value={value} onChange={(event) => onChange(event.target.value)}
+          onKeyDown={handleKeyDown} onBlur={() => { leaveEditor.current = false }}
+          placeholder="粘贴代码或文本…" spellCheck={false} aria-describedby={`${editorId}-hint ${editorId}-count`} aria-invalid={isOverLimit}
+          className="h-full w-full resize-none bg-transparent p-3 font-mono text-sm text-(--text-primary) placeholder:text-(--text-secondary) outline-none focus:ring-2 focus:ring-(--accent-primary) focus:ring-inset sm:p-4"
+        /> : <div className="h-full overflow-auto py-3 sm:py-4">{value ? <CodeDisplay code={value} language={language} delay={300} /> : <p className="p-4 text-sm text-(--text-secondary)">暂无内容可预览</p>}</div>}
       </div>
-
-      <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-t border-(--border-subtle) text-xs">
-        <span
-          className={
-            isOverLimit ? "text-red-500 font-medium" : "text-(--text-tertiary)"
-          }
-        >
-          {value.length.toLocaleString()} / {maxLength.toLocaleString()}
-        </span>
-        {isOverLimit && (
-          <span className="text-red-500 font-medium">
-            Content exceeds maximum length
-          </span>
-        )}
+      <div className="space-y-1 border-t border-(--border-subtle) px-3 py-2 text-xs text-(--text-secondary) sm:px-4">
+        <p id={`${editorId}-count`} className={isOverLimit ? 'text-red-400' : undefined}>{value.length.toLocaleString()} / {maxLength.toLocaleString()}{isOverLimit ? '，内容超过长度限制' : ''}</p>
+        <p id={`${editorId}-hint`}>Tab 缩进；Esc 后按 Tab 或 Shift+Tab 离开编辑器。</p>
       </div>
     </div>
-  );
+  )
 }
-

@@ -1,147 +1,72 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import type { ReactNode } from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { PasteCreator } from '../paste-creator'
-import { CodeEditor } from '../code-editor'
-import { SuccessDialog } from '../success-dialog'
+import { MAX_CONTENT_LENGTH } from '@/lib/paste-rules'
 
-interface MockProps {
-  children?: ReactNode
-  [key: string]: unknown
+const fetchMock = vi.fn()
+const writeText = vi.fn()
+
+function inputContent(content = 'console.log("hello")') {
+  fireEvent.change(screen.getByLabelText('代码或文本内容'), { target: { value: content } })
 }
 
-vi.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: MockProps) => <div {...props}>{children}</div>,
-    span: ({ children, ...props }: MockProps) => <span {...props}>{children}</span>,
-  },
-  AnimatePresence: ({ children }: MockProps) => children,
-}))
-
-// Mock fetch for API calls
-global.fetch = vi.fn()
-
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
+beforeEach(() => {
+  fetchMock.mockReset()
+  writeText.mockReset().mockResolvedValue(undefined)
+  vi.stubGlobal('fetch', fetchMock)
+  Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
 })
 
-describe('PasteCreator', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('renders the create button', () => {
+describe('创建内容', () => {
+  it('禁用空内容和只有空白的提交', () => {
     render(<PasteCreator />)
-    expect(screen.getByRole('button', { name: /create paste/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()
+    inputContent('   \n')
+    expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()
   })
 
-  it('disables button when textarea is empty', () => {
+  it('真实提交成功后首次挂载弹窗就自动复制可访问链接', async () => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ success: true, data: { id: 'abc123', url: 'http://localhost:3000/abc123' } }) })
     render(<PasteCreator />)
-    const button = screen.getByRole('button', { name: /create paste/i })
-    expect(button).toBeDisabled()
+    inputContent()
+    fireEvent.click(screen.getByRole('button', { name: '创建内容' }))
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith('http://localhost:3000/abc123'))
+    expect(screen.getByRole('link', { name: 'http://localhost:3000/abc123' })).toHaveAttribute('href', 'http://localhost:3000/abc123')
+    expect(fetchMock.mock.calls[0][1].body).toContain('console.log')
   })
 
-  it('enables button when textarea has content', () => {
+  it.each([400, 429, 500])('显示 %s 服务端错误并保留输入以便重试', async (status) => {
+    fetchMock.mockResolvedValue({ ok: false, status, json: async () => ({ success: false, error: { code: 'ERROR', message: '创建请求失败' } }) })
     render(<PasteCreator />)
-    const textarea = screen.getByTestId('code-editor')
-    fireEvent.change(textarea, { target: { value: 'test code' } })
-    const button = screen.getByRole('button', { name: /create paste/i })
-    expect(button).not.toBeDisabled()
-  })
-})
-
-describe('CodeEditor', () => {
-  it('renders textarea with placeholder', () => {
-    render(<CodeEditor value="" onChange={() => {}} language="plaintext" />)
-    expect(screen.getByPlaceholderText(/paste your code here/i)).toBeInTheDocument()
+    inputContent('不能丢失的内容')
+    fireEvent.click(screen.getByRole('button', { name: '创建内容' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('创建请求失败')
+    expect(screen.getByLabelText('代码或文本内容')).toHaveValue('不能丢失的内容')
+    expect(screen.getByRole('button', { name: '创建内容' })).toBeEnabled()
   })
 
-  it('displays character count', () => {
-    render(<CodeEditor value="hello" onChange={() => {}} language="plaintext" />)
-    expect(screen.getByText(/5/)).toBeInTheDocument()
+  it('网络错误可见且能再次提交', async () => {
+    fetchMock.mockRejectedValue(new Error('offline'))
+    render(<PasteCreator />)
+    inputContent('保留内容')
+    fireEvent.click(screen.getByRole('button', { name: '创建内容' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('检查网络连接')
+    expect(screen.getByLabelText('代码或文本内容')).toHaveValue('保留内容')
   })
 
-  it('shows Edit and Preview tabs', () => {
-    render(<CodeEditor value="" onChange={() => {}} language="plaintext" />)
-    expect(screen.getByRole('button', { name: /^edit$/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^preview$/i })).toBeInTheDocument()
-  })
-
-  it('calls onChange when textarea value changes', () => {
-    const onChange = vi.fn()
-    render(<CodeEditor value="" onChange={onChange} language="plaintext" />)
-    const textarea = screen.getByTestId('code-editor')
-    fireEvent.change(textarea, { target: { value: 'new content' } })
-    expect(onChange).toHaveBeenCalledWith('new content')
-  })
-})
-
-describe('SuccessDialog', () => {
-  const mockUrl = 'https://example.com/abc123'
-
-  beforeEach(() => {
-    Object.assign(navigator, {
-      clipboard: {
-        writeText: vi.fn().mockResolvedValue(undefined),
-      },
-    })
-  })
-
-  it('renders when open', () => {
-    render(
-      <SuccessDialog
-        open={true}
-        onOpenChange={() => {}}
-        url={mockUrl}
-        onCreateAnother={() => {}}
-      />
-    )
-    expect(screen.getByText(/paste created/i)).toBeInTheDocument()
-  })
-
-  it('displays the paste URL', () => {
-    render(
-      <SuccessDialog
-        open={true}
-        onOpenChange={() => {}}
-        url={mockUrl}
-        onCreateAnother={() => {}}
-      />
-    )
-    expect(screen.getByText(mockUrl)).toBeInTheDocument()
-  })
-
-  it('shows copy link button', () => {
-    render(
-      <SuccessDialog
-        open={true}
-        onOpenChange={() => {}}
-        url={mockUrl}
-        onCreateAnother={() => {}}
-      />
-    )
-    expect(screen.getByRole('button', { name: /copy link/i })).toBeInTheDocument()
-  })
-
-  it('shows create another button', () => {
-    render(
-      <SuccessDialog
-        open={true}
-        onOpenChange={() => {}}
-        url={mockUrl}
-        onCreateAnother={() => {}}
-      />
-    )
-    expect(screen.getByRole('button', { name: /create another/i })).toBeInTheDocument()
+  it('拒绝超长内容和超72字节/空白密码', () => {
+    render(<PasteCreator />)
+    inputContent('x'.repeat(MAX_CONTENT_LENGTH + 1))
+    expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()
+    expect(screen.getByText(/内容超过长度限制/)).toBeInTheDocument()
+    inputContent('有效内容')
+    fireEvent.change(screen.getByLabelText('密码保护'), { target: { value: '密'.repeat(25) } })
+    expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()
+    fireEvent.change(screen.getByLabelText('密码保护'), { target: { value: '   ' } })
+    expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()
+    fireEvent.change(screen.getByLabelText('密码保护'), { target: { value: '密'.repeat(24) } })
+    expect(screen.getByRole('button', { name: '创建内容' })).toBeEnabled()
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 })

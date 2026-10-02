@@ -18,25 +18,25 @@ import {
 interface PaginationProps {
   page: number
   totalPages: number
-  total?: number
-  pageSize?: number
+  total: number
+  pageSize: number
   onPageChange: (page: number) => void
-  onPageSizeChange?: (size: number) => void
+  onPageSizeChange: (size: number) => void
 }
 
 export function Pagination({
   page,
   totalPages,
-  total = 0,
-  pageSize = 10,
+  total,
+  pageSize,
   onPageChange,
-  onPageSizeChange = () => {},
+  onPageSizeChange,
 }: PaginationProps) {
   const start = (page - 1) * pageSize + 1
   const end = Math.min(page * pageSize, total)
 
   const renderPageNumbers = () => {
-    const items = []
+    const items: Array<number | '...'> = []
     const maxVisible = 7
 
     if (totalPages <= maxVisible) {
@@ -73,15 +73,17 @@ export function Pagination({
         )
       }
 
-      const pageNum = item as number
       return (
         <Button
-          key={pageNum}
-          variant={page === pageNum ? 'default' : 'outline'}
+          key={item}
+          variant={page === item ? 'default' : 'outline'}
+          aria-label={`第 ${item} 页`}
+          aria-current={page === item ? 'page' : undefined}
+          disabled={page === item}
           className="h-8 w-8 p-0"
-          onClick={() => onPageChange(pageNum)}
+          onClick={() => onPageChange(item)}
         >
-          {pageNum}
+          {item}
         </Button>
       )
     })
@@ -91,19 +93,19 @@ export function Pagination({
     <div className="flex items-center justify-between px-2">
       <div className="hidden flex-1 items-center gap-4 sm:flex">
         <p className="text-sm text-muted-foreground">
-          Showing {total === 0 ? 0 : start}-{end} of {total}
+          第 {total === 0 ? 0 : start}–{end} 条，共 {total} 条
         </p>
         <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
+          <p id="page-size-label" className="text-sm font-medium">每页条数</p>
           <Select
             value={`${pageSize}`}
             onValueChange={(value) => onPageSizeChange(Number(value))}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger aria-labelledby="page-size-label" className="h-8 w-[70px]">
               <SelectValue placeholder={pageSize} />
             </SelectTrigger>
-            <SelectContent side="top">
-              {[10, 20, 50].map((size) => (
+            <SelectContent side="top" className="motion-reduce:animate-none">
+              {[10, 15, 20, 50].map((size) => (
                 <SelectItem key={size} value={`${size}`}>
                   {size}
                 </SelectItem>
@@ -121,7 +123,7 @@ export function Pagination({
             onClick={() => onPageChange(1)}
             disabled={page === 1}
           >
-            <span className="sr-only">Go to first page</span>
+            <span className="sr-only">首页</span>
             <ChevronsLeft className="h-4 w-4" />
           </Button>
 
@@ -131,7 +133,7 @@ export function Pagination({
             onClick={() => onPageChange(page - 1)}
             disabled={page <= 1}
           >
-            <span className="sr-only">Go to previous page</span>
+            <span className="sr-only">上一页</span>
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
@@ -140,7 +142,7 @@ export function Pagination({
           </div>
 
           <div className="flex w-[100px] items-center justify-center text-sm font-medium md:hidden">
-            Page {page} of {totalPages}
+            第 {page} / {totalPages} 页
           </div>
 
           <Button
@@ -149,7 +151,7 @@ export function Pagination({
             onClick={() => onPageChange(page + 1)}
             disabled={page >= totalPages}
           >
-            <span className="sr-only">Go to next page</span>
+            <span className="sr-only">下一页</span>
             <ChevronRight className="h-4 w-4" />
           </Button>
 
@@ -159,7 +161,7 @@ export function Pagination({
             onClick={() => onPageChange(totalPages)}
             disabled={page === totalPages}
           >
-            <span className="sr-only">Go to last page</span>
+            <span className="sr-only">末页</span>
             <ChevronsRight className="h-4 w-4" />
           </Button>
         </div>

@@ -10,8 +10,8 @@
   --accent-primary: #f59e0b;
   --text-primary: #fafafa;
   --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --text-tertiary: #52525b;
+  --text-muted: #a1a1aa;
+  --text-tertiary: #a1a1aa;
   --border-subtle: #27272a;
   --border-default: #3f3f46;
   --border-strong: #52525b;
@@ -146,4 +146,20 @@
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--border-default) var(--bg-base);
+}
+
+/* Preserve short feedback fades while removing Radix/Tailwind zoom and slide motion. */
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="dialog-content"],
+  [data-slot="dialog-overlay"],
+  [data-slot="popover-content"],
+  [data-slot="select-content"] {
+    --tw-enter-translate-x: 0;
+    --tw-enter-translate-y: 0;
+    --tw-exit-translate-x: 0;
+    --tw-exit-translate-y: 0;
+    --tw-enter-scale: 1;
+    --tw-exit-scale: 1;
+    animation-duration: 150ms;
+  }
 }

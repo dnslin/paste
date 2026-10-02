@@ -1,4 +1,4 @@
-CREATE TABLE `pastes` (
+CREATE TABLE IF NOT EXISTS `pastes` (
 	`id` text PRIMARY KEY NOT NULL,
 	`content` text NOT NULL,
 	`language` text DEFAULT 'plaintext',

@@ -10,11 +10,11 @@ export default function Home() {
           <div className="flex items-center justify-center gap-3 mb-2">
             <Logo />
             <h1 className="text-4xl font-semibold tracking-tight text-(--text-primary)">
-              Paste Creator
+              创建分享
             </h1>
           </div>
           <p className="text-lg text-(--text-secondary)">
-            Share code instantly
+            快速分享代码与文本
           </p>
         </div>
         <div className="w-full max-w-175 flex-1 min-h-0">

@@ -2,9 +2,8 @@
 set -e
 
 SECRETS_FILE="/app/data/.secrets"
-DB_FILE="/app/data/paste.db"
 
-chown -R nextjs:nodejs /app/data 2>/dev/null || true
+chown -R nextjs:nodejs /app/data
 
 # ============================================
 # 1. Generate or load secrets
@@ -46,7 +45,11 @@ if [ -z "$ADMIN_PASSWORD_HASH" ]; then
     echo "[entrypoint] Generating bcrypt hash from ADMIN_PASSWORD..."
     ADMIN_PASSWORD_HASH=$(node -e "
         const bcrypt = require('bcryptjs');
-        console.log(bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10));
+        const password = process.env.ADMIN_PASSWORD;
+        if (!password.trim() || bcrypt.truncates(password)) {
+            throw new Error('ADMIN_PASSWORD must be non-blank and at most 72 UTF-8 bytes');
+        }
+        console.log(bcrypt.hashSync(password, 10));
     ")
     
     if [ -z "$ADMIN_PASSWORD_HASH" ]; then
@@ -58,16 +61,10 @@ fi
 export ADMIN_PASSWORD_HASH
 
 # ============================================
-# 3. Initialize database if needed
+# 3. Apply generated migrations
 # ============================================
-if [ ! -f "$DB_FILE" ]; then
-    echo "[entrypoint] Initializing database..."
-    node /app/scripts/migrate.js
-    echo "[entrypoint] Database initialized"
-else
-    echo "[entrypoint] Database exists, checking migrations..."
-    node /app/scripts/migrate.js
-fi
+echo "[entrypoint] Applying database migrations..."
+node /app/scripts/migrate.mjs
 
 # ============================================
 # 4. Start the application

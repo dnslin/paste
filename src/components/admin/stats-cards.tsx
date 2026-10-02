@@ -24,28 +24,25 @@ interface StatCardProps {
   value: number
   icon: React.ComponentType<{ className?: string }>
   trend?: DailyTrend[]
-  changePercent?: number
+  change?: { label: string; positive: boolean }
 }
 
-function StatCard({ label, value, icon: Icon, trend, changePercent }: StatCardProps) {
-  const isPositive = changePercent !== undefined && changePercent >= 0
-  const showChange = changePercent !== undefined && !isNaN(changePercent) && isFinite(changePercent)
-
+function StatCard({ label, value, icon: Icon, trend, change }: StatCardProps) {
   return (
     <div className="rounded-lg bg-(--bg-surface) border border-(--border-subtle) p-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-(--bg-elevated) flex items-center justify-center">
-            <Icon className="w-5 h-5 text-(--accent-primary)" />
+            <Icon className="w-5 h-5 text-(--accent-primary)" aria-hidden="true" />
           </div>
           <div>
             <p className="text-2xl font-bold text-(--text-primary)">{value.toLocaleString()}</p>
             <p className="text-sm text-(--text-secondary)">{label}</p>
           </div>
         </div>
-        {showChange && (
-          <div className={`flex items-center gap-1 text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-            <span>{isPositive ? '+' : ''}{changePercent.toFixed(0)}%</span>
+        {change && (
+          <div aria-label="与昨日相比" className={`flex items-center gap-1 text-sm ${change.positive ? 'text-green-400' : 'text-red-400'}`}>
+            <span>{change.label}</span>
           </div>
         )}
       </div>
@@ -60,6 +57,7 @@ function StatCard({ label, value, icon: Icon, trend, changePercent }: StatCardPr
                 </linearGradient>
               </defs>
               <Area
+                isAnimationActive={false}
                 type="monotone"
                 dataKey="count"
                 stroke="var(--accent-primary)"
@@ -75,26 +73,28 @@ function StatCard({ label, value, icon: Icon, trend, changePercent }: StatCardPr
 }
 
 export function StatsCards({ data }: StatsCardsProps) {
-  const dailyTrend = data.dailyTrend || []
-  const todayCount = dailyTrend.length > 0 ? dailyTrend[dailyTrend.length - 1]?.count || 0 : 0
-  const yesterdayCount = dailyTrend.length > 1 ? dailyTrend[dailyTrend.length - 2]?.count || 0 : 0
-  const changePercent = yesterdayCount > 0 ? ((todayCount - yesterdayCount) / yesterdayCount) * 100 : 0
+  const dailyTrend = data.dailyTrend
+  const yesterdayCount = dailyTrend.at(-2)?.count ?? 0
+  const changePercent = yesterdayCount > 0 ? ((data.todayCount - yesterdayCount) / yesterdayCount) * 100 : null
+  const change = changePercent !== null
+    ? { label: `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(0)}%`, positive: changePercent >= 0 }
+    : data.todayCount > 0 ? { label: '新增', positive: true } : undefined
 
   const cards = [
     { 
-      label: 'Total Pastes', 
+      label: '累计分享',
       value: data.total, 
       icon: Database,
       trend: dailyTrend,
     },
     { 
-      label: 'Today', 
+      label: '今日（UTC）',
       value: data.todayCount, 
       icon: CalendarPlus,
-      changePercent: changePercent,
+      change,
     },
     { 
-      label: 'Active', 
+      label: '可访问',
       value: data.activeCount, 
       icon: Activity,
     },
@@ -109,7 +109,7 @@ export function StatsCards({ data }: StatsCardsProps) {
           value={card.value}
           icon={card.icon}
           trend={card.trend}
-          changePercent={card.changePercent}
+          change={card.change}
         />
       ))}
     </div>

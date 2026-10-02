@@ -16,6 +16,10 @@ export default function AdminLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
 
+  if (pathname === '/admin/login') {
+    return <main className="min-h-screen bg-(--bg-base) flex items-center justify-center p-4">{children}</main>
+  }
+
   return (
     <div className="min-h-screen bg-(--bg-base) flex flex-col">
       <nav className="h-16 border-b border-(--border-subtle) bg-(--bg-surface) sticky top-0 z-50">
@@ -24,12 +28,12 @@ export default function AdminLayout({
             <div className="flex items-center gap-3">
               <Link 
                 href="/"
-                className="focus:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary) rounded-lg transition-transform hover:scale-105 active:scale-95"
-                aria-label="Go to homepage"
+                className="focus:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary) rounded-lg transition-opacity hover:opacity-80"
+                aria-label="返回首页"
               >
                 <Image
                   src="/logo.svg"
-                  alt="Paste Logo"
+                  alt="Paste 标志"
                   width={32}
                   height={32}
                   priority
@@ -39,7 +43,7 @@ export default function AdminLayout({
                 href="/admin" 
                 className="text-lg font-semibold text-(--accent-primary) transition-opacity hover:opacity-90"
               >
-                Paste Admin
+                Paste 管理后台
               </Link>
             </div>
 
@@ -54,7 +58,7 @@ export default function AdminLayout({
                 )}
               >
                 <LayoutDashboard className="w-4 h-4" />
-                <span>Dashboard</span>
+                <span>概览</span>
               </Link>
               
               <div className="w-px h-6 bg-(--border-subtle) mx-2" />
@@ -66,10 +70,10 @@ export default function AdminLayout({
 
             <div className="md:hidden">
               <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                onClick={() => setIsMobileMenuOpen((value) => !value)}
                 className="p-2 -mr-2 text-(--text-secondary) hover:text-(--text-primary) rounded-md transition-colors"
                 aria-expanded={isMobileMenuOpen}
-                aria-label="Toggle menu"
+                aria-label="切换导航菜单"
               >
                 {isMobileMenuOpen ? (
                   <X className="w-6 h-6" />
@@ -95,7 +99,7 @@ export default function AdminLayout({
                 )}
               >
                 <LayoutDashboard className="w-5 h-5" />
-                <span>Dashboard</span>
+                <span>概览</span>
               </Link>
 
               <div className="border-t border-(--border-subtle) my-2" />

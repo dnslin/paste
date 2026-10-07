@@ -10,6 +10,7 @@ import { PasteDetailModal } from './paste-detail-modal'
 import { DeleteConfirmModal } from './delete-confirm-modal'
 
 interface PasteItem {
+  kind?: 'text' | 'file'
   id: string
   createdAt: string
   language: string
@@ -32,7 +33,7 @@ const STATUS_STYLES = {
   destroyed: 'bg-red-500/20 text-red-400',
 }
 
-type ActiveModal = { type: 'detail' | 'delete'; id: string } | null
+type ActiveModal = { type: 'detail' | 'delete'; id: string; kind?: 'text' | 'file' } | null
 
 export function PastesTable() {
   const [data, setData] = useState<PastesResponse | null>(null)
@@ -136,7 +137,7 @@ export function PastesTable() {
               <tr>
                 <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">编号</th>
                 <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">创建时间</th>
-                <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary) hidden md:table-cell">语言</th>
+                <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary) hidden md:table-cell">类型 / 语言</th>
                 <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">状态</th>
                 <th scope="col" className="px-4 py-3 text-right text-sm font-medium text-(--text-secondary)">操作</th>
               </tr>
@@ -146,10 +147,10 @@ export function PastesTable() {
                 <tr key={item.id} className="hover:bg-(--bg-elevated)/50">
                   <td className="px-4 py-3 font-mono text-sm text-(--text-primary)">{item.id}</td>
                   <td className="px-4 py-3 text-sm text-(--text-primary)">{new Date(item.createdAt).toLocaleString('zh-CN')}</td>
-                  <td className="px-4 py-3 text-sm text-(--text-primary) hidden md:table-cell">{item.language}</td>
+                  <td className="px-4 py-3 text-sm text-(--text-primary) hidden md:table-cell">{item.kind === 'file' ? '文件' : item.language}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[item.status]}`}>
-                      {STATUS_LABELS[item.status]}
+                      {item.kind === 'file' && item.status === 'destroyed' ? '领取次数已用尽' : STATUS_LABELS[item.status]}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -170,10 +171,10 @@ export function PastesTable() {
                         size="icon-sm"
                         disabled={loading}
                         onClick={() => {
-                          setModal({ type: 'delete', id: item.id })
+                          setModal({ type: 'delete', id: item.id, kind: item.kind })
                         }}
                         className="text-red-500 hover:text-red-400"
-                        aria-label={`删除 ${item.id}`}
+                        aria-label={`${item.kind === 'file' ? '撤销' : '删除'} ${item.id}`}
                       >
                         <Trash2 className="size-4" aria-hidden="true" />
                       </Button>
@@ -200,6 +201,7 @@ export function PastesTable() {
         onOpenChange={(open) => { if (!open) setModal(null) }}
       />
       <DeleteConfirmModal
+        kind={modal?.kind}
         pasteId={modal?.type === 'delete' ? modal.id : null}
         open={modal?.type === 'delete'}
         onOpenChange={(open) => { if (!open) setModal(null) }}

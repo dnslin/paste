@@ -15,13 +15,14 @@ import { Button } from '@/components/ui/button'
 import type { ApiResponse } from '@/lib/api-response'
 
 interface DeleteConfirmModalProps {
+  kind?: 'text' | 'file'
   pasteId: string | null
   open: boolean
   onOpenChange: (open: boolean) => void
   onConfirm: () => void
 }
 
-export function DeleteConfirmModal({ pasteId, open, onOpenChange, onConfirm }: DeleteConfirmModalProps) {
+export function DeleteConfirmModal({ pasteId, open, onOpenChange, onConfirm, kind = 'text' }: DeleteConfirmModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -62,10 +63,10 @@ export function DeleteConfirmModal({ pasteId, open, onOpenChange, onConfirm }: D
             <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-amber-500" aria-hidden="true" />
             </div>
-            <DialogTitle>删除分享</DialogTitle>
+            <DialogTitle>{kind === 'file' ? '撤销文件分享' : '删除分享'}</DialogTitle>
           </div>
           <DialogDescription className="pt-2">
-            确认删除这条分享？删除后无法恢复。
+            {kind === 'file' ? '确认撤销这条文件分享？新的下载请求将被拒绝，已开始的下载可完成。文件会进入清理，操作无法恢复。' : '确认删除这条分享？删除后无法恢复。'}
           </DialogDescription>
         </DialogHeader>
         <DialogClose asChild>
@@ -96,7 +97,7 @@ export function DeleteConfirmModal({ pasteId, open, onOpenChange, onConfirm }: D
                 正在删除…
               </>
             ) : (
-              '删除'
+              kind === 'file' ? '撤销并删除' : '删除'
             )}
           </Button>
         </DialogFooter>

@@ -3,6 +3,7 @@ set -e
 
 SECRETS_FILE="/app/data/.secrets"
 
+mkdir -p /app/data
 chown -R nextjs:nodejs /app/data
 
 # ============================================
@@ -28,6 +29,8 @@ EOF
     chmod 600 "$SECRETS_FILE"
     echo "[entrypoint] Secrets saved to $SECRETS_FILE"
 fi
+
+chown nextjs:nodejs "$SECRETS_FILE"
 
 export ENCRYPTION_KEY
 export SESSION_SECRET
@@ -64,10 +67,10 @@ export ADMIN_PASSWORD_HASH
 # 3. Apply generated migrations
 # ============================================
 echo "[entrypoint] Applying database migrations..."
-node /app/scripts/migrate.mjs
+su-exec nextjs:nodejs node /app/scripts/migrate.mjs
 
 # ============================================
 # 4. Start the application
 # ============================================
 echo "[entrypoint] Starting application..."
-exec su-exec nextjs "$@"
+exec su-exec nextjs:nodejs "$@"

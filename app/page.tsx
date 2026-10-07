@@ -1,7 +1,11 @@
-import { PasteCreator } from '@/components/paste/paste-creator'
+import { ShareCreator } from '@/components/files/share-creator'
+import { verifySession } from '@/lib/admin/session'
 import { Logo } from '@/components/logo'
 
-export default function Home() {
+export const dynamic = 'force-dynamic'
+
+export default async function Home() {
+  const allowFiles = await verifySession()
   return (
     <div className="relative min-h-screen bg-(--bg-base)">
       <div className="retro-grid" />
@@ -14,11 +18,11 @@ export default function Home() {
             </h1>
           </div>
           <p className="text-lg text-(--text-secondary)">
-            快速分享代码与文本
+            {allowFiles ? '快速分享代码、文本与文件' : '快速分享代码与文本'}
           </p>
         </div>
         <div className="w-full max-w-175 flex-1 min-h-0">
-          <PasteCreator />
+          <ShareCreator allowFiles={allowFiles} />
         </div>
       </main>
     </div>

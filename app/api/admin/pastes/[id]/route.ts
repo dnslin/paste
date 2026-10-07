@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { pastes, passwordAttempts } from '@/lib/db/schema';
+import { pastes, passwordAttempts, files } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { verifySession } from '@/lib/admin/session';
 import { getPasteStatus, decryptPaste } from '@/lib/paste';
 import { success, error, UNAUTHORIZED, NOT_FOUND, INTERNAL_ERROR } from '@/lib/api-response';
+
+import { revokeFile } from '@/lib/files';
+import { fileJson, fileError, requireSameOrigin } from '@/lib/file-http';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -29,6 +32,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(error(NOT_FOUND, '内容不存在'), { status: 404 });
     }
 
+    if (paste.kind === 'file') {
+      const file = db.select().from(files).where(eq(files.pasteId, id)).get();
+      if (!file) return fileJson(error(NOT_FOUND, '文件不存在'), 404);
+      return fileJson(success({ id: paste.id, kind: 'file', fileName: file.fileName, size: file.size,
+        createdAt: paste.createdAt.toISOString(), expiresAt: paste.expiresAt?.toISOString() ?? null,
+        burnCount: paste.burnCount, status: file.state === 'deleting' ? 'destroyed' : getPasteStatus(paste),
+        hasPassword: !!paste.passwordHash }));
+    }
     return NextResponse.json(success({
       id: paste.id,
       content: decryptPaste(paste),
@@ -54,6 +65,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     const { id } = await params;
 
+    const paste = db.select({ kind: pastes.kind }).from(pastes).where(eq(pastes.id, id)).get();
+    if (paste?.kind === 'file') {
+      requireSameOrigin(request, true);
+      await revokeFile(id);
+      return fileJson(success({ message: '文件已撤销' }));
+    }
+
     const deleted = db.transaction((tx) => {
       const result = tx.delete(pastes).where(eq(pastes.id, id)).run();
       if (result.changes) {
@@ -67,6 +85,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(success({ message: 'Paste deleted' }));
   } catch (err) {
+    if (err instanceof Error && err.name === 'ApiError') return fileError(err);
     console.error('Delete paste error:', err);
     return NextResponse.json(error(INTERNAL_ERROR, '删除失败，请稍后重试'), { status: 500 });
   }

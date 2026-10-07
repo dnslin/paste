@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
     const items = await db
       .select({
         id: pastes.id,
+        kind: pastes.kind,
         createdAt: pastes.createdAt,
         language: pastes.language,
         expiresAt: pastes.expiresAt,
@@ -43,6 +44,7 @@ export async function GET(request: NextRequest) {
 
     const formattedItems = items.map((item) => ({
       id: item.id,
+      kind: item.kind,
       createdAt: item.createdAt.toISOString(),
       language: item.language || 'plaintext',
       status: getPasteStatus(item),

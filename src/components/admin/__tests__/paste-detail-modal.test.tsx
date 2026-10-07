@@ -17,6 +17,21 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('PasteDetailModal', () => {
+  it('文件仅展示元数据，不提供正文或绕过授权的下载', async () => {
+    fetchMock.mockResolvedValueOnce(Response.json({ success: true, data: {
+      id: 'file-one', kind: 'file', fileName: 'private.pdf', size: 1024,
+      createdAt: '2026-10-02T12:00:00Z', expiresAt: '2026-10-09T12:00:00Z',
+      burnCount: 0, status: 'destroyed', hasPassword: true,
+    } }))
+    render(<PasteDetailModal pasteId="file-one" open onOpenChange={onOpenChange} />)
+    expect(await screen.findByText('private.pdf')).toBeInTheDocument()
+    expect(screen.getByText('1.0 KiB')).toBeInTheDocument()
+    expect(screen.getByText('剩余领取次数')).toBeInTheDocument()
+    expect(screen.getByText('领取次数已用尽')).toBeInTheDocument()
+    expect(screen.queryByText('内容')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /下载/ })).not.toBeInTheDocument()
+  })
+
   it('404 响应结束加载，并能重试获取详情', async () => {
     fetchMock.mockResolvedValueOnce(Response.json({ success: false, error: { code: 'NOT_FOUND', message: '分享不存在' } }, { status: 404 })).mockResolvedValueOnce(detail())
     render(<PasteDetailModal pasteId="one" open onOpenChange={onOpenChange} />)

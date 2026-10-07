@@ -5,18 +5,22 @@ import { Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import type { ApiResponse } from '@/lib/api-response'
+import { formatFileSize } from '@/components/files/file-client'
 import type { PasteStatus } from '@/lib/paste'
 
-interface PasteDetail {
+interface DetailBase {
   id: string
-  content: string
-  language: string
   createdAt: string
   expiresAt: string | null
   burnCount: number | null
   status: PasteStatus
   hasPassword: boolean
 }
+
+type PasteDetail = DetailBase & (
+  | { kind?: 'text'; content: string; language: string }
+  | { kind: 'file'; fileName: string; size: number }
+)
 
 interface PasteDetailModalProps {
   pasteId: string | null
@@ -75,7 +79,7 @@ function PasteDetails({ pasteId }: { pasteId: string }) {
   }
 
   const { paste } = state
-  const statusLabel = { active: '可访问', expired: '已过期', destroyed: '查看次数已用尽' }[paste.status]
+  const statusLabel = { active: '可访问', expired: '已过期', destroyed: paste.kind === 'file' ? '领取次数已用尽' : '查看次数已用尽' }[paste.status]
 
   return (
     <div className="space-y-4">
@@ -85,8 +89,8 @@ function PasteDetails({ pasteId }: { pasteId: string }) {
           <dd className="font-mono text-(--text-primary)">{paste.id}</dd>
         </div>
         <div>
-          <dt className="text-(--text-secondary)">语言</dt>
-          <dd className="text-(--text-primary)">{paste.language}</dd>
+          <dt className="text-(--text-secondary)">{paste.kind === 'file' ? '类型' : '语言'}</dt>
+          <dd className="text-(--text-primary)">{paste.kind === 'file' ? '文件' : paste.language}</dd>
         </div>
         <div>
           <dt className="text-(--text-secondary)">创建时间</dt>
@@ -104,15 +108,18 @@ function PasteDetails({ pasteId }: { pasteId: string }) {
         )}
         {paste.burnCount !== null && (
           <div>
-            <dt className="text-(--text-secondary)">剩余查看次数</dt>
+            <dt className="text-(--text-secondary)">{paste.kind === 'file' ? '剩余领取次数' : '剩余查看次数'}</dt>
             <dd className="text-(--text-primary)">{paste.burnCount}</dd>
           </div>
         )}
       </dl>
-      <div>
+      {paste.kind === 'file' ? <div className="space-y-3 rounded-lg border border-(--border-subtle) bg-(--bg-base) p-4">
+        <dl className="space-y-3 text-sm"><div><dt className="text-(--text-secondary)">文件名</dt><dd className="mt-1 break-all">{paste.fileName}</dd></div><div><dt className="text-(--text-secondary)">大小</dt><dd className="mt-1 font-mono">{formatFileSize(paste.size)}</dd></div></dl>
+        <p className="text-sm text-(--text-secondary)">管理员可查看元数据或撤销分享。下载仍需通过分享页领取授权；已有有效凭证在次数用尽后仍可重试。</p>
+      </div> : <div>
         <h3 className="text-(--text-secondary) text-sm mb-2">内容</h3>
         <pre className="bg-(--bg-base) border border-(--border-subtle) rounded-lg p-4 overflow-auto max-h-75 text-sm font-mono text-(--text-primary)">{paste.content}</pre>
-      </div>
+      </div>}
     </div>
   )
 }

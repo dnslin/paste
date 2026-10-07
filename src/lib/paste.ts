@@ -22,6 +22,7 @@ export function decryptPaste(paste: Pick<Paste, 'encrypted' | 'content' | 'iv'>)
 
 function requireActive(paste: Paste | undefined): Paste {
   if (!paste) throw new ApiError(NOT_FOUND, '内容不存在');
+  if (paste.kind === 'file') throw new ApiError(VALIDATION_ERROR, '请使用文件下载入口');
   const status = getPasteStatus(paste);
   if (status === 'expired') throw new ApiError(NOT_FOUND, '内容已过期');
   if (status === 'destroyed') throw new ApiError(NOT_FOUND, '查看次数已用完');

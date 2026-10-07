@@ -45,3 +45,6 @@ next-env.d.ts
 *.tmp
 pnpm-buildscripts.txt
 .sisyphus/
+
+# Private runtime volume, including encrypted file objects and generated secrets
+/data/

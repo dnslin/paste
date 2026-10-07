@@ -1,10 +1,10 @@
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
-import { pastes, passwordAttempts } from './schema';
+import { pastes, passwordAttempts, files, downloadGrants } from './schema';
 import path from 'path';
 import fs from 'fs';
 
-const schema = { pastes, passwordAttempts };
+const schema = { pastes, passwordAttempts, files, downloadGrants };
 
 const globalForDb = globalThis as unknown as {
   db: ReturnType<typeof createDb> | undefined;
@@ -21,6 +21,7 @@ function createDb() {
   const sqlite = new Database(dbPath);
   sqlite.pragma('journal_mode = WAL');
   sqlite.pragma('busy_timeout = 5000');
+  sqlite.pragma('foreign_keys = ON');
   return drizzle(sqlite, { schema });
 }
 

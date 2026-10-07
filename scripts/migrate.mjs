@@ -11,6 +11,7 @@ export function migrateDatabase(databasePath, migrationsFolder) {
   try {
     sqlite.pragma('journal_mode = WAL');
     sqlite.pragma('busy_timeout = 5000');
+    sqlite.pragma('foreign_keys = ON');
     migrate(drizzle(sqlite), { migrationsFolder });
   } finally {
     sqlite.close();

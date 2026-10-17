@@ -1,10 +1,10 @@
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
-import { pastes, passwordAttempts } from './schema';
+import { pastes, passwordAttempts, fileShares } from './schema';
 import path from 'path';
 import fs from 'fs';
 
-const schema = { pastes, passwordAttempts };
+const schema = { pastes, passwordAttempts, fileShares };
 
 const globalForDb = globalThis as unknown as {
   db: ReturnType<typeof createDb> | undefined;

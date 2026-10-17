@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { pastes } from '@/lib/db/schema';
-import { count, and, or, gt, gte, isNull, sql } from 'drizzle-orm';
+import { pastes, fileShares } from '@/lib/db/schema';
+import { count, and, or, eq, gt, gte, isNull, sql } from 'drizzle-orm';
 import { verifySession } from '@/lib/admin/session';
 import { success, error, UNAUTHORIZED, INTERNAL_ERROR } from '@/lib/api-response';
 
@@ -24,6 +24,13 @@ export async function GET() {
       activeCount: sql<number>`coalesce(sum(case when ${active} then 1 else 0 end), 0)`,
     }).from(pastes).all();
     const sevenDaysAgo = new Date(todayStart.getTime() - 6 * 86400000);
+    const activeFile = and(eq(fileShares.status, 'active'), gt(fileShares.expiresAt, now),
+      or(isNull(fileShares.downloadsRemaining), gt(fileShares.downloadsRemaining, 0)));
+    const fileTotals = db.select({
+      total: count(),
+      todayCount: sql<number>`coalesce(sum(case when ${fileShares.createdAt} >= ${todayStart.getTime() / 1000} then 1 else 0 end), 0)`,
+      activeCount: sql<number>`coalesce(sum(case when ${activeFile} then 1 else 0 end), 0)`,
+    }).from(fileShares).get()!;
 
     const trendData = await db
       .select({
@@ -34,19 +41,23 @@ export async function GET() {
       .where(gte(pastes.createdAt, sevenDaysAgo))
       .groupBy(sql`date(${pastes.createdAt}, 'unixepoch')`)
       .orderBy(sql`date(${pastes.createdAt}, 'unixepoch')`);
+    const fileTrend = db.select({
+      date: sql<string>`date(${fileShares.createdAt}, 'unixepoch')`, count: count(),
+    }).from(fileShares).where(gte(fileShares.createdAt, sevenDaysAgo))
+      .groupBy(sql`date(${fileShares.createdAt}, 'unixepoch')`).all();
 
     const dailyTrend: Array<{ date: string; count: number }> = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date(todayStart.getTime() - i * 86400000);
       const dateStr = date.toISOString().split('T')[0];
       const found = trendData.find((d) => d.date === dateStr);
-      dailyTrend.push({ date: dateStr, count: found?.count ?? 0 });
+      dailyTrend.push({ date: dateStr, count: (found?.count ?? 0) + (fileTrend.find((d) => d.date === dateStr)?.count ?? 0) });
     }
 
     return NextResponse.json(success({
-      total: totals.total,
-      todayCount: totals.todayCount,
-      activeCount: totals.activeCount,
+      total: totals.total + fileTotals.total,
+      todayCount: totals.todayCount + fileTotals.todayCount,
+      activeCount: totals.activeCount + fileTotals.activeCount,
       dailyTrend,
     }));
   } catch (err) {

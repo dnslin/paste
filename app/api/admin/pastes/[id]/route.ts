@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { pastes, passwordAttempts } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { verifySession } from '@/lib/admin/session';
 import { getPasteStatus, decryptPaste } from '@/lib/paste';
 import { success, error, UNAUTHORIZED, NOT_FOUND, INTERNAL_ERROR } from '@/lib/api-response';
@@ -57,7 +57,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const deleted = db.transaction((tx) => {
       const result = tx.delete(pastes).where(eq(pastes.id, id)).run();
       if (result.changes) {
-        tx.delete(passwordAttempts).where(eq(passwordAttempts.pasteId, id)).run();
+        tx.delete(passwordAttempts).where(and(eq(passwordAttempts.shareKind, 'text'), eq(passwordAttempts.shareId, id))).run();
       }
       return result.changes;
     });

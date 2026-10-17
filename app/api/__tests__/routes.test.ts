@@ -93,7 +93,7 @@ describe('content claims', () => {
 
   it('rolls back a consumed view if a later operation in the claim fails', async () => {
     const id = seed({ burnCount: 1 }, 'correct');
-    db.insert(passwordAttempts).values({ id: `${id}:${ip}`, pasteId: id, ip }).run();
+    db.insert(passwordAttempts).values({ id: `text:${id}:${ip}`, shareId: id, shareKind: 'text', ip }).run();
     db.$client.exec("CREATE TRIGGER fail_attempt_cleanup BEFORE DELETE ON password_attempts BEGIN SELECT RAISE(ABORT, 'cleanup failed'); END;");
     vi.spyOn(console, 'error').mockImplementation(() => {});
     try {
@@ -224,7 +224,7 @@ describe('admin routes', () => {
   });
   it('cleans password attempts with a deletion and requires authentication for every admin read', async () => {
     const id = seed();
-    db.insert(passwordAttempts).values({ id: 'attempt', pasteId: id, ip }).run();
+    db.insert(passwordAttempts).values({ id: 'attempt', shareId: id, shareKind: 'text', ip }).run();
     expect((await remove(request('/remove'), context(id))).status).toBe(200);
     expect(db.select().from(passwordAttempts).all()).toHaveLength(0);
     vi.mocked(verifySession).mockResolvedValue(false);

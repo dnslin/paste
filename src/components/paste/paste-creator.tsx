@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Loader2, Send } from 'lucide-react'
 import { CodeEditor } from './code-editor'
 import { LanguageSelector } from './language-selector'
 import { OptionsPanel, type PasteOptions } from './options-panel'
-import { SuccessDialog } from './success-dialog'
+import { CreatedLink, SuccessDialog } from './success-dialog'
 import { Button } from '@/components/ui/button'
 import type { ApiResponse } from '@/lib/api-response'
 import { MAX_CONTENT_LENGTH, getPasswordError } from '@/lib/paste-rules'
@@ -20,12 +20,14 @@ export function PasteCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) 
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<{ id: string; url: string } | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const currentView = useRef<HTMLElement | null>(null)
+  const focusNewForm = useRef(false)
   const passwordError = getPasswordError(options.password)
   const isInvalid = !code.trim() || code.length > MAX_CONTENT_LENGTH || passwordError !== null
 
   const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (isInvalid || isLoading) return
+    if (isInvalid || isLoading || result) return
     setIsLoading(true)
     onBusyChange?.(true)
     setError(null)
@@ -52,8 +54,38 @@ export function PasteCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) 
     }
   }
 
+  function createAnother() {
+    focusNewForm.current = true
+    setDialogOpen(false)
+    setCode(''); setLanguage('plaintext'); setOptions(initialOptions); setResult(null); setError(null)
+  }
+
+  function focusCurrentView() {
+    const view = currentView.current
+    if (view && !view.closest('[hidden]')) {
+      (view.querySelector<HTMLElement>('textarea') ?? view.querySelector<HTMLElement>('button'))?.focus()
+    }
+  }
+
+  function restoreFocus(event: Event) {
+    event.preventDefault()
+    focusCurrentView()
+  }
+
+  if (result) return <section ref={(view) => { currentView.current = view }} aria-label="已创建的文本分享" className="space-y-4 rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-4 sm:p-6">
+    {!dialogOpen ? <>
+      <h2 className="font-medium">内容已创建</h2>
+      <CreatedLink url={result.url} />
+      <Button type="button" variant="ghost" onClick={createAnother} className="w-full">创建另一条</Button>
+    </> : null}
+    <SuccessDialog open={dialogOpen} onOpenChange={setDialogOpen} url={result.url} onCreateAnother={createAnother} onCloseAutoFocus={restoreFocus} />
+  </section>
+
   return (
-    <form onSubmit={handleCreate} className="w-full">
+    <form ref={(view) => {
+      currentView.current = view
+      if (view && focusNewForm.current) { focusNewForm.current = false; focusCurrentView() }
+    }} onSubmit={handleCreate} className="w-full">
       <fieldset disabled={isLoading} className="flex min-w-0 flex-col gap-4 sm:gap-5">
         <div className="flex items-center gap-3">
           <label htmlFor="code-language" className="text-sm font-medium text-(--text-secondary)">代码语言</label>
@@ -67,9 +99,6 @@ export function PasteCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) 
           {isLoading ? '正在创建…' : '创建内容'}
         </Button>
       </fieldset>
-      {result ? <SuccessDialog open={dialogOpen} onOpenChange={setDialogOpen} url={result.url} onCreateAnother={() => {
-        setCode(''); setLanguage('plaintext'); setOptions(initialOptions); setResult(null); setError(null)
-      }} /> : null}
     </form>
   )
 }

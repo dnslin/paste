@@ -54,8 +54,8 @@ export function PasteAccessForm({ pasteId, hasPassword, burnCount, onSuccess }: 
     <form onSubmit={handleSubmit} className="mx-auto w-full max-w-md space-y-4 rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-6 sm:p-8">
       <div className="space-y-2 text-center">
         {hasPassword ? <Lock className="mx-auto size-8 text-(--accent-primary)" aria-hidden="true" /> : <Eye className="mx-auto size-8 text-(--accent-primary)" aria-hidden="true" />}
-        <h2 className="text-xl font-semibold">{hasPassword ? '需要访问密码' : '查看受次数限制的内容'}</h2>
-        {burnCount !== null ? <p className="text-sm text-(--text-secondary)">剩余 {burnCount} 次查看机会。成功读取后将扣除一次，次数用完后停止公开访问。</p> : <p className="text-sm text-(--text-secondary)">输入创建者设置的密码后查看内容。</p>}
+        <h2 className="text-xl font-semibold">{hasPassword ? '需要访问密码' : '查看分享'}</h2>
+        {burnCount !== null ? <p className="text-sm text-(--text-secondary)">剩余 {burnCount} 次，查看后扣 1 次。</p> : null}
       </div>
       {hasPassword ? <div className="space-y-2">
         <label htmlFor={passwordId} className="text-sm text-(--text-secondary)">访问密码</label>

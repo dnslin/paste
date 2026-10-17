@@ -12,7 +12,7 @@ import { MAX_CONTENT_LENGTH, getPasswordError } from '@/lib/paste-rules'
 
 const initialOptions: PasteOptions = { password: '', expiresIn: 1440, burnAfterRead: null }
 
-export function PasteCreator() {
+export function PasteCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) => void }) {
   const [code, setCode] = useState('')
   const [language, setLanguage] = useState('plaintext')
   const [options, setOptions] = useState<PasteOptions>(initialOptions)
@@ -27,6 +27,7 @@ export function PasteCreator() {
     event.preventDefault()
     if (isInvalid || isLoading) return
     setIsLoading(true)
+    onBusyChange?.(true)
     setError(null)
     try {
       const res = await fetch('/api/pastes', {
@@ -47,6 +48,7 @@ export function PasteCreator() {
       setError('无法创建内容，请检查网络连接后重试。')
     } finally {
       setIsLoading(false)
+      onBusyChange?.(false)
     }
   }
 

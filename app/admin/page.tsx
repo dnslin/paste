@@ -1,5 +1,5 @@
 import { DashboardStats } from '@/components/admin/dashboard-stats'
-import { PastesTable } from '@/components/admin/pastes-table'
+import { ShareRecords } from '@/components/admin/share-records'
 
 export default function AdminDashboardPage() {
   return (
@@ -10,7 +10,7 @@ export default function AdminDashboardPage() {
       
       <div className="space-y-4">
         <h2 className="text-lg font-medium text-(--text-primary)">分享记录</h2>
-        <PastesTable />
+        <ShareRecords />
       </div>
     </div>
   )

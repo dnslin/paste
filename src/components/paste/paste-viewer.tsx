@@ -19,8 +19,8 @@ interface PasteViewerProps {
 
 const unavailable = {
   not_found: { icon: FileX, title: '内容不存在', description: '链接无效，或内容已被删除。' },
-  expired: { icon: Clock, title: '内容已过期', description: '这条内容已停止公开访问。' },
-  destroyed: { icon: Flame, title: '查看次数已用完', description: '这条内容已停止公开访问。' },
+  expired: { icon: Clock, title: '内容已过期', description: null },
+  destroyed: { icon: Flame, title: '查看次数已用完', description: null },
   error: { icon: AlertCircle, title: '暂时无法读取内容', description: '服务发生错误，请稍后刷新页面重试。' },
 }
 
@@ -33,7 +33,7 @@ export function PasteViewer({ pasteId, initialStatus, hasPassword, language, bur
     return <div className="flex min-h-100 flex-col items-center justify-center gap-3 text-center" role="status">
       <Icon className="size-12 text-(--text-secondary)" aria-hidden="true" />
       <h2 className="text-xl font-semibold">{title}</h2>
-      <p className="text-(--text-secondary)">{description}</p>
+      {description ? <p className="text-(--text-secondary)">{description}</p> : null}
       <Link href="/" className="mt-2 text-(--accent-primary) underline underline-offset-4">返回首页</Link>
     </div>
   }
@@ -42,7 +42,7 @@ export function PasteViewer({ pasteId, initialStatus, hasPassword, language, bur
     <Link href="/" className="inline-block text-sm text-(--accent-primary) underline underline-offset-4">返回首页</Link>
     {paste ? <>
       {paste.remainingViews !== null ? <p role="status" className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
-        {paste.remainingViews === 0 ? '这是最后一次查看。此后将停止公开访问，当前页面仍可阅读和复制。' : `还可查看 ${paste.remainingViews} 次，次数用完后停止公开访问。`}
+        {paste.remainingViews === 0 ? '这是最后一次查看，当前页面仍可阅读和复制。' : `还可查看 ${paste.remainingViews} 次`}
       </p> : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="text-sm text-(--text-secondary)">{getLanguageName(paste.language)}</span>

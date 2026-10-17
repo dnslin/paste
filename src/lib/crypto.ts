@@ -52,3 +52,20 @@ export function decrypt(encrypted: string, iv: string): string {
   
   return plaintext;
 }
+
+// Binary files carry their IV and authentication tag beside the ciphertext.
+export function encryptBytes(plaintext: Buffer): Buffer {
+  const iv = randomBytes(IV_LENGTH);
+  const cipher = createCipheriv(ALGORITHM, getEncryptionKey(), iv);
+  const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()]);
+  return Buffer.concat([iv, cipher.getAuthTag(), ciphertext]);
+}
+
+export function decryptBytes(encrypted: Buffer): Buffer {
+  if (encrypted.length < IV_LENGTH + 16) throw new Error('Invalid encrypted file');
+  const decipher = createDecipheriv(ALGORITHM, getEncryptionKey(), encrypted.subarray(0, IV_LENGTH));
+  decipher.setAuthTag(encrypted.subarray(IV_LENGTH, IV_LENGTH + 16));
+  const pending = decipher.update(encrypted.subarray(IV_LENGTH + 16));
+  // final() must authenticate before this function returns any plaintext.
+  return Buffer.concat([pending, decipher.final()]);
+}

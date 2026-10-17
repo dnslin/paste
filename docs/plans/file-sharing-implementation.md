@@ -1,6 +1,8 @@
 # 文件分享实现与验证
 
-日期：2026-10-17。状态：已完成本地实现及验证，尚未部署。
+日期：2026-10-17。状态：已通过 PR #29 合并，并部署到 mpn-hk。
+
+线上地址为 <https://paste.447654.xyz>，部署提交为 `972e49f`。Docker Compose、Caddy、更新、备份及回滚步骤见[部署与运维](../deployment.md)。下文保留本地实现阶段的验证记录；上线验证另见本文末尾。
 
 用户已确认原型布局，以及匿名上传、限定文本/PDF/常见图片/ZIP 的规则。正式入口为首页的“文件”页签及 `/f/:id`；原型保留在 `/prototype/file-sharing` 作为设计参考。首页默认文本，现有文本接口继续使用。
 
@@ -56,9 +58,9 @@
 
 截图：[创建页](../verification/file-sharing/desktop-create.png)、[接收页](../verification/file-sharing/desktop-receive.png)、[后台](../verification/file-sharing/desktop-admin.png)、[手机创建页](../verification/file-sharing/mobile-create.png)、[手机接收页](../verification/file-sharing/mobile-receive.png)。
 
-## 未验证与运行边界
+## 本地阶段的验证边界
 
-本机没有 Docker/Nginx，可执行环境未完成容器级验证。`nginx.conf` 已为文件上传单独设置 11 MiB 上限并关闭代理请求缓冲；生产部署前仍需验证实际代理、数据卷权限及备份恢复。Safari、Firefox、公网带宽与目标服务器内存容量未验证。
+本地实现阶段没有运行 Docker/Nginx。随后已在 mpn-hk 完成下述 Docker/Caddy 上线验证，仓库默认 Nginx 入口仍未实跑。Safari、Firefox 及公网带宽和服务器容量的负载测试未验证。
 
 当前为单 Node 实例和本地持久化卷，不支持多实例共享计数、对象存储或断点续传。服务端持有加密密钥，不是端到端加密。停止访问与物理删除分别处理，删除不承诺擦除备份、SSD 或快照。备份需一致保留数据库、文件和密钥；保留期由运维设置。
 
@@ -69,3 +71,17 @@
 本轮补齐 `/data/` 的 Git 忽略规则，防止私有上传密文、数据库和生成密钥误入源码；删除提示收短为“删除后链接失效。”，不承诺备份或 SSD 上的内容无法恢复。两项改动已由两个 agent 只读复核。
 
 修复后全量 25 个文件、205 个测试、TypeScript、ESLint 与新的隔离生产构建再次通过。`git check-ignore` 另验证四种运行数据路径被排除，目录外测试材料与已跟踪的 `.env.example` 不受影响。仓库没有 PR 触发的 CI 检查，这些是本地验证结果。
+
+## mpn-hk 上线验证
+
+2026-10-17，在服务器从合并提交 `972e49f` 构建 `paste:972e49f`。Compose 复用 `paste_paste_data` 卷，应用端口限制在 `127.0.0.1:3000`，宿主机 Caddy 为 <https://paste.447654.xyz> 提供 HTTPS 并覆盖 `X-Real-IP`。
+
+- 构建、数据副本迁移演练和重复启动通过；原有 1 条文本记录逐字段不变，加密内容可以认证解密，原 `.secrets` 保持一致。
+- 通过公网域名实测 10 MiB 文件上传下载逐字节一致，密码保护、元数据隐藏、HEAD 行为、下载次数和类型拒绝正常；伪造 IP 头不能绕过上传限额。
+- 容器重启后文件、密码和剩余次数保留，启动清理回收耗尽文件；管理员删除会移除记录和磁盘文件。
+- 浏览器完成文件上传、密码下载和 390px 创建 / 接收页检查，无横向溢出；测试分享已通过业务接口清理。
+- 容器 `healthy`，HTTPS `200`，SQLite 完整性和外键检查通过。未做长期运行及负载测试。
+
+服务器记录：`/root/paste/releases/972e49f/deployment-verification.json`。升级前备份：`/root/paste/backups/20261017-972e49f/`。日常操作见[部署与运维](../deployment.md)。
+
+同日整理运维文档时，另在隔离容器及独立卷中实跑完整卷归档、镜像保存 / 加载与恢复。故意破坏测试数据库、文件和密钥后，恢复的文本、文件、密码、下载次数及 SQLite 检查均通过；测试资源已清理，线上容器未重建。该演练使用已初始化并归属 `nextjs` 的数据卷。空卷首次启动另复现了迁移后数据库归 root 的写入问题，当前处理方式见[首次初始化的权限处理](../deployment.md#首次初始化的权限处理)。

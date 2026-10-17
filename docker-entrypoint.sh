@@ -64,7 +64,7 @@ export ADMIN_PASSWORD_HASH
 # 3. Apply generated migrations
 # ============================================
 echo "[entrypoint] Applying database migrations..."
-node /app/scripts/migrate.mjs
+su-exec nextjs node /app/scripts/migrate.mjs
 
 # ============================================
 # 4. Start the application

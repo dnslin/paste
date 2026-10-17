@@ -15,7 +15,7 @@ afterEach(() => { vi.useRealTimers() })
 describe('编辑器键盘和预览', () => {
   it('关联输入标签、tab语义和键盘切换', () => {
     render(<CodeEditor value="" onChange={() => {}} language="plaintext" />)
-    expect(screen.getByRole('textbox', { name: '代码或文本内容' })).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: '代码或文本内容' })).toHaveAccessibleDescription(/Tab 缩进；Esc 后按 Tab 或 Shift\+Tab 离开编辑器/)
     const edit = screen.getByRole('tab', { name: '编辑' })
     expect(edit).toHaveAttribute('aria-selected', 'true')
     fireEvent.keyDown(edit, { key: 'ArrowRight' })

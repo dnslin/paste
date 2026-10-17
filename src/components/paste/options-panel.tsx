@@ -54,13 +54,13 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
           <Input
             id="password-input"
             type={showPassword ? 'text' : 'password'}
-            placeholder="留空则不设密码"
+            placeholder="可选"
             value={value.password}
             onChange={handlePasswordChange}
             data-testid="password-input"
             className="pr-10"
             aria-invalid={!!passwordError}
-            aria-describedby="password-help"
+            aria-describedby={passwordError ? 'password-help' : undefined}
           />
           <button
             type="button"
@@ -72,7 +72,7 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
             {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
           </button>
         </div>
-        <p id="password-help" className={passwordError ? "text-xs text-red-400" : "text-xs text-(--text-secondary)"}>{passwordError || "访问时需要输入密码，最多 72 个 UTF-8 字节。"}</p>
+        {passwordError ? <p id="password-help" role="alert" className="text-xs text-red-400">{passwordError}</p> : null}
       </div>
 
       {/* Expiration Time */}
@@ -95,7 +95,6 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
             <SelectItem value="never">永不过期</SelectItem>
           </SelectContent>
         </Select>
-        <p className="text-xs text-(--text-secondary)">到期后停止公开访问</p>
       </div>
 
       {/* Burn After Read */}
@@ -116,7 +115,6 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
             <SelectItem value="10">10 次</SelectItem>
           </SelectContent>
         </Select>
-        <p className="text-xs text-(--text-secondary)">次数用完后停止公开访问</p>
       </div>
     </div>
   )

@@ -22,8 +22,8 @@ function CreatedLink({ url }: { url: string }) {
       <a href={url} className="block break-all rounded-lg border border-(--border-subtle) bg-(--bg-elevated) p-3 font-mono text-sm text-(--accent-primary) underline underline-offset-4">
         {url}
       </a>
-      <p role={status === 'error' ? 'alert' : 'status'} className={status === 'error' ? 'text-sm text-red-400' : 'text-sm text-(--text-secondary)'}>
-        {status === 'copied' ? '链接已复制到剪贴板。' : status === 'error' ? '浏览器拒绝了复制，请重试或手动选择链接复制。' : '可以复制链接，或点击链接查看内容。'}
+      <p role={status === 'error' ? 'alert' : 'status'} className={status === 'error' ? 'text-sm text-red-400' : 'sr-only'}>
+        {status === 'copied' ? '链接已复制到剪贴板。' : status === 'error' ? '浏览器拒绝了复制，请重试或手动复制链接。' : ''}
       </p>
       <Button variant="outline" onClick={() => void copy()} className="w-full gap-2">
         {status === 'copied' ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
@@ -38,8 +38,8 @@ export function SuccessDialog({ open, onOpenChange, url, onCreateAnother }: Succ
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md motion-reduce:animate-none" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2"><Check className="size-5 text-(--accent-primary)" aria-hidden="true" />内容已创建</DialogTitle>
-          <DialogDescription>通过以下链接分享内容，请妥善保存链接。</DialogDescription>
+          <DialogTitle>内容已创建</DialogTitle>
+          <DialogDescription className="sr-only">分享链接</DialogDescription>
         </DialogHeader>
         <CreatedLink key={url} url={url} />
         <DialogFooter>

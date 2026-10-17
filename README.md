@@ -41,14 +41,6 @@ docker compose up --detach --build --wait
 docker compose ps
 ```
 
-当前版本首次初始化空数据卷后，需要修正迁移新建文件的归属，再重启应用。既有数据卷的正常更新不需要此步骤，原因见[首次初始化的权限处理](docs/deployment.md#首次初始化的权限处理)。
-
-```bash
-docker exec --user 0 paste chown -R nextjs:nodejs /app/data
-docker compose restart paste
-docker compose up --detach --no-build --wait
-```
-
 打开 <http://localhost:3000>。默认配置由 Nginx 提供入口，应用仅在 Compose 网络内开放。首次启动会生成密钥、应用数据库迁移，并把数据保存到 Docker 命名卷。
 
 公网部署及管理后台应使用 HTTPS。mpn-hk 使用宿主机 Caddy 直接代理应用，与仓库默认 Nginx 入口不同。完整配置和操作步骤见[部署与运维](docs/deployment.md)。
@@ -121,6 +113,7 @@ pnpm dev
 | `pnpm db:migrate` | 应用数据库迁移，可重复执行 |
 | `pnpm test` | 运行 Vitest 测试 |
 | `pnpm test:watch` | 监听测试 |
+| `pnpm test:docker <镜像>` | 用独立空卷验证 Docker 初始化、实际读写及重启，结束后清理测试资源 |
 | `pnpm lint` | ESLint 检查 |
 | `pnpm exec tsc --noEmit` | TypeScript 类型检查 |
 | `pnpm build` | 生成 standalone 生产构建 |

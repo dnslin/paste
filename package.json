@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "test:docker": "sh scripts/verify-docker.sh",
     "test:watch": "vitest",
     "db:migrate": "node scripts/migrate.mjs"
   },

@@ -109,9 +109,9 @@ curl --fail --head https://paste.447654.xyz
 
 ### 首次初始化的权限处理
 
-当前部署镜像 `paste:972e49f` 在空数据卷上首次启动时，root 执行迁移会创建归 root 所有的数据库；应用随后以 `nextjs` 用户运行，写入可能报 `SQLITE_READONLY`。首页健康检查不能发现此问题。线上既有卷原本归 `nextjs` 所有，不受这次冷启动问题影响。
+已部署的旧镜像 `paste:972e49f` 在空数据卷上首次启动时，root 执行迁移会创建归 root 所有的数据库；应用随后以 `nextjs` 用户运行，写入可能报 `SQLITE_READONLY`。首页健康检查不能发现此问题。线上既有卷原本归 `nextjs` 所有，不受这次冷启动问题影响。
 
-新建空卷后执行一次归属修复并重启，使应用重新打开数据库：
+仓库入口脚本已改为使用 `nextjs` 执行迁移，从当前源码构建的新镜像无需手工调整。本轮没有更新线上镜像。如果要在空卷上重新运行旧镜像，可在首次启动后修复归属并重启，使应用重新打开数据库：
 
 ```bash
 cd /root/paste
@@ -120,7 +120,7 @@ docker compose restart paste
 docker compose up --detach --no-build --wait --wait-timeout 120 paste
 ```
 
-在仓库默认 Compose 部署中，从其项目目录执行同样三条 Docker 命令。此处记录当前版本的操作方法，Docker 入口脚本的权限修复尚未包含在本轮文档改动中。
+以上命令仅用于旧镜像，不是新版本的常规部署步骤。
 
 ## 后续更新
 
@@ -145,11 +145,11 @@ printf '服务器构建时填写：PASTE_REV=%s\n' "$PASTE_REV"
 
 ### 2. 在服务器构建镜像
 
-先将 `PASTE_REV` 改成上一步输出的完整提交 SHA。下面的值是本次部署示例，未来更新不要继续使用旧值。
+在提示处粘贴上一步输出的完整提交 SHA，不要沿用历史部署版本。
 
 ```bash
 set -euo pipefail
-PASTE_REV=972e49ff85b98cc8f8d6ed5d33c406472e346396
+read -r -p '待部署的完整提交 SHA: ' PASTE_REV
 PASTE_RELEASE=${PASTE_REV:0:12}
 df -h /
 docker build \
@@ -162,6 +162,12 @@ docker image inspect "paste:$PASTE_RELEASE" \
 ```
 
 构建失败时原服务仍在运行，先修复构建问题。镜像使用锁文件和固定 pnpm 版本；不要在运行容器中临时安装依赖。
+
+切换前，对新镜像运行空卷回归检查。脚本不开放宿主机端口，不使用生产卷，会验证实际文本与文件读写、数据库归属及重启持久化，并清理自建资源：
+
+```bash
+sh "/root/paste/releases/$PASTE_RELEASE/scripts/verify-docker.sh" "paste:$PASTE_RELEASE"
+```
 
 ### 3. 备份并切换
 

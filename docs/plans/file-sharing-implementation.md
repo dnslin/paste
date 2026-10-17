@@ -85,3 +85,23 @@
 服务器记录：`/root/paste/releases/972e49f/deployment-verification.json`。升级前备份：`/root/paste/backups/20261017-972e49f/`。日常操作见[部署与运维](../deployment.md)。
 
 同日整理运维文档时，另在隔离容器及独立卷中实跑完整卷归档、镜像保存 / 加载与恢复。故意破坏测试数据库、文件和密钥后，恢复的文本、文件、密码、下载次数及 SQLite 检查均通过；测试资源已清理，线上容器未重建。该演练使用已初始化并归属 `nextjs` 的数据卷。空卷首次启动另复现了迁移后数据库归 root 的写入问题，当前处理方式见[首次初始化的权限处理](../deployment.md#首次初始化的权限处理)。
+
+## Docker 空卷初始化修复
+
+用户确认后，入口脚本改为 `su-exec nextjs node /app/scripts/migrate.mjs`，让迁移和应用使用同一用户创建数据库。未改动数据库迁移内容或线上配置。
+
+新增 `scripts/verify-docker.sh`，对应命令为 `pnpm test:docker <镜像>`。它使用独立命名卷、无网络、无宿主机端口的测试容器，验证实际文本和文件创建、密码、解密、下载次数、数据库归属，以及同卷重启后的读取和继续创建。失败会打印日志，成功或失败后都会尝试清理本轮资源；取消保留对应退出码。
+
+实际执行结果：
+
+| 检查 | 结果 |
+| --- | --- |
+| 检查脚本运行旧镜像 `paste:972e49f` | 按预期失败：创建文本返回 500，日志为 `SQLITE_READONLY` |
+| 完整 `docker build`，修复后的独立源码副本 | 成功，包含生产构建和类型检查 |
+| 同一检查脚本运行新测试镜像 | 空卷首启和重启两个阶段均通过；文本 / 文件读写、密码、次数、SQLite 完整性和 UID 1001 断言通过 |
+| `node node_modules/vitest/vitest.mjs run` | 25 个文件、205 个测试通过 |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false` | 通过 |
+| `node node_modules/eslint/bin/eslint.js` | 通过 |
+| `sh -n` 与 `shellcheck --shell=sh scripts/verify-docker.sh` | 通过 |
+
+独立 agent 只读复核了修复及检查脚本，并用内存 Docker 桩验证日志失败、创建时取消、清理失败和成功路径。测试镜像、容器和卷均为本轮独立资源。本轮未重新部署线上服务；线上仍运行 `paste:972e49f`，既有数据卷不受该空卷问题影响。

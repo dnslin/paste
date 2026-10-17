@@ -18,9 +18,10 @@ interface PasteAccessFormProps {
   hasPassword: boolean
   burnCount: number | null
   onSuccess: (paste: PasteContent) => void
+  onUnavailable: (message: string) => void
 }
 
-export function PasteAccessForm({ pasteId, hasPassword, burnCount, onSuccess }: PasteAccessFormProps) {
+export function PasteAccessForm({ pasteId, hasPassword, burnCount, onSuccess, onUnavailable }: PasteAccessFormProps) {
   const passwordId = useId()
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -41,6 +42,7 @@ export function PasteAccessForm({ pasteId, hasPassword, burnCount, onSuccess }: 
       })
       const response: ApiResponse<PasteContent> = await res.json()
       if (response.success && res.ok) onSuccess(response.data)
+      else if (!response.success && res.status === 404) onUnavailable(response.error.message)
       else setError(response.success ? '无法读取内容，请稍后重试。' : response.error.message)
     } catch {
       setError('无法读取内容，请检查网络连接后重试。')

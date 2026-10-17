@@ -41,6 +41,32 @@ describe('查看内容', () => {
     expect(screen.getByRole('button', { name: '查看内容' })).toBeEnabled()
   })
 
+  it.each(['内容已过期', '查看次数已用完', '内容不存在'])('页面打开后领取返回404：%s，转为不可用且提示获取新链接', async (message) => {
+    fetchMock.mockResolvedValue({ ok: false, status: 404, json: async () => ({ success: false, error: { code: 'NOT_FOUND', message } }) })
+    render(<PasteViewer {...props} />)
+    fireEvent.click(screen.getByRole('button', { name: '查看内容' }))
+    expect(await screen.findByRole('heading', { name: message })).toBeInTheDocument()
+    expect(screen.getByText('请联系分享者获取新链接。')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '查看内容' })).not.toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
+  it('密码错误后保留输入，纠正密码后可以重试', async () => {
+    fetchMock.mockResolvedValue({ ok: false, status: 400, json: async () => ({ success: false, error: { code: 'VALIDATION_ERROR', message: '密码不正确' } }) })
+    render(<PasteViewer {...props} hasPassword />)
+    fireEvent.change(screen.getByLabelText('访问密码'), { target: { value: 'wrong' } })
+    fireEvent.click(screen.getByRole('button', { name: '解锁内容' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('密码不正确')
+    expect(screen.getByLabelText('访问密码')).toHaveValue('wrong')
+    expect(screen.getByRole('button', { name: '解锁内容' })).toBeEnabled()
+    expect(screen.queryByText('请联系分享者获取新链接。')).not.toBeInTheDocument()
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ success: true, data: { content: '纠正后正文', language: 'plaintext', remainingViews: 0 } }) })
+    fireEvent.change(screen.getByLabelText('访问密码'), { target: { value: 'correct' } })
+    fireEvent.click(screen.getByRole('button', { name: '解锁内容' }))
+    expect(await screen.findByText('纠正后正文')).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
   it('无限次普通内容使用initialContent，无后台计数请求', async () => {
     render(<PasteViewer {...props} burnCount={null} initialContent="普通正文" />)
     expect(screen.getByText('普通正文')).toBeInTheDocument()
@@ -55,6 +81,12 @@ describe('查看内容', () => {
     render(<PasteViewer {...props} initialStatus={status} />)
     expect(screen.getByRole('heading', { name: title })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '返回首页' })).toHaveAttribute('href', '/')
+    if (status === 'error') {
+      expect(screen.getByText(/刷新页面重试/)).toBeInTheDocument()
+      expect(screen.queryByText('请联系分享者获取新链接。')).not.toBeInTheDocument()
+    } else {
+      expect(screen.getByText('请联系分享者获取新链接。')).toBeInTheDocument()
+    }
     expect(fetchMock).not.toHaveBeenCalled()
   })
 })

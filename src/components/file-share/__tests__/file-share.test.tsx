@@ -193,6 +193,23 @@ describe('正式文件创建', () => {
 })
 
 describe('正式文件下载', () => {
+  it.each([false, true])('密码保护=%s时分别显示请求阶段，读取响应体期间显示正在下载', async (hasPassword) => {
+    let resolveRequest!: (response: ReturnType<typeof binaryResponse>) => void
+    let resolveBlob!: (blob: Blob) => void
+    fetchMock.mockImplementation(() => new Promise((resolve) => { resolveRequest = resolve }))
+    const response = binaryResponse()
+    response.blob.mockImplementation(() => new Promise((resolve) => { resolveBlob = resolve }))
+    render(<FileReceiver initialMetadata={hasPassword ? { ...metadata, hasPassword, fileName: undefined, size: undefined } : metadata} />)
+    if (hasPassword) fireEvent.change(screen.getByLabelText('访问密码'), { target: { value: 'correct' } })
+    fireEvent.click(screen.getByRole('button', { name: hasPassword ? '验证密码并下载' : '下载文件' }))
+    expect(screen.getByRole('button', { name: hasPassword ? '正在验证…' : '正在准备…' })).toBeDisabled()
+    await act(async () => resolveRequest(response))
+    expect(screen.getByRole('button', { name: '正在下载文件…' })).toBeDisabled()
+    expect(createObjectURL).not.toHaveBeenCalled()
+    await act(async () => resolveBlob(new Blob(['下载完成'])))
+    expect(screen.getByRole('status')).toHaveTextContent('已发起下载。')
+  })
+
   it('页面渲染不下载，错误密码不泄露名称或减少次数', async () => {
     fetchMock.mockResolvedValue({ ok: false, status: 401, json: async () => ({ success: false, error: { code: 'INVALID_PASSWORD', message: '密码不正确，请重新输入。' } }) })
     render(<FileReceiver initialMetadata={{ ...metadata, hasPassword: true, fileName: undefined, size: undefined }} />)
@@ -248,9 +265,23 @@ describe('正式文件下载', () => {
     render(<FileReceiver initialMetadata={metadata} />)
     fireEvent.click(screen.getByRole('button', { name: '下载文件' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('中断也会计次')
+    expect(screen.getByRole('alert')).toHaveTextContent('重试')
     expect(screen.getByText('剩余 2 次下载机会')).toBeInTheDocument()
     expect(createObjectURL).not.toHaveBeenCalled()
     expect(screen.getByRole('button', { name: '下载文件' })).toBeEnabled()
+  })
+
+  it('最后一次下载传输中断时说明次数已扣完并联系分享者，不再建议重试', async () => {
+    const response = binaryResponse('0')
+    response.blob.mockRejectedValue(new Error('transfer interrupted'))
+    fetchMock.mockResolvedValue(response)
+    render(<FileReceiver initialMetadata={{ ...metadata, downloadsRemaining: 1 }} />)
+    fireEvent.click(screen.getByRole('button', { name: '下载文件' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('最后一次下载机会已计次')
+    expect(screen.getByRole('alert')).toHaveTextContent('请联系分享者获取新链接')
+    expect(screen.getByRole('alert')).not.toHaveTextContent('重试')
+    expect(screen.getByRole('button', { name: '下载机会已用尽' })).toBeDisabled()
+    expect(createObjectURL).not.toHaveBeenCalled()
   })
 
   it('请求期间卸载会abort，不在卸载后触发浏览器保存', async () => {
@@ -268,7 +299,16 @@ describe('正式文件下载', () => {
   it.each(['expired', 'exhausted', 'deleted'] as const)('%s不提供下载，也不自动调用API', (status) => {
     render(<FileReceiver initialMetadata={{ ...metadata, status }} />)
     expect(screen.queryByRole('button', { name: '下载文件' })).not.toBeInTheDocument()
+    expect(screen.getByText('请联系分享者获取新链接。')).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('分享不存在提示联系分享者，服务错误提示刷新重试', () => {
+    const { rerender } = render(<FileReceiver initialMetadata={null} />)
+    expect(screen.getByText('请联系分享者获取新链接。')).toBeInTheDocument()
+    rerender(<FileReceiver key="service-error" initialMetadata={null} initialError />)
+    expect(screen.getByText('请稍后刷新页面重试。')).toBeInTheDocument()
+    expect(screen.queryByText('请联系分享者获取新链接。')).not.toBeInTheDocument()
   })
 
   it('已打开页面后服务端判定过期，显示真实不可用状态', async () => {

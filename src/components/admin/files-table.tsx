@@ -27,7 +27,8 @@ export function FilesTable() {
   const [notice, setNotice] = useState('')
   const [modal, setModal] = useState<{ kind: 'detail' | 'delete'; item: AdminFileItem } | null>(null)
   const [actionError, setActionError] = useState('')
-  const [acting, setActing] = useState(false)
+  const [action, setAction] = useState<'delete' | 'cleanup' | null>(null)
+  const acting = action !== null
   const actionPending = useRef(false)
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export function FilesTable() {
   async function remove() {
     if (!modal || actionPending.current) return
     actionPending.current = true
-    setActing(true)
+    setAction('delete')
     setActionError('')
     try {
       const res = await fetch(`/api/admin/files/${encodeURIComponent(modal.item.id)}`, { method: 'DELETE' })
@@ -71,7 +72,7 @@ export function FilesTable() {
       setActionError(err instanceof Error ? err.message : '删除未完成，请重试')
     } finally {
       actionPending.current = false
-      setActing(false)
+      setAction(null)
       reload()
     }
   }
@@ -79,7 +80,7 @@ export function FilesTable() {
   async function cleanup() {
     if (actionPending.current) return
     actionPending.current = true
-    setActing(true)
+    setAction('cleanup')
     setNotice('')
     try {
       const res = await fetch('/api/admin/files/cleanup', { method: 'POST' })
@@ -92,7 +93,7 @@ export function FilesTable() {
       setError(err instanceof Error ? err.message : '清理未完成，请重试')
     } finally {
       actionPending.current = false
-      setActing(false)
+      setAction(null)
       // Keep the action error visible while refreshing the actual storage usage.
       setLoading(true)
       setRefresh((value) => value + 1)
@@ -111,23 +112,24 @@ export function FilesTable() {
       <h3 className="font-medium">文件分享</h3>
       <div className="flex gap-2">
         <Button variant="ghost" size="sm" disabled={acting || loading} onClick={reload} aria-label="刷新文件记录"><RefreshCw className="size-4" aria-hidden="true" /></Button>
-        <Button variant="outline" size="sm" disabled={acting || loading} onClick={() => void cleanup()}>清理失效文件</Button>
+        <Button variant="outline" size="sm" disabled={acting || loading} onClick={() => void cleanup()}>{action === 'cleanup' ? '正在清理…' : '清理失效文件'}</Button>
       </div>
     </div>
     {error ? <div role="alert" className="flex items-center justify-between gap-3 text-sm text-red-400"><p>{error}</p><Button variant="outline" size="sm" onClick={reload}>重试</Button></div> : null}
     {notice ? <p role="status" className="text-sm text-(--text-secondary)">{notice}</p> : null}
     {loading && !data ? <p role="status" className="py-8 text-center text-sm text-(--text-secondary)">正在加载文件记录…</p> : null}
+    {loading && data ? <p role="status" className="flex items-center gap-2 text-sm text-(--text-secondary)"><RefreshCw className="size-4 motion-safe:animate-spin" aria-hidden="true" />正在更新文件记录…</p> : null}
     {data ? <>
       <div className="overflow-x-auto rounded-lg border border-(--border-subtle)">
-        <table className="w-full text-left text-sm"><caption className="sr-only">文件分享与清理状态</caption>
+        <table className="w-full table-fixed text-left text-sm md:table-auto"><caption className="sr-only">文件分享与清理状态</caption>
           <thead className="border-b border-(--border-subtle) text-xs text-(--text-secondary)"><tr>
-            <th scope="col" className="px-4 py-3 font-medium">文件</th><th scope="col" className="px-3 py-3 font-medium">大小</th><th scope="col" className="px-3 py-3 font-medium">状态</th><th scope="col" className="px-4 py-3 text-right font-medium">操作</th>
+            <th scope="col" className="px-4 py-3 font-medium">文件</th><th scope="col" className="hidden px-3 py-3 font-medium md:table-cell">大小</th><th scope="col" className="hidden px-3 py-3 font-medium md:table-cell">状态</th><th scope="col" className="w-24 px-2 py-3 text-right font-medium md:w-auto md:px-4">操作</th>
           </tr></thead>
           <tbody className="divide-y divide-(--border-subtle)">{data.items.map((item) => <tr key={item.id}>
-            <td className="min-w-40 px-4 py-4"><p className="max-w-64 font-medium [overflow-wrap:anywhere]">{item.fileName}</p><p className="mt-1 font-mono text-xs text-(--text-secondary)">{item.id}</p></td>
-            <td className="whitespace-nowrap px-3 py-4 text-(--text-secondary)">{formatBytes(item.size)}</td>
-            <td className="whitespace-nowrap px-3 py-4 text-(--text-secondary)">{statusLabel(item)}</td>
-            <td className="px-4 py-4"><div className="flex justify-end gap-1">
+            <td className="px-4 py-4 md:min-w-40"><p className="max-w-64 font-medium [overflow-wrap:anywhere]">{item.fileName}</p><p className="mt-1 font-mono text-xs text-(--text-secondary) [overflow-wrap:anywhere]">{item.id}</p><div className="mt-2 space-y-1 text-xs text-(--text-secondary) md:hidden"><p>{formatBytes(item.size)}</p><p>{statusLabel(item)}</p></div></td>
+            <td className="hidden whitespace-nowrap px-3 py-4 text-(--text-secondary) md:table-cell">{formatBytes(item.size)}</td>
+            <td className="hidden whitespace-nowrap px-3 py-4 text-(--text-secondary) md:table-cell">{statusLabel(item)}</td>
+            <td className="px-2 py-4 md:px-4"><div className="flex justify-end gap-1">
               <Button variant="ghost" size="icon-sm" disabled={loading || acting} aria-label={`查看 ${item.fileName}`} onClick={() => { setActionError(''); setModal({ kind: 'detail', item }) }}><Eye aria-hidden="true" /></Button>
               <Button variant="ghost" size="icon-sm" disabled={loading || acting} aria-label={`删除 ${item.fileName}`} onClick={() => { setActionError(''); setModal({ kind: 'delete', item }) }}><Trash2 className="text-red-400" aria-hidden="true" /></Button>
             </div></td>

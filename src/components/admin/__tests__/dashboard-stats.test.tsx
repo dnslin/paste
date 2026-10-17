@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { DashboardStats } from '../dashboard-stats'
 
-vi.mock('../stats-cards', () => ({ StatsCards: ({ data }: { data: { total: number } }) => <p>累计分享：{data.total}</p> }))
+vi.mock('../stats-cards', () => ({ StatsCards: ({ data }: { data: { total: number } | null }) => data ? <p>现存分享：{data.total}</p> : null }))
 vi.mock('../trend-chart', () => ({ TrendChart: () => null }))
 const fetchMock = vi.fn<typeof fetch>()
 
@@ -16,7 +16,7 @@ describe('DashboardStats', () => {
     render(<DashboardStats />)
     expect(await screen.findByRole('alert')).toHaveTextContent('统计暂时不可用')
     fireEvent.click(screen.getByRole('button', { name: '重试' }))
-    expect(await screen.findByText('累计分享：12')).toBeInTheDocument()
+    expect(await screen.findByText('现存分享：12')).toBeInTheDocument()
   })
 
   it('卸载统计组件时取消正在进行的请求', () => {

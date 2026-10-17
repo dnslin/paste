@@ -16,7 +16,7 @@ interface TrendData {
 }
 
 interface TrendChartProps {
-  data: TrendData[];
+  data: TrendData[] | null;
 }
 
 interface CustomTooltipProps {
@@ -58,12 +58,12 @@ export function TrendChart({ data }: TrendChartProps) {
   };
 
   return (
-    <div className="rounded-lg bg-(--bg-surface) border border-(--border-subtle) p-6">
+    <div aria-hidden={data === null || undefined} className="rounded-lg bg-(--bg-surface) border border-(--border-subtle) p-6">
       <h3 className="text-sm font-medium text-(--text-secondary) mb-4">
         近 7 天的分享（UTC）
       </h3>
       <div className="h-50 md:h-75">
-        <ResponsiveContainer
+        {data === null ? <div className="h-full rounded bg-(--bg-elevated)" /> : <ResponsiveContainer
           width="100%"
           height="100%"
           minWidth={0}
@@ -103,7 +103,7 @@ export function TrendChart({ data }: TrendChartProps) {
               maxBarSize={50}
             />
           </BarChart>
-        </ResponsiveContainer>
+        </ResponsiveContainer>}
       </div>
     </div>
   );

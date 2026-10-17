@@ -140,7 +140,7 @@ export function FilesTable() {
         onPageSizeChange={(value) => { setLoading(true); setError(''); setPageSize(value); setPage(1) }} />
     </> : null}
     <Dialog open={modal !== null} onOpenChange={(open) => { if (!open && !acting) setModal(null) }}>
-      <DialogContent className="sm:max-w-md motion-reduce:animate-none">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md motion-reduce:animate-none">
         <DialogHeader><DialogTitle>{modal?.kind === 'delete' ? '删除这条分享？' : '文件详情'}</DialogTitle><DialogDescription className={modal?.kind === 'delete' ? undefined : 'sr-only'}>{modal?.kind === 'delete' ? '删除后链接失效。' : '文件分享信息'}</DialogDescription></DialogHeader>
         {modal ? <div className="space-y-3 text-sm">
           <p className="font-medium [overflow-wrap:anywhere]">{modal.item.fileName}</p>

@@ -70,6 +70,7 @@ describe('正式文件创建', () => {
     expect(screen.getByRole('button', { name: '创建文件分享' })).toBeEnabled()
     selectFile(new File([new Uint8Array(MAX_FILE_BYTES)], 'limit.zip'))
     expect(screen.getByRole('button', { name: '创建文件分享' })).toBeEnabled()
+    fireEvent.click(screen.getByRole('button', { name: '移除文件' }))
     selectFile(new File([new Uint8Array(MAX_FILE_BYTES + 1)], 'large.zip'))
     expect(screen.getByRole('alert')).toHaveTextContent('超过 10 MiB')
     expect(screen.getByRole('button', { name: '创建文件分享' })).toBeDisabled()
@@ -81,6 +82,26 @@ describe('正式文件创建', () => {
     fireEvent.click(screen.getByRole('button', { name: '移除文件' }))
     expect(screen.getByRole('button', { name: '创建文件分享' })).toBeDisabled()
     expect(UploadRequest.requests).toHaveLength(0)
+  })
+
+  it.each([
+    { reason: '不支持的类型', files: [new File(['binary'], 'tool.exe')] },
+    { reason: '超限文件', files: [new File([new Uint8Array(MAX_FILE_BYTES + 1)], 'large.zip')] },
+    { reason: '多个文件', files: [file, file] },
+    { reason: '空选择', files: [] },
+  ])('更换为$reason时保留原文件可提交，并明确说明未更换', ({ files }) => {
+    render(<FileCreator />)
+    selectFile()
+    fireEvent.change(screen.getByLabelText('密码保护'), { target: { value: 'keep-me' } })
+    fireEvent.drop(screen.getByText(file.name).closest('.border')!, { dataTransfer: { files } })
+    expect(screen.getByText(file.name)).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent('未更换，仍可上传原文件')
+    expect(screen.getByRole('button', { name: '创建文件分享' })).toBeEnabled()
+    const request = startUpload()
+    const form = request.send.mock.calls[0][0] as FormData
+    expect(form.get('file')).toBe(file)
+    expect(form.get('password')).toBe('keep-me')
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('发送真实multipart字段，100%传输后仍等待201才显示成功链接', async () => {

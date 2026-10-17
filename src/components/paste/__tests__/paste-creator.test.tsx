@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { PasteCreator } from '../paste-creator'
 import { MAX_CONTENT_LENGTH } from '@/lib/paste-rules'
 
@@ -13,11 +13,62 @@ function inputContent(content = 'console.log("hello")') {
 beforeEach(() => {
   fetchMock.mockReset()
   writeText.mockReset().mockResolvedValue(undefined)
+  HTMLElement.prototype.scrollIntoView = vi.fn()
   vi.stubGlobal('fetch', fetchMock)
   Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
 })
 
 describe('创建内容', () => {
+  it.each(['success', 'error', 'network'] as const)('提交期间冻结所有输入，%s 后恢复并保留提交内容', async (outcome) => {
+    let resolve!: (response: Response) => void
+    let reject!: (reason: Error) => void
+    fetchMock.mockImplementation(() => new Promise<Response>((done, fail) => { resolve = done; reject = fail }))
+    const busy = vi.fn()
+    render(<PasteCreator onBusyChange={busy} />)
+    inputContent('本次提交的内容')
+    fireEvent.change(screen.getByLabelText('密码保护'), { target: { value: 'original-password' } })
+    fireEvent.click(screen.getByRole('button', { name: '创建内容' }))
+
+    const controls = [
+      screen.getByLabelText('代码或文本内容'),
+      screen.getByLabelText('密码保护'),
+      screen.getByRole('button', { name: '显示密码' }),
+      screen.getByRole('combobox', { name: '代码语言' }),
+      screen.getByRole('combobox', { name: '过期时间' }),
+      screen.getByRole('combobox', { name: '查看次数限制' }),
+      screen.getByRole('tab', { name: '编辑' }),
+      screen.getByRole('tab', { name: '预览' }),
+    ]
+    controls.forEach((control) => expect(control).toBeDisabled())
+    for (const name of ['过期时间', '查看次数限制']) {
+      const trigger = screen.getByRole('combobox', { name })
+      trigger.hasPointerCapture = () => false
+      const pointer = new MouseEvent('pointerdown', { bubbles: true, button: 0, ctrlKey: false })
+      Object.defineProperty(pointer, 'pointerType', { value: 'mouse' })
+      fireEvent(trigger, pointer)
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+      fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+    }
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({ content: '本次提交的内容', password: 'original-password' })
+    expect(busy).toHaveBeenLastCalledWith(true)
+
+    await act(async () => {
+      if (outcome === 'network') reject(new Error('offline'))
+      else resolve(Response.json(outcome === 'success'
+        ? { success: true, data: { id: 'abc123', url: 'http://localhost/abc123' } }
+        : { success: false, error: { code: 'ERROR', message: '创建请求失败' } }, { status: outcome === 'success' ? 201 : 500 }))
+    })
+    if (outcome === 'success') fireEvent.click(screen.getByRole('button', { name: '关闭' }))
+    controls.forEach((control) => expect(control).toBeEnabled())
+    expect(screen.getByLabelText('代码或文本内容')).toHaveValue('本次提交的内容')
+    expect(screen.getByLabelText('密码保护')).toHaveValue('original-password')
+    expect(busy).toHaveBeenLastCalledWith(false)
+    expect(fetchMock).toHaveBeenCalledOnce()
+    fireEvent.keyDown(screen.getByRole('combobox', { name: '过期时间' }), { key: 'ArrowDown' })
+    expect(await screen.findByRole('listbox')).toBeInTheDocument()
+  })
+
   it('禁用空内容和只有空白的提交', () => {
     render(<PasteCreator />)
     expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()

@@ -56,7 +56,7 @@ export function DeleteConfirmModal({ pasteId, open, onOpenChange, onConfirm }: D
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent showCloseButton={false} className="max-w-md bg-(--bg-surface) motion-reduce:animate-none">
+      <DialogContent showCloseButton={false} className="max-h-[calc(100dvh-2rem)] overflow-y-auto max-w-md bg-(--bg-surface) motion-reduce:animate-none">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
@@ -68,6 +68,7 @@ export function DeleteConfirmModal({ pasteId, open, onOpenChange, onConfirm }: D
             确认删除这条分享？删除后无法恢复。
           </DialogDescription>
         </DialogHeader>
+        <p className="text-sm text-(--text-secondary)">编号：<span className="font-mono text-(--text-primary)">{pasteId}</span></p>
         <DialogClose asChild>
           <button
             type="button"

@@ -36,7 +36,7 @@ function CreatedLink({ url }: { url: string }) {
 export function SuccessDialog({ open, onOpenChange, url, onCreateAnother }: SuccessDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md motion-reduce:animate-none" showCloseButton={false}>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md motion-reduce:animate-none" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>内容已创建</DialogTitle>
           <DialogDescription className="sr-only">分享链接</DialogDescription>

@@ -61,7 +61,7 @@ export function CodeEditor({ value, onChange, language, maxLength = MAX_CONTENT_
       <div className="flex items-center justify-between gap-3 border-t border-(--border-subtle) px-3 py-2 text-xs text-(--text-secondary) sm:px-4">
         <p id={`${editorId}-count`} className={isOverLimit ? 'text-red-400' : undefined}>{value.length.toLocaleString()} / {maxLength.toLocaleString()}{isOverLimit ? '，内容超过长度限制' : ''}</p>
         <p id={`${editorId}-hint`} className="sr-only">Tab 缩进；Esc 后按 Tab 或 Shift+Tab 离开编辑器。</p>
-        <span aria-hidden="true" title="Tab 缩进；Esc 后按 Tab 或 Shift+Tab 离开编辑器" className="hidden sm:inline">Tab 缩进</span>
+        <span aria-hidden="true" className="hidden sm:inline">Tab 缩进 · Esc 后 Tab 离开</span>
       </div>
     </div>
   )

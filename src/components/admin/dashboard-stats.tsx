@@ -16,12 +16,10 @@ interface Stats {
 
 function DashboardSkeleton() {
   return (
-    <div role="status" className="space-y-4">
+    <div role="status" className="space-y-6 motion-safe:animate-pulse">
       <span className="sr-only">正在加载统计…</span>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[1, 2, 3].map((key) => <div key={key} className="h-36 rounded-lg bg-(--bg-surface) border border-(--border-subtle) motion-safe:animate-pulse" />)}
-      </div>
-      <div className="h-75 rounded-lg bg-(--bg-surface) border border-(--border-subtle) motion-safe:animate-pulse" />
+      <StatsCards data={null} />
+      <TrendChart data={null} />
     </div>
   )
 }
@@ -67,5 +65,5 @@ export function DashboardStats() {
 
   if (loading || !stats) return <DashboardSkeleton />
 
-  return <><StatsCards data={stats} /><TrendChart data={stats.dailyTrend} /></>
+  return <div className="space-y-6"><StatsCards data={stats} /><TrendChart data={stats.dailyTrend} /></div>
 }

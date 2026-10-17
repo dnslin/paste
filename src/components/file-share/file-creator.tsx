@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Loader2, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { getPasswordError } from '@/lib/paste-rules'
@@ -8,7 +8,7 @@ import { FILE_EXTENSIONS, MAX_FILE_BYTES } from '@/lib/file-rules'
 import type { CreatedFileShare } from '@/lib/file-share-contract'
 import { FileDropzone } from './file-dropzone'
 import { FileOptions } from './file-options'
-import { FileCreatedDialog } from './file-created-dialog'
+import { FileCreatedContent, FileCreatedDialog } from './file-created-dialog'
 import { useFileUpload } from './use-file-upload'
 import type { FileShareOptions } from './presentation'
 
@@ -20,6 +20,8 @@ export function FileCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) =
   const [options, setOptions] = useState<FileShareOptions>(initialOptions)
   const [result, setResult] = useState<CreatedFileShare | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const currentView = useRef<HTMLElement | null>(null)
+  const focusNewForm = useRef(false)
   const upload = useFileUpload((created) => { setResult(created); setDialogOpen(true) }, onBusyChange)
   const invalid = !file || getPasswordError(options.password) !== null
 
@@ -34,13 +36,40 @@ export function FileCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) =
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!invalid && file && !upload.busy) {
+    if (!invalid && file && !upload.busy && !result) {
       setFileError(null)
       upload.start(file, options)
     }
   }
 
-  return <form onSubmit={submit} className="space-y-5">
+  function createAnother() {
+    focusNewForm.current = true
+    setDialogOpen(false)
+    setFile(null); setFileError(null); setOptions(initialOptions); setResult(null); upload.clearFeedback()
+  }
+
+  function focusCurrentView() {
+    const view = currentView.current
+    if (view && !view.closest('[hidden]')) view.querySelector<HTMLElement>('button')?.focus()
+  }
+
+  function restoreFocus(event: Event) {
+    event.preventDefault()
+    focusCurrentView()
+  }
+
+  if (result && file) return <section ref={(view) => { currentView.current = view }} aria-label="已创建的文件分享" className="space-y-4 rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-4 sm:p-6">
+    {!dialogOpen ? <>
+      <h2 className="font-medium">链接已创建</h2>
+      <FileCreatedContent result={result} fileName={file.name} hasPassword={!!options.password} onCreateAnother={createAnother} />
+    </> : null}
+    <FileCreatedDialog result={result} fileName={file.name} hasPassword={!!options.password} open={dialogOpen} onOpenChange={setDialogOpen} onCreateAnother={createAnother} onCloseAutoFocus={restoreFocus} />
+  </section>
+
+  return <form ref={(view) => {
+    currentView.current = view
+    if (view && focusNewForm.current) { focusNewForm.current = false; focusCurrentView() }
+  }} onSubmit={submit} className="space-y-5">
     <FileDropzone file={file} error={fileError} disabled={upload.busy} onSelect={selectFile}
       onRemove={() => { setFile(null); setFileError(null); upload.clearFeedback() }} />
     <FileOptions value={options} onChange={setOptions} disabled={upload.busy} />
@@ -57,7 +86,5 @@ export function FileCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) =
       </Button>
       {upload.busy ? <Button type="button" variant="outline" className="h-11" onClick={upload.cancel}>取消</Button> : null}
     </div>
-    {result && file ? <FileCreatedDialog key={result.id} result={result} fileName={file.name} hasPassword={!!options.password} open={dialogOpen} onOpenChange={setDialogOpen}
-      onCreateAnother={() => { setFile(null); setFileError(null); setOptions(initialOptions); setResult(null); upload.clearFeedback() }} /> : null}
   </form>
 }

@@ -10,7 +10,7 @@ export type UnavailableFileStatus = 'not_found' | 'expired' | 'exhausted' | 'del
 export function useFileDownload(initialMetadata: FileShareMetadata | null, initialError: boolean) {
   const [metadata, setMetadata] = useState(initialMetadata)
   const [unavailable, setUnavailable] = useState<UnavailableFileStatus | null>(initialError ? 'error' : !initialMetadata ? 'not_found' : initialMetadata.status === 'active' ? null : initialMetadata.status)
-  const [busy, setBusy] = useState(false)
+  const [phase, setPhase] = useState<'requesting' | 'downloading' | null>(null)
   const [ready, setReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const pending = useRef<AbortController | null>(null)
@@ -27,9 +27,10 @@ export function useFileDownload(initialMetadata: FileShareMetadata | null, initi
     if (pending.current || !metadata || unavailable || metadata.downloadsRemaining === 0) return
     const controller = new AbortController()
     pending.current = controller
-    setBusy(true)
+    setPhase('requesting')
     setReady(false)
     setError(null)
+    let remaining = metadata.downloadsRemaining
     try {
       const response = await fetch(`/api/files/${encodeURIComponent(metadata.id)}/download`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -54,7 +55,9 @@ export function useFileDownload(initialMetadata: FileShareMetadata | null, initi
       const downloadsRemaining = rawRemaining === 'unlimited' ? null : Number(rawRemaining)
       if (downloadsRemaining !== null && (!Number.isInteger(downloadsRemaining) || downloadsRemaining < 0)) throw new Error('Invalid download count')
       // A successful claim consumes a download even if reading the body is interrupted.
+      remaining = downloadsRemaining
       setMetadata({ ...metadata, fileName, downloadsRemaining })
+      setPhase('downloading')
       const blob = await response.blob()
       if (pending.current !== controller) return
       if (objectUrl.current) URL.revokeObjectURL(objectUrl.current)
@@ -68,11 +71,13 @@ export function useFileDownload(initialMetadata: FileShareMetadata | null, initi
       setMetadata({ ...metadata, fileName, size: blob.size, downloadsRemaining })
       setReady(true)
     } catch {
-      if (pending.current === controller) setError('下载未完成，请检查网络后重试。中断也会计次。')
+      if (pending.current === controller) setError(remaining === 0
+        ? '下载未完成，最后一次下载机会已计次。请联系分享者获取新链接。'
+        : '下载未完成，请检查网络后重试。中断也会计次。')
     } finally {
-      if (pending.current === controller) { pending.current = null; setBusy(false) }
+      if (pending.current === controller) { pending.current = null; setPhase(null) }
     }
   }
 
-  return { metadata, unavailable, busy, ready, error, download, clearError: () => setError(null) }
+  return { metadata, unavailable, busy: phase !== null, phase, ready, error, download, clearError: () => setError(null) }
 }

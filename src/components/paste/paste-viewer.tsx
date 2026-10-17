@@ -27,13 +27,17 @@ const unavailable = {
 export function PasteViewer({ pasteId, initialStatus, hasPassword, language, burnCount, initialContent }: PasteViewerProps) {
   const [paste, setPaste] = useState<PasteContent | null>(initialContent === undefined ? null : { content: initialContent, language, remainingViews: burnCount })
   const [wrap, setWrap] = useState(false)
+  const [unavailableMessage, setUnavailableMessage] = useState<string | null>(null)
 
-  if (initialStatus !== 'active') {
-    const { icon: Icon, title, description } = unavailable[initialStatus]
+  if (initialStatus !== 'active' || unavailableMessage) {
+    const { icon: Icon, title, description } = initialStatus === 'active'
+      ? { icon: FileX, title: unavailableMessage, description: null }
+      : unavailable[initialStatus]
     return <div className="flex min-h-100 flex-col items-center justify-center gap-3 text-center" role="status">
       <Icon className="size-12 text-(--text-secondary)" aria-hidden="true" />
       <h2 className="text-xl font-semibold">{title}</h2>
       {description ? <p className="text-(--text-secondary)">{description}</p> : null}
+      {initialStatus !== 'error' ? <p className="text-sm text-(--text-secondary)">请联系分享者获取新链接。</p> : null}
       <Link href="/" className="mt-2 text-(--accent-primary) underline underline-offset-4">返回首页</Link>
     </div>
   }
@@ -52,6 +56,6 @@ export function PasteViewer({ pasteId, initialStatus, hasPassword, language, bur
         </div>
       </div>
       <div className="overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-surface) py-4"><CodeDisplay code={paste.content} language={paste.language} wrap={wrap} /></div>
-    </> : <PasteAccessForm pasteId={pasteId} hasPassword={hasPassword} burnCount={burnCount} onSuccess={setPaste} />}
+    </> : <PasteAccessForm pasteId={pasteId} hasPassword={hasPassword} burnCount={burnCount} onSuccess={setPaste} onUnavailable={setUnavailableMessage} />}
   </div>
 }

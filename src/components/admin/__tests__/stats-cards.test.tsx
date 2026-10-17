@@ -17,6 +17,18 @@ function stats(today: number, yesterday: number) {
 }
 
 describe('StatsCards', () => {
+  it('加载占位不把未知的统计数量显示成零', () => {
+    render(<StatsCards data={null} />)
+    expect(screen.queryByText('0')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('与昨日相比')).not.toBeInTheDocument()
+  })
+
+  it('将当前记录数量标为现存分享，避免暗示历史累计', () => {
+    render(<StatsCards data={stats(5, 2)} />)
+    expect(screen.getByText('现存分享')).toBeInTheDocument()
+    expect(screen.queryByText('累计分享')).not.toBeInTheDocument()
+  })
+
   it('昨日为零、今日有记录时显示新增，避免无意义的 +0%', () => {
     render(<StatsCards data={stats(5, 0)} />)
     expect(screen.getByText('新增')).toBeInTheDocument()

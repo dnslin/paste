@@ -67,7 +67,7 @@ export function OptionsPanel({ value, onChange, disabled }: OptionsPanelProps) {
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             data-testid="toggle-password"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-(--accent-primary)"
             aria-label={showPassword ? '隐藏密码' : '显示密码'}
           >
             {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}

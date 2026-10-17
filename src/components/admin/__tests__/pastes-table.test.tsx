@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { PastesTable } from '../pastes-table'
 
 function listing(page: number, pageSize: number, total: number) {
@@ -37,6 +37,20 @@ afterEach(() => {
 })
 
 describe('PastesTable', () => {
+  it('编号单元格同时提供时间和完整状态，便于窄屏直接核对并操作', async () => {
+    const data = listing(1, 15, 1)
+    data.items[0].status = 'destroyed'
+    fetchMock.mockResolvedValue(response(data))
+    render(<PastesTable />)
+    const id = await screen.findByText('paste-1')
+    const row = id.closest('tr')!
+    const identifier = within(row).getAllByRole('cell')[0]
+    expect(identifier).toHaveTextContent(new Date(data.items[0].createdAt).toLocaleString('zh-CN'))
+    expect(identifier).toHaveTextContent('查看次数已用尽')
+    expect(within(row).getByRole('button', { name: '查看 paste-1' })).toBeEnabled()
+    expect(within(row).getByRole('button', { name: '删除 paste-1' })).toBeEnabled()
+  })
+
   it('显示真实总数，并通过每页条数选择器更新列表请求', async () => {
     fetchMock.mockImplementation(async (url) => {
       const query = new URL(String(url), 'http://localhost').searchParams

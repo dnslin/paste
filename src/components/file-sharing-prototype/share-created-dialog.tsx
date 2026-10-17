@@ -21,7 +21,7 @@ export function ShareCreatedDialog({ share, url, open, onOpenChange, onPreview, 
     <DialogContent showCloseButton={false} className="sm:max-w-md motion-reduce:animate-none">
       <DialogHeader>
         <DialogTitle>链接已创建</DialogTitle>
-        <DialogDescription className="sr-only">本地演示链接，刷新后失效。</DialogDescription>
+        <DialogDescription>本地演示链接，刷新后失效。</DialogDescription>
       </DialogHeader>
       <div className="space-y-2 text-sm">
         <p className="font-medium [overflow-wrap:anywhere]">{itemName(share.item)}</p>

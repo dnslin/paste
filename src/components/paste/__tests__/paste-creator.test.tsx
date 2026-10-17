@@ -19,7 +19,7 @@ beforeEach(() => {
 })
 
 describe('创建内容', () => {
-  it.each(['success', 'error', 'network'] as const)('提交期间冻结所有输入，%s 后恢复并保留提交内容', async (outcome) => {
+  it.each(['success', 'error', 'network'] as const)('提交期间冻结所有输入，%s 后恢复编辑或显示成功结果', async (outcome) => {
     let resolve!: (response: Response) => void
     let reject!: (reason: Error) => void
     fetchMock.mockImplementation(() => new Promise<Response>((done, fail) => { resolve = done; reject = fail }))
@@ -59,14 +59,58 @@ describe('创建内容', () => {
         ? { success: true, data: { id: 'abc123', url: 'http://localhost/abc123' } }
         : { success: false, error: { code: 'ERROR', message: '创建请求失败' } }, { status: outcome === 'success' ? 201 : 500 }))
     })
-    if (outcome === 'success') fireEvent.click(screen.getByRole('button', { name: '关闭' }))
+    expect(busy).toHaveBeenLastCalledWith(false)
+    expect(fetchMock).toHaveBeenCalledOnce()
+    if (outcome === 'success') {
+      fireEvent.click(screen.getByRole('button', { name: '关闭' }))
+      expect(screen.queryByLabelText('代码或文本内容')).not.toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'http://localhost/abc123' })).toBeInTheDocument()
+      return
+    }
     controls.forEach((control) => expect(control).toBeEnabled())
     expect(screen.getByLabelText('代码或文本内容')).toHaveValue('本次提交的内容')
     expect(screen.getByLabelText('密码保护')).toHaveValue('original-password')
-    expect(busy).toHaveBeenLastCalledWith(false)
-    expect(fetchMock).toHaveBeenCalledOnce()
     fireEvent.keyDown(screen.getByRole('combobox', { name: '过期时间' }), { key: 'ArrowDown' })
     expect(await screen.findByRole('listbox')).toBeInTheDocument()
+  })
+
+  it('关闭成功提示后仍可复制原链接，只有创建另一条才重置表单', async () => {
+    const url = 'http://localhost/abc123'
+    fetchMock.mockResolvedValue(Response.json({ success: true, data: { id: 'abc123', url } }, { status: 201 }))
+    render(<PasteCreator />)
+    inputContent('已创建内容')
+    fireEvent.change(screen.getByLabelText('密码保护'), { target: { value: 'private-password' } })
+    fireEvent.click(screen.getByRole('button', { name: '创建内容' }))
+    const dialog = await screen.findByRole('dialog')
+    await waitFor(() => expect(writeText).toHaveBeenCalledOnce())
+    fireEvent.keyDown(dialog, { key: 'Escape' })
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(screen.queryByRole('button', { name: '创建内容' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: url })).toHaveAttribute('href', url)
+    await waitFor(() => expect(screen.getByRole('button', { name: '复制链接' })).toHaveFocus())
+    expect(writeText).toHaveBeenCalledOnce()
+    writeText.mockRejectedValueOnce(new Error('denied'))
+    fireEvent.click(screen.getByRole('button', { name: '复制链接' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('请重试或手动复制链接')
+    fireEvent.click(screen.getByRole('button', { name: '复制链接' }))
+    expect(await screen.findByRole('button', { name: '已复制' })).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledOnce()
+    fireEvent.click(screen.getByRole('button', { name: '创建另一条' }))
+    expect(screen.getByLabelText('代码或文本内容')).toHaveValue('')
+    expect(screen.getByLabelText('代码或文本内容')).toHaveFocus()
+    expect(screen.getByLabelText('密码保护')).toHaveValue('')
+    expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()
+    expect(screen.queryByRole('link', { name: url })).not.toBeInTheDocument()
+  })
+
+  it('从成功弹窗直接创建另一条后，退出回焦点仍落在新编辑器', async () => {
+    fetchMock.mockResolvedValue(Response.json({ success: true, data: { id: 'abc123', url: 'http://localhost/abc123' } }, { status: 201 }))
+    render(<PasteCreator />)
+    inputContent()
+    fireEvent.click(screen.getByRole('button', { name: '创建内容' }))
+    await screen.findByRole('dialog')
+    fireEvent.click(screen.getByRole('button', { name: '创建另一条' }))
+    await waitFor(() => expect(screen.getByLabelText('代码或文本内容')).toHaveFocus())
   })
 
   it('禁用空内容和只有空白的提交', () => {

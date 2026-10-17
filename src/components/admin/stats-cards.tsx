@@ -16,12 +16,12 @@ interface Stats {
 }
 
 interface StatsCardsProps {
-  data: Stats
+  data: Stats | null
 }
 
 interface StatCardProps {
   label: string
-  value: number
+  value: number | null
   icon: React.ComponentType<{ className?: string }>
   trend?: DailyTrend[]
   change?: { label: string; positive: boolean }
@@ -36,7 +36,7 @@ function StatCard({ label, value, icon: Icon, trend, change }: StatCardProps) {
             <Icon className="w-5 h-5 text-(--accent-primary)" aria-hidden="true" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-(--text-primary)">{value.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-(--text-primary)">{value === null ? <span className="inline-block w-16 rounded bg-(--bg-elevated)">&nbsp;</span> : value.toLocaleString()}</p>
             <p className="text-sm text-(--text-secondary)">{label}</p>
           </div>
         </div>
@@ -46,9 +46,9 @@ function StatCard({ label, value, icon: Icon, trend, change }: StatCardProps) {
           </div>
         )}
       </div>
-      {trend && trend.length > 0 && (
+      {trend && (value === null || trend.length > 0) && (
         <div className="mt-4 h-10">
-          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+          {value === null ? <div className="h-full rounded bg-(--bg-elevated)" /> : <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
             <AreaChart data={trend}>
               <defs>
                 <linearGradient id={`gradient-${label}`} x1="0" y1="0" x2="0" y2="1">
@@ -65,7 +65,7 @@ function StatCard({ label, value, icon: Icon, trend, change }: StatCardProps) {
                 fill={`url(#gradient-${label})`}
               />
             </AreaChart>
-          </ResponsiveContainer>
+          </ResponsiveContainer>}
         </div>
       )}
     </div>
@@ -73,35 +73,35 @@ function StatCard({ label, value, icon: Icon, trend, change }: StatCardProps) {
 }
 
 export function StatsCards({ data }: StatsCardsProps) {
-  const dailyTrend = data.dailyTrend
+  const dailyTrend = data?.dailyTrend ?? []
   const yesterdayCount = dailyTrend.at(-2)?.count ?? 0
-  const changePercent = yesterdayCount > 0 ? ((data.todayCount - yesterdayCount) / yesterdayCount) * 100 : null
+  const changePercent = data && yesterdayCount > 0 ? ((data.todayCount - yesterdayCount) / yesterdayCount) * 100 : null
   const change = changePercent !== null
     ? { label: `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(0)}%`, positive: changePercent >= 0 }
-    : data.todayCount > 0 ? { label: '新增', positive: true } : undefined
+    : data && data.todayCount > 0 ? { label: '新增', positive: true } : undefined
 
   const cards = [
     { 
-      label: '累计分享',
-      value: data.total, 
+      label: '现存分享',
+      value: data?.total ?? null,
       icon: Database,
       trend: dailyTrend,
     },
     { 
       label: '今日（UTC）',
-      value: data.todayCount, 
+      value: data?.todayCount ?? null,
       icon: CalendarPlus,
       change,
     },
     { 
       label: '可访问',
-      value: data.activeCount, 
+      value: data?.activeCount ?? null,
       icon: Activity,
     },
   ]
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div aria-hidden={data === null || undefined} className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {cards.map((card) => (
         <StatCard
           key={card.label}

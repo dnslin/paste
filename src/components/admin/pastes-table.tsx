@@ -130,29 +130,35 @@ export function PastesTable() {
         <p className="text-center py-12 text-(--text-secondary)">暂无分享记录</p>
       ) : (
         <div className="rounded-lg border border-(--border-subtle) overflow-x-auto">
-          <table className="w-full min-w-[600px]">
+          <table className="w-full table-fixed md:min-w-[600px] md:table-auto">
             <caption className="sr-only">分享记录及管理操作</caption>
             <thead className="bg-(--bg-elevated)">
               <tr>
                 <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">编号</th>
-                <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">创建时间</th>
+                <th scope="col" className="hidden px-4 py-3 text-left text-sm font-medium text-(--text-secondary) md:table-cell">创建时间</th>
                 <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary) hidden md:table-cell">语言</th>
-                <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-(--text-secondary)">状态</th>
-                <th scope="col" className="px-4 py-3 text-right text-sm font-medium text-(--text-secondary)">操作</th>
+                <th scope="col" className="hidden px-4 py-3 text-left text-sm font-medium text-(--text-secondary) md:table-cell">状态</th>
+                <th scope="col" className="w-24 px-2 py-3 text-right text-sm font-medium text-(--text-secondary) md:w-auto md:px-4">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-(--border-subtle)">
               {data.items.map((item) => (
                 <tr key={item.id} className="hover:bg-(--bg-elevated)/50">
-                  <td className="px-4 py-3 font-mono text-sm text-(--text-primary)">{item.id}</td>
-                  <td className="px-4 py-3 text-sm text-(--text-primary)">{new Date(item.createdAt).toLocaleString('zh-CN')}</td>
+                  <td className="px-4 py-3 text-sm text-(--text-primary)">
+                    <p className="font-mono [overflow-wrap:anywhere]">{item.id}</p>
+                    <div className="mt-2 space-y-2 md:hidden">
+                      <p className="text-xs text-(--text-secondary)"><time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString('zh-CN')}</time></p>
+                      <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[item.status]}`}>{STATUS_LABELS[item.status]}</span>
+                    </div>
+                  </td>
+                  <td className="hidden px-4 py-3 text-sm text-(--text-primary) md:table-cell">{new Date(item.createdAt).toLocaleString('zh-CN')}</td>
                   <td className="px-4 py-3 text-sm text-(--text-primary) hidden md:table-cell">{item.language}</td>
-                  <td className="px-4 py-3">
+                  <td className="hidden px-4 py-3 md:table-cell">
                     <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[item.status]}`}>
                       {STATUS_LABELS[item.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-2 py-3 text-right md:px-4">
                     <div className="flex justify-end gap-1">
                       <Button
                         variant="ghost"

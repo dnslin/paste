@@ -1,5 +1,6 @@
 'use client'
 
+import { useId } from 'react'
 import {
   ChevronLeft,
   ChevronRight,
@@ -32,6 +33,7 @@ export function Pagination({
   onPageChange,
   onPageSizeChange,
 }: PaginationProps) {
+  const pageSizeLabelId = useId()
   const start = (page - 1) * pageSize + 1
   const end = Math.min(page * pageSize, total)
 
@@ -96,12 +98,12 @@ export function Pagination({
           第 {total === 0 ? 0 : start}–{end} 条，共 {total} 条
         </p>
         <div className="flex items-center space-x-2">
-          <p id="page-size-label" className="text-sm font-medium">每页条数</p>
+          <p id={pageSizeLabelId} className="text-sm font-medium">每页条数</p>
           <Select
             value={`${pageSize}`}
             onValueChange={(value) => onPageSizeChange(Number(value))}
           >
-            <SelectTrigger aria-labelledby="page-size-label" className="h-8 w-[70px]">
+            <SelectTrigger aria-labelledby={pageSizeLabelId} className="h-8 w-[70px]">
               <SelectValue placeholder={pageSize} />
             </SelectTrigger>
             <SelectContent side="top" className="motion-reduce:animate-none">

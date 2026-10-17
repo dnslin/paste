@@ -21,20 +21,23 @@ export function FileCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) =
   const [result, setResult] = useState<CreatedFileShare | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const upload = useFileUpload((created) => { setResult(created); setDialogOpen(true) }, onBusyChange)
-  const invalid = !file || !!fileError || getPasswordError(options.password) !== null
+  const invalid = !file || getPasswordError(options.password) !== null
 
   function selectFile(files: File[]) {
     const error = files.length !== 1 ? '每条分享只能选择一个文件，请重新选择。'
       : files[0].size > MAX_FILE_BYTES ? '文件超过 10 MiB，请选择更小的文件。'
         : !FILE_EXTENSIONS.includes(files[0].name.split('.').pop()?.toLowerCase() ?? '') ? '请选择文本、PDF、图片或 ZIP 文件。' : null
-    setFileError(error)
+    setFileError(error && file ? `${error} 未更换，仍可上传原文件。` : error)
     if (!error) setFile(files[0])
     upload.clearFeedback()
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!invalid && file && !upload.busy) upload.start(file, options)
+    if (!invalid && file && !upload.busy) {
+      setFileError(null)
+      upload.start(file, options)
+    }
   }
 
   return <form onSubmit={submit} className="space-y-5">

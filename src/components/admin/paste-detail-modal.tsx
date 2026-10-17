@@ -120,7 +120,7 @@ function PasteDetails({ pasteId }: { pasteId: string }) {
 export function PasteDetailModal({ pasteId, open, onOpenChange }: PasteDetailModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="sm:max-w-2xl bg-(--bg-surface) motion-reduce:animate-none">
+      <DialogContent showCloseButton={false} className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-2xl bg-(--bg-surface) motion-reduce:animate-none">
         <DialogHeader>
           <DialogTitle>分享详情</DialogTitle>
           <DialogDescription>查看这条分享的内容、状态与访问选项。</DialogDescription>

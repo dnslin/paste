@@ -53,18 +53,20 @@ export function PasteCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) 
   }
 
   return (
-    <form onSubmit={handleCreate} className="flex w-full flex-col gap-4 sm:gap-5">
-      <div className="flex items-center gap-3">
-        <label htmlFor="code-language" className="text-sm font-medium text-(--text-secondary)">代码语言</label>
-        <LanguageSelector value={language} onChange={setLanguage} />
-      </div>
-      <CodeEditor value={code} onChange={setCode} language={language} />
-      <OptionsPanel value={options} onChange={setOptions} />
-      {error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null}
-      <Button type="submit" disabled={isInvalid || isLoading} className="h-11 w-full gap-2" size="lg">
-        {isLoading ? <Loader2 className="size-4 motion-safe:animate-spin" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}
-        {isLoading ? '正在创建…' : '创建内容'}
-      </Button>
+    <form onSubmit={handleCreate} className="w-full">
+      <fieldset disabled={isLoading} className="flex min-w-0 flex-col gap-4 sm:gap-5">
+        <div className="flex items-center gap-3">
+          <label htmlFor="code-language" className="text-sm font-medium text-(--text-secondary)">代码语言</label>
+          <LanguageSelector value={language} onChange={setLanguage} />
+        </div>
+        <CodeEditor value={code} onChange={setCode} language={language} />
+        <OptionsPanel value={options} onChange={setOptions} disabled={isLoading} />
+        {error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null}
+        <Button type="submit" disabled={isInvalid || isLoading} className="h-11 w-full gap-2" size="lg">
+          {isLoading ? <Loader2 className="size-4 motion-safe:animate-spin" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}
+          {isLoading ? '正在创建…' : '创建内容'}
+        </Button>
+      </fieldset>
       {result ? <SuccessDialog open={dialogOpen} onOpenChange={setDialogOpen} url={result.url} onCreateAnother={() => {
         setCode(''); setLanguage('plaintext'); setOptions(initialOptions); setResult(null); setError(null)
       }} /> : null}

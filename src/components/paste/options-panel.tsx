@@ -21,9 +21,10 @@ export interface PasteOptions {
 interface OptionsPanelProps {
   value: PasteOptions
   onChange: (options: PasteOptions) => void
+  disabled?: boolean
 }
 
-export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
+export function OptionsPanel({ value, onChange, disabled }: OptionsPanelProps) {
   const [showPassword, setShowPassword] = useState(false)
   const passwordError = getPasswordError(value.password)
 
@@ -81,7 +82,7 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
           <Clock className="size-4" />
           过期时间
         </label>
-        <Select value={expiryValue} onValueChange={handleExpiryChange}>
+        <Select value={expiryValue} onValueChange={handleExpiryChange} disabled={disabled}>
           <SelectTrigger data-testid="expiry-select" aria-labelledby="expiry-label" className="w-full">
             <SelectValue placeholder="选择过期时间" />
           </SelectTrigger>
@@ -103,7 +104,7 @@ export function OptionsPanel({ value, onChange }: OptionsPanelProps) {
           <Flame className="size-4" />
           查看次数限制
         </label>
-        <Select value={burnValue} onValueChange={handleBurnChange}>
+        <Select value={burnValue} onValueChange={handleBurnChange} disabled={disabled}>
           <SelectTrigger data-testid="burn-select" aria-labelledby="burn-label" className="w-full">
             <SelectValue placeholder="选择查看次数" />
           </SelectTrigger>

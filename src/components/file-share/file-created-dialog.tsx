@@ -20,7 +20,7 @@ interface FileCreatedDialogProps {
 export function FileCreatedDialog({ result, fileName, hasPassword, open, onOpenChange, onCreateAnother }: FileCreatedDialogProps) {
   const { copy, status } = useClipboard(result.url)
   return <Dialog open={open} onOpenChange={onOpenChange}>
-    <DialogContent showCloseButton={false} className="sm:max-w-md motion-reduce:animate-none">
+    <DialogContent showCloseButton={false} className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md motion-reduce:animate-none">
       <DialogHeader><DialogTitle>链接已创建</DialogTitle><DialogDescription className="sr-only">文件分享链接</DialogDescription></DialogHeader>
       <div className="space-y-2 text-sm"><p className="font-medium [overflow-wrap:anywhere]">{fileName}</p><p className="text-xs text-(--text-secondary)">{formatExpiry(result.expiresAt)} · {result.downloadLimit === null ? '不限次数' : `${result.downloadLimit} 次下载`}{hasPassword ? ' · 密码保护' : ''}</p></div>
       <a href={result.url} className="break-all rounded-lg border border-(--border-subtle) bg-(--bg-elevated) p-3 font-mono text-sm text-(--accent-primary) underline underline-offset-4">{result.url}</a>

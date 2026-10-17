@@ -141,7 +141,7 @@ export function FilesTable() {
     </> : null}
     <Dialog open={modal !== null} onOpenChange={(open) => { if (!open && !acting) setModal(null) }}>
       <DialogContent className="sm:max-w-md motion-reduce:animate-none">
-        <DialogHeader><DialogTitle>{modal?.kind === 'delete' ? '删除这条分享？' : '文件详情'}</DialogTitle><DialogDescription className={modal?.kind === 'delete' ? undefined : 'sr-only'}>{modal?.kind === 'delete' ? '链接将失效，文件无法恢复。' : '文件分享信息'}</DialogDescription></DialogHeader>
+        <DialogHeader><DialogTitle>{modal?.kind === 'delete' ? '删除这条分享？' : '文件详情'}</DialogTitle><DialogDescription className={modal?.kind === 'delete' ? undefined : 'sr-only'}>{modal?.kind === 'delete' ? '删除后链接失效。' : '文件分享信息'}</DialogDescription></DialogHeader>
         {modal ? <div className="space-y-3 text-sm">
           <p className="font-medium [overflow-wrap:anywhere]">{modal.item.fileName}</p>
           <p className="text-(--text-secondary)">{formatBytes(modal.item.size)} · {statusLabel(modal.item)}</p>

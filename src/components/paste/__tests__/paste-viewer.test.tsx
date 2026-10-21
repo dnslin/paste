@@ -1,21 +1,46 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { Blob as NodeBlob } from 'node:buffer'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { PasteViewer } from '../paste-viewer'
 
 vi.mock('@/lib/highlight', () => ({ plainCodeHtml: (code: string) => `<pre>${code}</pre>`, highlightCode: async (code: string) => `<pre>${code}</pre>` }))
 const fetchMock = vi.fn()
+const createObjectURL = vi.fn<(blob: Blob) => string>(() => 'blob:paste-original')
+const revokeObjectURL = vi.fn()
+let downloads: string[]
 const props = { pasteId: 'abc123', initialStatus: 'active' as const, hasPassword: false, language: 'plaintext', burnCount: 1 }
 
-beforeEach(() => { fetchMock.mockReset(); vi.stubGlobal('fetch', fetchMock) })
+beforeEach(() => {
+  downloads = []
+  fetchMock.mockReset()
+  createObjectURL.mockClear()
+  revokeObjectURL.mockClear()
+  vi.stubGlobal('fetch', fetchMock)
+  vi.stubGlobal('Blob', NodeBlob)
+  vi.stubGlobal('URL', class extends URL {
+    static createObjectURL = createObjectURL
+    static revokeObjectURL = revokeObjectURL
+  })
+  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+    downloads.push(this.download)
+  })
+})
+afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals() })
 
 describe('查看内容', () => {
-  it('有次数限制时不自动请求，点击才领取并显示最后一次提示', async () => {
-    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ success: true, data: { content: '受限正文', language: 'plaintext', remainingViews: 0 } }) })
+  it('有次数限制时先领取，最后一次也可重复下载原文且不再请求领取', async () => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ success: true, data: { content: '受限正文', language: 'sql', remainingViews: 0 } }) })
     render(<PasteViewer {...props} />)
     expect(fetchMock).not.toHaveBeenCalled()
+    expect(screen.queryByRole('button', { name: '下载原文' })).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '查看内容' }))
     expect(await screen.findByText('受限正文')).toBeInTheDocument()
-    expect(screen.getByText(/这是最后一次查看/)).toBeInTheDocument()
+    expect(screen.getByText('这是最后一次查看，当前页面仍可阅读、复制和下载。')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '下载原文' }))
+    fireEvent.click(screen.getByRole('button', { name: '下载原文' }))
+    expect(downloads).toEqual(['paste-abc123.sql', 'paste-abc123.sql'])
+    expect(await createObjectURL.mock.calls[0][0].text()).toBe('受限正文')
+    expect(fetchMock).toHaveBeenCalledOnce()
     expect(fetchMock).toHaveBeenCalledWith('/api/pastes/abc123/verify', expect.objectContaining({ method: 'POST', body: '{}' }))
     expect(screen.queryByRole('button', { name: '查看内容' })).not.toBeInTheDocument()
   })
@@ -26,6 +51,7 @@ describe('查看内容', () => {
     fireEvent.change(screen.getByLabelText('访问密码'), { target: { value: 'password' } })
     fireEvent.click(screen.getByRole('button', { name: '解锁内容' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('稍后重试')
+    expect(screen.queryByRole('button', { name: '下载原文' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: '解锁内容' })).toBeEnabled()
     fireEvent.click(screen.getByRole('button', { name: '解锁内容' }))
     expect(await screen.findByText('已解锁正文')).toBeInTheDocument()
@@ -38,6 +64,7 @@ describe('查看内容', () => {
     render(<PasteViewer {...props} />)
     fireEvent.click(screen.getByRole('button', { name: '查看内容' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('检查网络连接')
+    expect(screen.queryByRole('button', { name: '下载原文' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: '查看内容' })).toBeEnabled()
   })
 
@@ -48,6 +75,7 @@ describe('查看内容', () => {
     expect(await screen.findByRole('heading', { name: message })).toBeInTheDocument()
     expect(screen.getByText('请联系分享者获取新链接。')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '查看内容' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '下载原文' })).not.toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledOnce()
   })
 
@@ -57,6 +85,7 @@ describe('查看内容', () => {
     fireEvent.change(screen.getByLabelText('访问密码'), { target: { value: 'wrong' } })
     fireEvent.click(screen.getByRole('button', { name: '解锁内容' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('密码不正确')
+    expect(screen.queryByRole('button', { name: '下载原文' })).not.toBeInTheDocument()
     expect(screen.getByLabelText('访问密码')).toHaveValue('wrong')
     expect(screen.getByRole('button', { name: '解锁内容' })).toBeEnabled()
     expect(screen.queryByText('请联系分享者获取新链接。')).not.toBeInTheDocument()
@@ -64,6 +93,8 @@ describe('查看内容', () => {
     fireEvent.change(screen.getByLabelText('访问密码'), { target: { value: 'correct' } })
     fireEvent.click(screen.getByRole('button', { name: '解锁内容' }))
     expect(await screen.findByText('纠正后正文')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '下载原文' }))
+    expect(downloads).toEqual(['paste-abc123.txt'])
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
@@ -72,7 +103,22 @@ describe('查看内容', () => {
     expect(screen.getByText('普通正文')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('checkbox', { name: '长行换行' }))
     expect(screen.getByRole('checkbox', { name: '长行换行' })).toBeChecked()
+    fireEvent.click(screen.getByRole('button', { name: '下载原文' }))
+    expect(downloads).toEqual(['paste-abc123.txt'])
+    expect(await createObjectURL.mock.calls[0][0].text()).toBe('普通正文')
     await waitFor(() => expect(fetchMock).not.toHaveBeenCalled())
+  })
+
+  it('领取响应尚未返回时没有正文或下载入口', async () => {
+    let resolveResponse!: (response: unknown) => void
+    fetchMock.mockReturnValue(new Promise((resolve) => { resolveResponse = resolve }))
+    render(<PasteViewer {...props} />)
+    fireEvent.click(screen.getByRole('button', { name: '查看内容' }))
+    expect(screen.getByRole('button', { name: '正在读取…' })).toBeDisabled()
+    expect(screen.queryByRole('button', { name: '下载原文' })).not.toBeInTheDocument()
+    expect(createObjectURL).not.toHaveBeenCalled()
+    resolveResponse({ ok: true, json: async () => ({ success: true, data: { content: '领取完成', language: 'json', remainingViews: 0 } }) })
+    expect(await screen.findByRole('button', { name: '下载原文' })).toBeEnabled()
   })
 
   it.each([
@@ -81,6 +127,7 @@ describe('查看内容', () => {
     render(<PasteViewer {...props} initialStatus={status} />)
     expect(screen.getByRole('heading', { name: title })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '返回首页' })).toHaveAttribute('href', '/')
+    expect(screen.queryByRole('button', { name: '下载原文' })).not.toBeInTheDocument()
     if (status === 'error') {
       expect(screen.getByText(/刷新页面重试/)).toBeInTheDocument()
       expect(screen.queryByText('请联系分享者获取新链接。')).not.toBeInTheDocument()

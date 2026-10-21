@@ -1,0 +1,86 @@
+[
+  {
+    "label": "text-modal-390",
+    "buttonsWithinPanel": true,
+    "centerDelta": 0,
+    "height": 844,
+    "panelClientWidth": 356,
+    "panelScrollWidth": 356,
+    "panelWidth": 358,
+    "qrWidth": 192,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "label": "text-modal-320",
+    "buttonsWithinPanel": true,
+    "centerDelta": 0,
+    "height": 700,
+    "panelClientWidth": 286,
+    "panelScrollWidth": 286,
+    "panelWidth": 288,
+    "qrWidth": 192,
+    "scrollWidth": 320,
+    "width": 320
+  },
+  {
+    "label": "text-modal-short",
+    "buttonsWithinPanel": true,
+    "centerDelta": 0,
+    "height": 300,
+    "panelClientWidth": 356,
+    "panelScrollWidth": 356,
+    "panelWidth": 358,
+    "qrWidth": 192,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "label": "file-card-320",
+    "buttonsWithinPanel": true,
+    "centerDelta": 0,
+    "height": 700,
+    "panelClientWidth": 286,
+    "panelScrollWidth": 286,
+    "panelWidth": 288,
+    "qrWidth": 192,
+    "scrollWidth": 320,
+    "width": 320
+  },
+  {
+    "label": "file-modal-320",
+    "buttonsWithinPanel": true,
+    "centerDelta": 0,
+    "height": 700,
+    "panelClientWidth": 286,
+    "panelScrollWidth": 286,
+    "panelWidth": 288,
+    "qrWidth": 192,
+    "scrollWidth": 320,
+    "width": 320
+  },
+  {
+    "label": "text-card-desktop",
+    "buttonsWithinPanel": true,
+    "centerDelta": 0,
+    "height": 900,
+    "panelClientWidth": 446,
+    "panelScrollWidth": 446,
+    "panelWidth": 448,
+    "qrWidth": 192,
+    "scrollWidth": 1440,
+    "width": 1440
+  },
+  {
+    "label": "text-modal-desktop",
+    "buttonsWithinPanel": true,
+    "centerDelta": 0,
+    "height": 900,
+    "panelClientWidth": 446,
+    "panelScrollWidth": 446,
+    "panelWidth": 448,
+    "qrWidth": 192,
+    "scrollWidth": 1440,
+    "width": 1440
+  }
+]

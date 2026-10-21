@@ -10,9 +10,10 @@ export default function Home() {
           <div className="flex items-center justify-center gap-3">
             <Logo />
             <h1 className="text-4xl font-semibold tracking-tight text-(--text-primary)">
-              创建分享
+              Paste
             </h1>
           </div>
+          <p className="mt-3 text-sm text-(--text-secondary)">分享文本、代码和文件</p>
         </div>
         <div className="w-full max-w-175 flex-1 min-h-0">
           <ShareCreator />

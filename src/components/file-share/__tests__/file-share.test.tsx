@@ -52,7 +52,7 @@ function selectFile(selected = file) {
   fireEvent.change(screen.getByLabelText('选择分享文件'), { target: { files: [selected] } })
 }
 function startUpload() {
-  fireEvent.click(screen.getByRole('button', { name: '创建文件分享' }))
+  fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
   return UploadRequest.requests.at(-1)!
 }
 function binaryResponse(remaining: string = '2', blob = new Blob(['交付文档'])) {
@@ -62,25 +62,25 @@ function binaryResponse(remaining: string = '2', blob = new Blob(['交付文档'
 describe('正式文件创建', () => {
   it('仅真实文件入口，接受空文件和恰好上限，阻止多文件/超限/不支持类型', () => {
     render(<FileCreator />)
-    expect(screen.getByRole('button', { name: '创建文件分享' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeDisabled()
     expect(screen.getByLabelText('选择分享文件')).toHaveAttribute('accept', FILE_ACCEPT)
     expect(screen.queryByText('试用示例')).not.toBeInTheDocument()
     expect(screen.queryByText('演示选项')).not.toBeInTheDocument()
     selectFile(new File([], 'empty.txt'))
-    expect(screen.getByRole('button', { name: '创建文件分享' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeEnabled()
     selectFile(new File([new Uint8Array(MAX_FILE_BYTES)], 'limit.zip'))
-    expect(screen.getByRole('button', { name: '创建文件分享' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeEnabled()
     fireEvent.click(screen.getByRole('button', { name: '移除文件' }))
     selectFile(new File([new Uint8Array(MAX_FILE_BYTES + 1)], 'large.zip'))
     expect(screen.getByRole('alert')).toHaveTextContent('超过 10 MiB')
-    expect(screen.getByRole('button', { name: '创建文件分享' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeDisabled()
     fireEvent.change(screen.getByLabelText('选择分享文件'), { target: { files: [file, file] } })
     expect(screen.getByRole('alert')).toHaveTextContent('一个文件')
     selectFile(new File(['binary'], 'tool.exe'))
     expect(screen.getByRole('alert')).toHaveTextContent('文本、PDF、图片或 ZIP')
     selectFile()
     fireEvent.click(screen.getByRole('button', { name: '移除文件' }))
-    expect(screen.getByRole('button', { name: '创建文件分享' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeDisabled()
     expect(UploadRequest.requests).toHaveLength(0)
   })
 
@@ -96,7 +96,7 @@ describe('正式文件创建', () => {
     fireEvent.drop(screen.getByText(file.name).closest('.border')!, { dataTransfer: { files } })
     expect(screen.getByText(file.name)).toBeInTheDocument()
     expect(screen.getByRole('alert')).toHaveTextContent('未更换，仍可上传原文件')
-    expect(screen.getByRole('button', { name: '创建文件分享' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeEnabled()
     const request = startUpload()
     const form = request.send.mock.calls[0][0] as FormData
     expect(form.get('file')).toBe(file)
@@ -122,14 +122,14 @@ describe('正式文件创建', () => {
     act(() => { request.upload.onprogress?.({ lengthComputable: true, loaded: 100, total: 100 }) })
     expect(screen.getByRole('status')).toHaveTextContent('正在保存')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '正在创建分享…' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '正在生成链接…' })).toBeDisabled()
     act(() => request.respond(201, { success: true, data: created }))
     expect(await screen.findByRole('dialog')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '查看分享' })).toHaveAttribute('href', created.url)
     expect(busy.mock.calls.map(([value]) => value)).toEqual([true, false])
     fireEvent.click(screen.getByRole('button', { name: '创建另一条' }))
     expect(screen.queryByText(file.name)).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '创建文件分享' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeDisabled()
   })
 
   it('取消后终止请求并保留草稿，迟到成功响应不会弹窗', () => {
@@ -144,7 +144,7 @@ describe('正式文件创建', () => {
     expect(screen.getByText(file.name)).toBeInTheDocument()
     expect(screen.getByLabelText('密码保护')).toHaveValue('keep-me')
     expect(screen.getByRole('status')).toHaveTextContent('已完成的分享仍会保留至到期')
-    expect(screen.getByRole('button', { name: '创建文件分享' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeEnabled()
   })
 
   it.each([400, 429, 500])('%s错误保留文件与选项，重试不会自动重复提交', (status) => {
@@ -157,7 +157,7 @@ describe('正式文件创建', () => {
     expect(screen.getByLabelText('密码保护')).toHaveValue('keep-me')
     expect(screen.getByText(file.name)).toBeInTheDocument()
     expect(UploadRequest.requests).toHaveLength(1)
-    fireEvent.click(screen.getByRole('button', { name: '重试上传' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
     expect(UploadRequest.requests).toHaveLength(2)
   })
 
@@ -167,11 +167,11 @@ describe('正式文件创建', () => {
     const request = startUpload()
     act(() => request.respond(413, '<html>Request Entity Too Large</html>'))
     expect(screen.getByRole('alert')).toHaveTextContent('不超过 10 MiB')
-    fireEvent.click(screen.getByRole('button', { name: '重试上传' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
     const retry = UploadRequest.requests.at(-1)!
     act(() => retry.onerror?.())
     expect(screen.getByRole('alert')).toHaveTextContent('网络中断')
-    fireEvent.click(screen.getByRole('button', { name: '重试上传' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
     const pending = UploadRequest.requests.at(-1)!
     unmount()
     expect(pending.abort).toHaveBeenCalledOnce()
@@ -329,7 +329,7 @@ describe('正式文件下载', () => {
     const dialog = screen.getByRole('dialog')
     expect(writeText).not.toHaveBeenCalled()
     fireEvent.click(within(dialog).getByRole('button', { name: '复制链接' }))
-    expect(await within(dialog).findByRole('alert')).toHaveTextContent('复制失败')
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent('浏览器拒绝了复制')
     expect(writeText).toHaveBeenCalledWith(created.url)
   })
 })

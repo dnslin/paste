@@ -5,6 +5,7 @@ import { SuccessDialog } from '../success-dialog'
 
 const writeText = vi.fn()
 const url = 'https://example.com/abc123'
+const shareDetails = { language: 'plaintext', expiresAt: null, viewLimit: null, hasPassword: false }
 
 beforeEach(() => {
   writeText.mockReset().mockResolvedValue(undefined)
@@ -13,15 +14,15 @@ beforeEach(() => {
 afterEach(() => { vi.useRealTimers() })
 
 function renderDialog(open = true) {
-  return render(<SuccessDialog open={open} onOpenChange={() => {}} url={url} onCreateAnother={() => {}} />)
+  return render(<SuccessDialog {...shareDetails} open={open} onOpenChange={() => {}} url={url} onCreateAnother={() => {}} />)
 }
 
 describe('复制链接与内容', () => {
   it('首次open=true挂载自动复制；关闭后重新打开也复制', async () => {
     const { rerender } = renderDialog()
     await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1))
-    rerender(<SuccessDialog open={false} onOpenChange={() => {}} url={url} onCreateAnother={() => {}} />)
-    rerender(<SuccessDialog open onOpenChange={() => {}} url={url} onCreateAnother={() => {}} />)
+    rerender(<SuccessDialog {...shareDetails} open={false} onOpenChange={() => {}} url={url} onCreateAnother={() => {}} />)
+    rerender(<SuccessDialog {...shareDetails} open onOpenChange={() => {}} url={url} onCreateAnother={() => {}} />)
     await waitFor(() => expect(writeText).toHaveBeenCalledTimes(2))
   })
 

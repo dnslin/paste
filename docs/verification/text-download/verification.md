@@ -60,3 +60,28 @@
 | [长行与窄屏工具栏](mobile-320.png) | 320×700 |
 
 未验证 Safari、Firefox、实体手机和跨应用粘贴。网站只反馈“已发起下载”，不推断用户是否最终保存或取消。正式功能没有合并或部署，隔离评审服务保留运行。
+
+## P2 结构修复与回归验证（2026-10-21）
+
+原型现在直接渲染正式 `PasteBody`，传入既有演示 ID、正文及语言，并保留 `${language}-${version}` key。删除重复的 64 行 `DownloadBody`、仅供其使用的 `Example` 类型及五处演示后缀字段，后缀统一使用 `getPasteDownloadFilename()`。三个源码文件净删除 65 行，七种场景的状态、密码及次数模拟均未修改；正式组件、服务端和所有测试文件均未修改。
+
+实际使用 Node 24.18.1 运行：
+
+| 命令 | 结果 |
+| --- | --- |
+| `node node_modules/vitest/vitest.mjs run src/components/paste/__tests__/paste-body.test.tsx src/components/paste/__tests__/paste-viewer.test.tsx src/components/text-download-prototype/__tests__/prototype.test.tsx src/lib/__tests__/paste-download.test.ts --maxWorkers=2` | 修改前 51/51 通过；原 P2 评审 Agent 在修改后独立运行同组 51/51 通过，复审为 Approve |
+| `node node_modules/vitest/vitest.mjs run --maxWorkers=2` | 修改后 33 个文件、284/284 通过 |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false` | 通过 |
+| `node node_modules/eslint/bin/eslint.js` | 通过 |
+| `node node_modules/next/dist/bin/next build --webpack` | 在独立副本构建通过，包含正式查看页及原型 |
+| `git diff --check` | 通过 |
+
+本轮使用新构建的 standalone 产物验收，本地入口为 [复用正式正文组件的原型](http://127.0.0.1:3341/prototype/text-download)。旧预览保持运行。
+
+- 实际切换已领取、需要密码、尚未领取、最后一次、不限次数、已过期和次数用尽七种场景。密码错误无正文/下载，正确密码扣一次；最后一次可以连续下载两次，模拟重新打开后显示次数用尽；失效场景无下载入口。
+- JSON、SQL、YAML、Nginx、纯文本五种示例实际下载成功，后缀分别为 `.json/.sql/.yaml/.conf/.txt`，文件名与原型 ID 对应。保存文件与演示原文 UTF-8 字节完全一致，长度分别为 222/173/171/191/195 字节；纯文本保留 CRLF、空行、缩进、中文和特殊字符。
+- 切换示例后，换行选项和下载反馈重置；不限次数场景模拟重新打开后仍有正文且状态重置。复制反馈正常。临时注入 `URL.createObjectURL` 失败后，正文保留、错误可见，恢复原 API 后重试成功；最后一次两份文件及重试文件也逐字节比对一致。原型阶段没有 `/api/` 请求。
+- 1440/1024/768/390/320px 五种宽度均无页面横向溢出，复制和下载按钮高 44px。[桌面截图](p2-reuse-desktop.png)为 1440×900，[窄屏截图](p2-reuse-mobile-320.png)为 320×700。
+- 通过正式创建 API 另建一条带密码、仅可领取一次的 JSON。浏览器输入错误密码后剩余仍为 1；正确领取后为 0，连续下载两份 61 字节文件均与原文一致，verify 数保持两次（一次错误、一次正确），刷新后显示次数用完且无下载入口。
+
+原型的密码/次数变化仍是本地模拟；最后一项使用真实业务接口。故障场景只做客户端受控注入。独立复审确认 P2 已完整解决，无新增发现。本轮没有重做 Safari、Firefox、实体手机、分享自然到期或部署验收。

@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { Clock, Eye, Flame, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { DownloadBody } from './download-body'
-import { examples, initialAccess, scenarios, type Scenario } from './model'
+import { PasteBody } from '@/components/paste/paste-body'
+import { examples, initialAccess, pasteId, scenarios, type Scenario } from './model'
 
 const selectClass = 'h-11 min-w-0 rounded-md border border-(--border-subtle) bg-(--bg-elevated) px-3 text-sm text-(--text-primary) outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary)'
 
@@ -81,7 +81,7 @@ export function TextDownloadPrototype() {
           {access.remaining !== null ? <p role="status" className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
             {access.remaining === 0 ? '这是最后一次查看，当前页面仍可阅读、复制和下载。' : `还可查看 ${access.remaining} 次`}
           </p> : null}
-          <DownloadBody key={`${language}-${version}`} example={example} />
+          <PasteBody key={`${language}-${version}`} pasteId={pasteId} content={example.content} language={example.language} />
         </> : <form onSubmit={claim} className="mx-auto w-full max-w-md space-y-4 rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-6 sm:p-8">
           <div className="space-y-2 text-center">
             {protectedShare ? <Lock className="mx-auto size-8 text-(--accent-primary)" aria-hidden="true" /> : <Eye className="mx-auto size-8 text-(--accent-primary)" aria-hidden="true" />}

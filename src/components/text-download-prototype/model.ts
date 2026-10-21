@@ -2,7 +2,7 @@ export const pasteId = 'n7Kp2xQm'
 
 export const examples = [
   {
-    language: 'json', label: 'JSON', extension: 'json',
+    language: 'json', label: 'JSON',
     content: `{
   "name": "Paste 示例服务",
   "port": 3000,
@@ -18,7 +18,7 @@ export const examples = [
 `,
   },
   {
-    language: 'sql', label: 'SQL', extension: 'sql',
+    language: 'sql', label: 'SQL',
     content: `-- 查询最近创建的分享，不执行任何写入
 SELECT
   id,
@@ -31,7 +31,7 @@ LIMIT 20;
 `,
   },
   {
-    language: 'yaml', label: 'YAML 配置', extension: 'yaml',
+    language: 'yaml', label: 'YAML 配置',
     content: `# 示例服务配置
 services:
   paste:
@@ -46,7 +46,7 @@ volumes:
 `,
   },
   {
-    language: 'nginx', label: 'Nginx 配置', extension: 'conf',
+    language: 'nginx', label: 'Nginx 配置',
     content: `# 本地反向代理示例
 server {
     listen 80;
@@ -60,12 +60,11 @@ server {
 `,
   },
   {
-    language: 'plaintext', label: '纯文本', extension: 'txt',
+    language: 'plaintext', label: '纯文本',
     content: '交接说明\r\n\r\n  保留这一行前的两个空格。\r\n特殊字符：<>&\r\n长行示例：https://example.com/docs/configuration?environment=development&format=original&preserveWhitespace=true\r\n',
   },
 ]
 
-export type Example = typeof examples[number]
 export const scenarios = [
   ['ready', '已领取'], ['protected', '需要密码'], ['limited', '尚未领取'],
   ['last', '最后一次'], ['unlimited', '不限次数'], ['expired', '已过期'], ['destroyed', '次数用尽'],

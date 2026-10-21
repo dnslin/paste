@@ -5,7 +5,8 @@ import { fileShares } from '@/lib/db/schema'
 import { verifySession } from '@/lib/admin/session'
 import { getFileShareStatus } from '@/lib/file-share'
 import { getFileStorageUsage } from '@/lib/file-storage'
-import { success, error, UNAUTHORIZED, INTERNAL_ERROR, VALIDATION_ERROR } from '@/lib/api-response'
+import { buildAdminRecordFilter } from '@/lib/admin/query-filters'
+import { ApiError, success, error, UNAUTHORIZED, INTERNAL_ERROR, VALIDATION_ERROR } from '@/lib/api-response'
 import type { AdminFilesResponse } from '@/lib/admin/file-contract'
 
 export async function GET(request: NextRequest) {
@@ -17,21 +18,24 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(error(VALIDATION_ERROR, '页码或每页数量无效'), { status: 400 })
   }
   try {
-    const total = db.select({ count: count() }).from(fileShares).get()!.count
+    const now = new Date()
+    const filter = buildAdminRecordFilter(params, 'file', now)
+    const total = db.select({ count: count() }).from(fileShares).where(filter).get()!.count
     const totalPages = Math.max(1, Math.ceil(total / pageSize))
     const page = Math.min(requestedPage, totalPages)
-    const rows = db.select().from(fileShares).orderBy(desc(fileShares.createdAt), desc(fileShares.id)).limit(pageSize).offset((page - 1) * pageSize).all()
+    const rows = db.select().from(fileShares).where(filter).orderBy(desc(fileShares.createdAt), desc(fileShares.id)).limit(pageSize).offset((page - 1) * pageSize).all()
     const data: AdminFilesResponse = {
       items: rows.map((row) => ({
         id: row.id, fileName: row.fileName, size: row.size,
         createdAt: row.createdAt.toISOString(), expiresAt: row.expiresAt.toISOString(),
         downloadsRemaining: row.downloadsRemaining, hasPassword: !!row.passwordHash,
-        status: getFileShareStatus(row), cleanupStatus: row.status,
+        status: getFileShareStatus(row, now), cleanupStatus: row.status,
       })),
       total, page, totalPages, pageSize, storage: await getFileStorageUsage(),
     }
     return NextResponse.json(success(data), { headers: { 'Cache-Control': 'no-store' } })
   } catch (err) {
+    if (err instanceof ApiError && err.code === VALIDATION_ERROR) return NextResponse.json(error(err.code, err.message), { status: 400 })
     console.error('List files failed:', err)
     return NextResponse.json(error(INTERNAL_ERROR, '无法加载文件记录，请重试'), { status: 500 })
   }

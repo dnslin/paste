@@ -45,7 +45,7 @@ describe('PastesTable', () => {
     const id = await screen.findByText('paste-1')
     const row = id.closest('tr')!
     const identifier = within(row).getAllByRole('cell')[0]
-    expect(identifier).toHaveTextContent(new Date(data.items[0].createdAt).toLocaleString('zh-CN'))
+    expect(identifier).toHaveTextContent(new Date(data.items[0].createdAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }))
     expect(identifier).toHaveTextContent('查看次数已用尽')
     expect(within(row).getByRole('button', { name: '查看 paste-1' })).toBeEnabled()
     expect(within(row).getByRole('button', { name: '删除 paste-1' })).toBeEnabled()
@@ -152,5 +152,66 @@ describe('PastesTable', () => {
     expect(await screen.findByText('暂无分享记录')).toBeInTheDocument()
     expect(screen.getByText('第 0–0 条，共 0 条')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '下一页' })).toBeDisabled()
+  })
+
+  it('应用组合筛选回到首页，每页数和分页请求保留条件，草稿不发请求', async () => {
+    fetchMock.mockImplementation(async (url) => {
+      const query = new URL(String(url), 'http://localhost').searchParams
+      return response(listing(Number(query.get('page')), Number(query.get('limit')), 35))
+    })
+    render(<PastesTable />)
+    await screen.findByText('paste-1')
+    fireEvent.click(screen.getByRole('button', { name: '下一页' }))
+    await screen.findByText('paste-16')
+    const requestCount = fetchMock.mock.calls.length
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: ' AbC ' } })
+    fireEvent.change(screen.getByLabelText('状态'), { target: { value: 'expired' } })
+    fireEvent.change(screen.getByLabelText('创建开始日期'), { target: { value: '2026-10-21' } })
+    expect(fetchMock).toHaveBeenCalledTimes(requestCount)
+    fireEvent.submit(screen.getByRole('search'))
+    await screen.findByText('paste-1')
+    let query = new URL(String(fetchMock.mock.calls.at(-1)![0]), 'http://localhost').searchParams
+    expect(Object.fromEntries(query)).toEqual({ page: '1', limit: '15', q: 'AbC', status: 'expired', createdFrom: '2026-10-20T16:00:00.000Z' })
+    fireEvent.click(screen.getByRole('button', { name: '下一页' }))
+    await screen.findByText('paste-16')
+    query = new URL(String(fetchMock.mock.calls.at(-1)![0]), 'http://localhost').searchParams
+    expect(query.get('q')).toBe('AbC')
+    expect(query.get('page')).toBe('2')
+    fireEvent.keyDown(screen.getByRole('combobox', { name: '每页条数' }), { key: 'ArrowDown' })
+    fireEvent.keyDown(await screen.findByRole('option', { name: '20' }), { key: 'Enter' })
+    await screen.findByText('第 1–20 条，共 35 条')
+    fireEvent.click(screen.getByRole('button', { name: '重置' }))
+    await waitFor(() => expect(fetchMock).toHaveBeenLastCalledWith('/api/admin/pastes?page=1&limit=20', expect.any(Object)))
+  })
+
+  it('筛选请求失败保留表单与草稿，重试仍查询生效条件且不把旧结果计为新结果', async () => {
+    let resolveQuery: (value: Response) => void = () => {}
+    fetchMock.mockResolvedValueOnce(response(listing(1, 15, 1)))
+      .mockImplementationOnce(() => new Promise<Response>(resolve => { resolveQuery = resolve }))
+      .mockResolvedValueOnce(response({ ...listing(1, 15, 1), items: [{ ...listing(1, 15, 1).items[0], id: 'AbC' }] }))
+    render(<PastesTable />)
+    await screen.findByText('paste-1')
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'AbC' } })
+    fireEvent.submit(screen.getByRole('search'))
+    expect(screen.queryByText('paste-1')).not.toBeInTheDocument()
+    expect(screen.queryByText('找到 1 条')).not.toBeInTheDocument()
+    await act(async () => resolveQuery(Response.json({ success: false, error: { message: '查询暂时不可用' } }, { status: 500 })))
+    expect(await screen.findByRole('alert')).toHaveTextContent('查询暂时不可用')
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: '尚未提交' } })
+    fireEvent.click(screen.getByRole('button', { name: '重试' }))
+    await screen.findByText('AbC')
+    expect(screen.getByRole('searchbox')).toHaveValue('尚未提交')
+    expect(new URL(String(fetchMock.mock.calls.at(-1)![0]), 'http://localhost').searchParams.get('q')).toBe('AbC')
+  })
+
+  it('空筛选结果可清空恢复，无筛选仍展示暂无分享记录', async () => {
+    fetchMock.mockResolvedValueOnce(response(listing(1, 15, 1))).mockResolvedValueOnce(response(listing(1, 15, 0))).mockResolvedValueOnce(response(listing(1, 15, 1)))
+    render(<PastesTable />)
+    await screen.findByText('paste-1')
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'missing' } })
+    fireEvent.submit(screen.getByRole('search'))
+    expect(await screen.findByText('没有匹配的分享')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: '清空筛选' }))
+    expect(await screen.findByText('paste-1')).toBeVisible()
   })
 })

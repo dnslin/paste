@@ -1,6 +1,6 @@
 # 后台搜索与筛选：规划与交互原型
 
-日期：2026-10-21。分支：`codex/admin-search-prototype`，基线：`de83988`。状态：方案和原型已完成，等待整体评审；正式接口、数据库和线上服务不变。
+日期：2026-10-21。分支：`codex/admin-search-prototype`，基线：`de83988`。方案已获用户确认，正式后台已完成接入、测试与独立评审；未合并或部署。
 
 本地体验：[打开后台搜索与筛选原型](http://127.0.0.1:3335/prototype/admin-search)。这是当前机器的预览地址，不是线上部署。
 
@@ -8,9 +8,9 @@
 
 管理员在记录增多时，能按分享 ID、文件名、状态和创建日期组合查找，不必逐页翻找。保留现有“文本 / 代码”“文件”页签和后台设计语言。不增加全文搜索、导出、保存视图、已删除历史或新的统计报表。
 
-原型入口：`/prototype/admin-search`。仅使用固定演示数据，不读取真实分享或调用后台 API。刷新后重置。正式功能仍需用户确认方案后实施。
+原型入口：`/prototype/admin-search`。该入口继续使用固定演示数据。正式功能接入 `/admin` 及现有两个后台列表接口。
 
-## 拟议产品规则
+## 已确认产品规则
 
 | 条件 | 行为 |
 | --- | --- |
@@ -38,13 +38,13 @@
 - 空结果显示“没有匹配的分享”和“清空筛选”；无数据另显示“暂无分享记录”。加载中保留条件并禁用查询；失败显示“重试”，不丢失草稿与已应用条件。
 - 原型工具栏可切换正常、加载中、加载失败、暂无记录，用于核对异常画面。工具栏与产品区域分开，正式实现不包含它。
 
-## 当前实现依据
+## 原型阶段的实现依据
 
 `ShareRecords` 已保留两类列表的分页。`/api/admin/pastes` 和 `/api/admin/files` 目前只接受 page/limit。两者均按 createdAt/id 倒序。文件列表已经返回创建时间，但桌面列表未展示；本功能补上创建时间以便核对日期筛选。
 
 文本状态依据 `src/lib/paste.ts`，优先级为过期、次数用尽、可访问。文件状态依据 `src/components/admin/files-table.tsx` 和 `src/lib/admin/file-contract.ts`。现有删除与清理逻辑不改动。
 
-## 正式接入方案（尚未实施）
+## 正式接入方案（2026-10-21 已确认）
 
 继续使用现有两个列表接口，不合并数据源、不新增表或依赖：
 
@@ -90,9 +90,9 @@ pnpm build
 git diff --check
 ```
 
-始终保持正式业务接口和数据不变。正式实施前确认完整方案和日期口径；新增数据库结构或依赖须重新讨论。
+仅扩展后台列表查询及必要界面，不改变公开分享创建、领取和下载规则，不新增数据库结构或依赖。真实接口验证使用隔离的本地数据，不操作线上服务。
 
-## 实际验证记录
+## 原型阶段实际验证记录
 
 环境：Node 24.18.1、pnpm 11.19.0、Ego Lite Chromium。所有工作在独立工作目录进行，原目录中的二维码改动保留。没有增加依赖或修改锁文件。
 
@@ -117,6 +117,37 @@ git diff --check
 未验证 Safari、Firefox、实体手机以及正式后台接口和数据库筛选。示例数据的筛选成功不代表正式功能已经接入。
 
 截图：[桌面文本](admin-search-prototype/desktop-text.png)、[桌面组合筛选](admin-search-prototype/desktop-filtered.png)、[390px 手机](admin-search-prototype/files-390.png)、[320px 窄屏](admin-search-prototype/files-320.png)、[无匹配结果](admin-search-prototype/empty-results.png)、[失败重试](admin-search-prototype/error-retry.png)。
+
+## 正式实现与验收（2026-10-21）
+
+正式 `/admin` 的文本、文件列表均已连接数据库查询。两个现有列表接口复用 `src/lib/admin/query-filters.ts` 生成参数化查询条件；总数与分页数据共用条件和同一个当前时间。ID 和文件名使用字面包含匹配，未新增索引、数据表、依赖或公开分享规则。
+
+`src/components/admin/record-filters.tsx` 负责两类列表共用的筛选表单、北京时间转换和生效条件。两个列表继续各自管理分页与请求取消。新条件加载时隐藏旧结果；刷新、翻页仍保留原列表与更新提示。错误后保留表单，重试继续使用已提交条件，尚未提交的草稿也保留。
+
+文件列表增加北京时间创建时间。文件占用、可用空间继续使用全局存储数据；原来用列表 total 显示的重复“文件数量”移除，匹配数独立显示为“找到 N 条”。文件表格从 1024px 起展开全部列，768px 继续把元信息与操作放在同屏两列中，避免新增日期列挤出操作。
+
+| 实际执行 | 结果 |
+| --- | --- |
+| 后端新增 API 测试先运行 | 14 项按预期失败，1 项通过；接入后再补文件删除场景，最终 16 项通过 |
+| `pnpm test app/api/__tests__/admin-search.test.ts app/api/__tests__/routes.test.ts app/api/__tests__/admin-files.test.ts` | 独立后端评审执行，3 文件、52 项通过 |
+| `pnpm test src/components/admin/__tests__/record-filters.test.tsx src/components/admin/__tests__/pastes-table.test.tsx src/components/admin/__tests__/files-table.test.tsx src/components/admin/__tests__/share-records.test.tsx` | 实现与独立前端评审分别执行，4 文件、24 项通过 |
+| `pnpm test` | 34 文件、283 项通过；现有 Motion 减少动态效果提示保留，无失败 |
+| `pnpm lint` | 通过 |
+| `pnpm exec tsc --noEmit --incremental false` | 通过 |
+| `pnpm install --frozen-lockfile --offline`、`node scripts/migrate.mjs`、`pnpm build`（隔离源码副本） | 默认 Turbopack 生产构建通过，使用独立空库，不覆盖原型预览产物 |
+| `git diff --check` | 通过 |
+| `node /tmp/paste-admin-search-implementation.lF8ZjQ/run-preview.mjs` | 启动实际 standalone 生产产物，绑定本机 3336 端口，使用临时凭据、数据库和文件目录 |
+| `node /tmp/paste-admin-search-implementation.lF8ZjQ/seed-live.mjs` | 通过实际创建接口写入 20 条文本、18 个文件；日期边界、字面文件名查询、全局空间与未登录 401 检查通过 |
+
+真实浏览器使用正式管理员登录，验证跨页 ID 片段查找与大小写、同日及反向日期、文件名大小写与特殊字符、分页及页签条件保留、刷新和清理后的条件保留。文本通过真实领取耗尽一次查看，随后可被“查看次数用尽”筛选查到。文件在筛选结果中实际删除后，条件仍保留、结果变为空，文件用量从 998 B 降至 943 B。另通过正式上传补充长文件名记录用于窄屏检查。
+
+为构造可复现的历史日期范围，仅调整了隔离库中 4 条已由创建 API 写入的文本创建时间。浏览器还明确模拟了一次网络失败和一次慢查询，验证重试沿用已提交条件、保留草稿，并在新查询等待期间隐藏旧记录和禁用表单。其他查询、创建、领取、删除和清理均使用真实接口。
+
+文件在 320、390、768、1024、1440px 下均无页面或表格横向溢出，表单和行操作均处于视口内；文本另检查 320、768、1440px。截图等待控件布局稳定后保存。证据：[浏览器记录](../verification/admin-search/browser-checks.json)、[真实接口检查](../verification/admin-search/live-api-checks.json)、[尺寸记录](../verification/admin-search/layout-verification.json)、[文本日期查询](../verification/admin-search/text-date-query.png)、[文件关键词查询](../verification/admin-search/file-keyword-query.png)、[320px 文件列表](../verification/admin-search/files-320.png)。
+
+独立评审完成两条轨道：后端审查查询/状态/日期/鉴权/存储口径；前端审查草稿/请求取消/结果关联/分页及管理动作。两者均通过，无未解决的实质发现。评审各自在临时副本反转日期边界或范围判断，相关测试均按预期失败，恢复后通过。前端评审另外实际查看了四张正式页面截图及尺寸记录，视觉复核通过。评审未修改共享源码，没有把主 Agent 的浏览器操作作为自己的独立交互验收。
+
+未验证 Safari、Firefox、实体手机或线上现存业务数据。原目录的其他任务、生产数据库及线上服务未修改；未合并、未推送或部署。
 
 ## 参考
 

@@ -4,7 +4,8 @@ import { pastes } from '@/lib/db/schema';
 import { desc, count } from 'drizzle-orm';
 import { verifySession } from '@/lib/admin/session';
 import { getPasteStatus } from '@/lib/paste';
-import { success, error, UNAUTHORIZED, INTERNAL_ERROR, VALIDATION_ERROR } from '@/lib/api-response';
+import { buildAdminRecordFilter } from '@/lib/admin/query-filters';
+import { ApiError, success, error, UNAUTHORIZED, INTERNAL_ERROR, VALIDATION_ERROR } from '@/lib/api-response';
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,13 +22,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(error(VALIDATION_ERROR, '页码或每页数量无效'), { status: 400 });
     }
 
-    const [totalResult] = await db.select({ count: count() }).from(pastes);
-    const total = totalResult.count;
+    const now = new Date();
+    const filter = buildAdminRecordFilter(searchParams, 'text', now);
+    const total = db.select({ count: count() }).from(pastes).where(filter).get()!.count;
     const totalPages = Math.max(1, Math.ceil(total / limit));
     const page = Math.min(requestedPage, totalPages);
     const offset = (page - 1) * limit;
 
-    const items = await db
+    const items = db
       .select({
         id: pastes.id,
         createdAt: pastes.createdAt,
@@ -37,15 +39,17 @@ export async function GET(request: NextRequest) {
         passwordHash: pastes.passwordHash,
       })
       .from(pastes)
+      .where(filter)
       .orderBy(desc(pastes.createdAt), desc(pastes.id))
       .limit(limit)
-      .offset(offset);
+      .offset(offset)
+      .all();
 
     const formattedItems = items.map((item) => ({
       id: item.id,
       createdAt: item.createdAt.toISOString(),
       language: item.language || 'plaintext',
-      status: getPasteStatus(item),
+      status: getPasteStatus(item, now),
       hasPassword: !!item.passwordHash,
     }));
 
@@ -57,6 +61,9 @@ export async function GET(request: NextRequest) {
       pageSize: limit,
     }));
   } catch (err) {
+    if (err instanceof ApiError && err.code === VALIDATION_ERROR) {
+      return NextResponse.json(error(err.code, err.message), { status: 400 });
+    }
     console.error('List pastes error:', err);
     return NextResponse.json(error(INTERNAL_ERROR, '无法加载分享记录，请稍后重试'), { status: 500 });
   }

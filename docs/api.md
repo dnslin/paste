@@ -117,7 +117,27 @@ curl --fail-with-body https://paste.447654.xyz/api/files/SHARE_ID/download \
 | DELETE | `/api/admin/files/:id` | 停止访问并删除文件及元数据 |
 | POST | `/api/admin/files/cleanup` | 清理到期、次数耗尽及删除失败的文件 |
 
-文件列表的 `page` 为正整数，`limit` 为 `1`–`100`，默认 `15`。文件物理删除失败时保留记录供重试，接口返回失败，不会报告已完成删除。
+两个列表的 `page` 为正整数，`limit` 为 `1`–`100`，默认 `15`。筛选后先计算匹配总数，再分页；越界页回到当前结果的最后一页，空结果使用第 1 页。文件物理删除失败时保留记录供重试，接口返回失败，不会报告已完成删除。
+
+### 后台列表搜索与筛选
+
+`GET /api/admin/pastes` 和 `GET /api/admin/files` 支持以下可选参数，条件之间同时满足：
+
+| 参数 | 规则 |
+| --- | --- |
+| `q` | 去除首尾空格。文本搜索 ID 片段；文件搜索 ID 片段或文件名关键词。ID 区分大小写，文件名不区分英文大小写；`%`、`_` 均按普通字符匹配。不会搜索文本正文。 |
+| `status` | 文本：`active`、`expired`、`destroyed`（查看次数用尽）。文件：`active`、`expired`、`exhausted`（下载次数用尽）、`pending_delete`、`delete_failed`。省略或空值表示全部。 |
+| `createdFrom` | 创建时间下界，包含该时刻。使用带时区的 ISO 时间戳，可单独提供。 |
+| `createdBefore` | 创建时间上界，不包含该时刻。使用带时区的 ISO 时间戳，可单独提供。 |
+
+后台日期控件按北京时间计算。例如查询 2026-10-21 全天，对应 `createdFrom=2026-10-20T16:00:00.000Z`、`createdBefore=2026-10-21T16:00:00.000Z`。非法状态、无效时间或下界不早于上界返回 `400 VALIDATION_ERROR`，沿用既有错误响应结构。
+
+```text
+/api/admin/pastes?page=1&limit=15&q=AbC&status=active
+/api/admin/files?page=1&limit=15&q=交付&createdFrom=2026-10-20T16:00:00.000Z&createdBefore=2026-10-21T16:00:00.000Z
+```
+
+返回的 `total`、`totalPages` 和 `items` 都基于筛选结果，排序保持创建时间、ID 倒序。文件 `storage` 始终反映全局存储用量，与筛选条件无关。文件清理状态优先于过期或次数状态；成功删除和清理的记录不再出现在列表中。
 
 ## 限额与错误
 

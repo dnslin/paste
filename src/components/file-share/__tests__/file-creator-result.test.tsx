@@ -25,7 +25,7 @@ class UploadRequest {
   }
 }
 
-const created = { id: 'file123', url: 'http://localhost/f/file123', expiresAt: '2027-01-01T00:00:00.000Z', downloadLimit: 3 }
+const created = { id: 'file123', url: 'http://localhost/f/file123', managementUrl: 'http://localhost/manage/file/file123#private-file-token', expiresAt: '2027-01-01T00:00:00.000Z', downloadLimit: 3 }
 const file = new File(['交付文档'], `${'项目说明'.repeat(20)}.md`, { type: 'text/markdown' })
 const writeText = vi.fn()
 const fetchMock = vi.fn()
@@ -52,6 +52,7 @@ describe('创建成功结果保留', () => {
     render(<FileCreator />)
     createFile()
     expect(screen.getByRole('dialog')).toHaveTextContent(file.name)
+    expect(screen.getByRole('link', { name: '进入管理页' })).toHaveAttribute('href', created.managementUrl)
     expect(screen.getByRole('img', { name: '文件分享链接二维码' })).toHaveAttribute('data-value', created.url)
     expect(writeText).not.toHaveBeenCalled()
     fireEvent.click(screen.getByRole('button', { name: '关闭' }))
@@ -61,6 +62,7 @@ describe('创建成功结果保留', () => {
     expect(screen.getByText(file.name)).toBeInTheDocument()
     expect(screen.getByText(/密码保护/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '查看分享' })).toHaveAttribute('href', created.url)
+    expect(screen.getByRole('link', { name: '进入管理页' })).toHaveAttribute('href', created.managementUrl)
     expect(screen.getByRole('img', { name: '文件分享链接二维码' })).toHaveAttribute('data-value', created.url)
     writeText.mockRejectedValueOnce(new Error('denied'))
     fireEvent.click(screen.getByRole('button', { name: '复制链接' }))
@@ -80,10 +82,11 @@ describe('创建成功结果保留', () => {
     expect(screen.getByRole('button', { name: '选择文件' })).toHaveFocus()
     expect(screen.queryByRole('img', { name: '文件分享链接二维码' })).not.toBeInTheDocument()
 
-    const nextCreated = { ...created, id: 'file456', url: 'https://share.example.com/f/file456?source=api#created' }
+    const nextCreated = { ...created, id: 'file456', url: 'https://share.example.com/f/file456?source=api#created', managementUrl: 'https://share.example.com/manage/file/file456#next-private-token' }
     createFile(nextCreated)
     expect(screen.getByRole('img', { name: '文件分享链接二维码' })).toHaveAttribute('data-value', nextCreated.url)
     expect(screen.queryByRole('link', { name: created.url })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '进入管理页' })).toHaveAttribute('href', nextCreated.managementUrl)
     expect(UploadRequest.requests).toHaveLength(2)
     expect(fetchMock).not.toHaveBeenCalled()
     expect(writeText).toHaveBeenCalledTimes(2)
@@ -110,7 +113,7 @@ describe('创建成功结果保留', () => {
 
   it('切换分享类型仍保留各自的已创建结果，不重复请求或自动复制', async () => {
     const textUrl = 'http://localhost/text123'
-    fetchMock.mockResolvedValue(Response.json({ success: true, data: { id: 'text123', url: textUrl, expiresAt: null } }, { status: 201 }))
+    fetchMock.mockResolvedValue(Response.json({ success: true, data: { id: 'text123', url: textUrl, managementUrl: 'http://localhost/manage/text/text123#private-test-token', expiresAt: null } }, { status: 201 }))
     render(<ShareCreator />)
     fireEvent.change(screen.getByLabelText('代码或文本内容'), { target: { value: '已分享文本' } })
     fireEvent.click(screen.getByRole('button', { name: '生成链接' }))

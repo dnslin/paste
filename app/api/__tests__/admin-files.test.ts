@@ -21,7 +21,7 @@ vi.mock('@/lib/admin/session', () => ({ verifySession: vi.fn() }))
 let directory: string
 const context = (id: string) => ({ params: Promise.resolve({ id }) })
 const request = (query = '') => new NextRequest(`http://localhost/api/admin/files${query}`)
-const seed = (fileName = '交付说明.md') => createFileShare({ fileName, bytes: Buffer.from('文件内容'), downloadLimit: 1 })
+const seed = (fileName = '交付说明.md') => createFileShare({ fileName, bytes: Buffer.from('文件内容'), managementTokenHash: 'f'.repeat(64), downloadLimit: 1 })
 
 beforeEach(() => {
   directory = mkdtempSync(join(tmpdir(), 'paste-admin-files-'))

@@ -62,7 +62,7 @@ describe('创建内容', () => {
     await act(async () => {
       if (outcome === 'network') reject(new Error('offline'))
       else resolve(Response.json(outcome === 'success'
-        ? { success: true, data: { id: 'abc123', url: 'http://localhost/abc123', expiresAt: null } }
+        ? { success: true, data: { id: 'abc123', url: 'http://localhost/abc123', managementUrl: 'http://localhost/manage/text/abc123#private-test-token', expiresAt: null } }
         : { success: false, error: { code: 'ERROR', message: '创建请求失败' } }, { status: outcome === 'success' ? 201 : 500 }))
     })
     expect(busy).toHaveBeenLastCalledWith(false)
@@ -83,14 +83,17 @@ describe('创建内容', () => {
   it('关闭成功提示后保留原链接二维码，创建另一条才清空并替换为新链接', async () => {
     const url = 'https://share.example.com/paste/abc123?source=api#created'
     const nextUrl = 'https://share.example.com/paste/def456?source=second#created'
+    const managementUrl = 'https://share.example.com/manage/text/abc123#private-text-token'
+    const nextManagementUrl = 'https://share.example.com/manage/text/def456#next-private-text-token'
     fetchMock
-      .mockResolvedValueOnce(Response.json({ success: true, data: { id: 'abc123', url, expiresAt: '2027-01-01T00:00:00.000Z' } }, { status: 201 }))
-      .mockResolvedValueOnce(Response.json({ success: true, data: { id: 'def456', url: nextUrl, expiresAt: null } }, { status: 201 }))
+      .mockResolvedValueOnce(Response.json({ success: true, data: { id: 'abc123', url, managementUrl, expiresAt: '2027-01-01T00:00:00.000Z' } }, { status: 201 }))
+      .mockResolvedValueOnce(Response.json({ success: true, data: { id: 'def456', url: nextUrl, managementUrl: nextManagementUrl, expiresAt: null } }, { status: 201 }))
     render(<PasteCreator />)
     inputContent('已创建内容')
     fireEvent.change(screen.getByLabelText('密码保护'), { target: { value: 'private-password' } })
     fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
     const dialog = await screen.findByRole('dialog')
+    expect(screen.getByRole('link', { name: '进入管理页' })).toHaveAttribute('href', managementUrl)
     expect(screen.getByRole('heading', { name: '链接已生成' })).toBeInTheDocument()
     expect(screen.getByRole('img', { name: '文本分享链接二维码' })).toHaveAttribute('data-value', url)
     expect(screen.getByRole('group', { name: '分享规则' })).toHaveTextContent('1/1 08:00 到期（北京时间）')
@@ -102,6 +105,7 @@ describe('创建内容', () => {
     expect(screen.getByRole('group', { name: '分享规则' })).toHaveTextContent('1/1 08:00 到期（北京时间）')
     expect(screen.getByRole('group', { name: '分享规则' })).toHaveTextContent('不限次数 · 密码保护')
     expect(screen.queryByRole('button', { name: '生成链接' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '进入管理页' })).toHaveAttribute('href', managementUrl)
     expect(screen.getByRole('link', { name: url })).toHaveAttribute('href', url)
     expect(screen.getByRole('img', { name: '文本分享链接二维码' })).toHaveAttribute('data-value', url)
     await waitFor(() => expect(screen.getByRole('button', { name: '复制链接' })).toHaveFocus())
@@ -126,13 +130,14 @@ describe('创建内容', () => {
     fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
     await screen.findByRole('dialog')
     expect(screen.getByRole('img', { name: '文本分享链接二维码' })).toHaveAttribute('data-value', nextUrl)
+    expect(screen.getByRole('link', { name: '进入管理页' })).toHaveAttribute('href', nextManagementUrl)
     expect(screen.queryByRole('link', { name: url })).not.toBeInTheDocument()
     await waitFor(() => expect(writeText).toHaveBeenLastCalledWith(nextUrl))
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
   it('从成功弹窗直接创建另一条后，退出回焦点仍落在新编辑器', async () => {
-    fetchMock.mockResolvedValue(Response.json({ success: true, data: { id: 'abc123', url: 'http://localhost/abc123', expiresAt: null } }, { status: 201 }))
+    fetchMock.mockResolvedValue(Response.json({ success: true, data: { id: 'abc123', url: 'http://localhost/abc123', managementUrl: 'http://localhost/manage/text/abc123#private-test-token', expiresAt: null } }, { status: 201 }))
     render(<PasteCreator />)
     inputContent()
     fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
@@ -149,7 +154,7 @@ describe('创建内容', () => {
   })
 
   it('真实提交成功后首次挂载弹窗就自动复制可访问链接', async () => {
-    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ success: true, data: { id: 'abc123', url: 'http://localhost:3000/abc123', expiresAt: null } }) })
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ success: true, data: { id: 'abc123', url: 'http://localhost:3000/abc123', managementUrl: 'http://localhost:3000/manage/text/abc123#private-test-token', expiresAt: null } }) })
     render(<PasteCreator />)
     inputContent()
     fireEvent.click(screen.getByRole('button', { name: '生成链接' }))

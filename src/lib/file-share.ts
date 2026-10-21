@@ -35,7 +35,7 @@ function requireActive(share: FileShare | undefined): FileShare {
   return share;
 }
 
-export async function createFileShare(input: { fileName: string; bytes: Buffer; password?: string; expiresIn?: number; downloadLimit?: number | null; signal?: AbortSignal }) {
+export async function createFileShare(input: { fileName: string; bytes: Buffer; managementTokenHash: string; password?: string; expiresIn?: number; downloadLimit?: number | null; signal?: AbortSignal }) {
   const expiresIn = input.expiresIn ?? 1440;
   const downloadLimit = input.downloadLimit ?? null;
   if (!FILE_EXPIRES.includes(expiresIn)) throw new ApiError(VALIDATION_ERROR, '无效的过期时间');
@@ -52,7 +52,7 @@ export async function createFileShare(input: { fileName: string; bytes: Buffer; 
     const expiresAt = new Date(createdAt.getTime() + expiresIn * 60000);
     const id = generateId();
     db.insert(fileShares).values({ id, storageKey: stored.storageKey, fileName, size: input.bytes.length,
-      passwordHash, expiresAt, downloadsRemaining: downloadLimit, createdAt }).run();
+      passwordHash, managementTokenHash: input.managementTokenHash, expiresAt, downloadsRemaining: downloadLimit, createdAt }).run();
     return { id, expiresAt: expiresAt.toISOString(), downloadLimit };
   } catch (error) {
     try { await removeStoredFile(stored.storageKey); }
@@ -64,7 +64,13 @@ export async function createFileShare(input: { fileName: string; bytes: Buffer; 
 export async function claimFileDownload(id: string, password: string | undefined, ip: string, signal?: AbortSignal) {
   const share = requireActive(db.select().from(fileShares).where(eq(fileShares.id, id)).get());
   const attemptId = await verifySharePassword('file', id, share.passwordHash, password, ip);
-  const bytes = await readStoredFile(share.storageKey, share.size);
+  let bytes: Buffer;
+  try { bytes = await readStoredFile(share.storageKey, share.size); }
+  catch (cause) {
+    // Deletion can remove the file while this request is still preparing its claim.
+    requireActive(db.select().from(fileShares).where(eq(fileShares.id, id)).get());
+    throw cause;
+  }
   if (signal?.aborted) throw new ApiError('REQUEST_ABORTED', '请求已取消');
   // IO and bcrypt complete before this short, atomic claim.
   return db.transaction((tx) => {

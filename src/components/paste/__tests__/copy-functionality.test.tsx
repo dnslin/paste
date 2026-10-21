@@ -5,7 +5,7 @@ import { SuccessDialog } from '../success-dialog'
 
 const writeText = vi.fn()
 const url = 'https://example.com/abc123'
-const shareDetails = { language: 'plaintext', expiresAt: null, viewLimit: null, hasPassword: false }
+const shareDetails = { language: 'plaintext', expiresAt: null, viewLimit: null, hasPassword: false, managementUrl: 'https://example.com/manage/text/abc123#private-test-token' }
 
 beforeEach(() => {
   writeText.mockReset().mockResolvedValue(undefined)

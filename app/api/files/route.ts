@@ -6,6 +6,7 @@ import { MAX_UPLOAD_BYTES } from '@/lib/file-rules';
 import { createFileShare } from '@/lib/file-share';
 import { reserveFileUpload } from '@/lib/file-storage';
 import { readBoundedBody, fileErrorResponse } from '@/lib/file-http';
+import { createManagementToken } from '@/lib/share-management';
 
 export const runtime = 'nodejs';
 const uploads = createRateLimiter({ maxTokens: 3, refillRate: 3, refillInterval: 60000 });
@@ -30,10 +31,12 @@ export async function POST(request: NextRequest) {
     }
     const expires = form.get('expiresIn');
     const limit = form.get('downloadLimit');
+    const { token, tokenHash } = createManagementToken();
     const created = await createFileShare({ fileName: file.name, bytes: Buffer.from(await file.arrayBuffer()),
       password: form.get('password')?.toString(), expiresIn: expires === null ? 1440 : Number(expires),
-      downloadLimit: limit === null || limit === 'off' ? null : Number(limit), signal: request.signal });
-    return NextResponse.json(success({ ...created, url: new URL(`/f/${created.id}`, getPublicOrigin(request)).href }), { status: 201, headers: { 'Cache-Control': 'no-store' } });
+      downloadLimit: limit === null || limit === 'off' ? null : Number(limit), managementTokenHash: tokenHash, signal: request.signal });
+    return NextResponse.json(success({ ...created, url: new URL(`/f/${created.id}`, getPublicOrigin(request)).href,
+      managementUrl: new URL(`/manage/file/${created.id}#${token}`, getPublicOrigin(request)).href }), { status: 201, headers: { 'Cache-Control': 'no-store' } });
   } catch (cause) { return fileErrorResponse(cause, 'Create file share'); }
   finally { release?.(); }
 }

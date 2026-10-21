@@ -5,6 +5,7 @@ import { getLanguageName } from '@/lib/languages'
 
 interface PasteCreatedContentProps {
   url: string
+  managementUrl: string
   language: string
   expiresAt: string | null
   viewLimit: number | null
@@ -19,8 +20,8 @@ interface SuccessDialogProps extends Omit<PasteCreatedContentProps, 'autoCopy'> 
   onCloseAutoFocus?: (event: Event) => void
 }
 
-export function PasteCreatedContent({ url, language, expiresAt, viewLimit, hasPassword, onCreateAnother, autoCopy = false }: PasteCreatedContentProps) {
-  return <ShareCreatedContent url={url} name={getLanguageName(language)} kind="text" expiresAt={expiresAt}
+export function PasteCreatedContent({ url, managementUrl, language, expiresAt, viewLimit, hasPassword, onCreateAnother, autoCopy = false }: PasteCreatedContentProps) {
+  return <ShareCreatedContent url={url} managementUrl={managementUrl} name={getLanguageName(language)} kind="text" expiresAt={expiresAt}
     limit={viewLimit} hasPassword={hasPassword} onCreateAnother={onCreateAnother} autoCopy={autoCopy} />
 }
 

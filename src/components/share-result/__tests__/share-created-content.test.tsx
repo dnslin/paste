@@ -20,6 +20,33 @@ beforeEach(() => {
 })
 
 describe('共享创建结果', () => {
+  it.each(['text', 'file'] as const)('%s 独立保存管理链接，二维码和自动复制只包含公开分享链接', async (kind) => {
+    const url = kind === 'text' ? textUrl : fileUrl
+    const managementUrl = `https://share.example.com/manage/${kind}/share123#private-management-token`
+    render(<ShareCreatedContent url={url} managementUrl={managementUrl} name="分享摘要" kind={kind}
+      expiresAt={null} limit={1} hasPassword autoCopy={kind === 'text'} onCreateAnother={() => {}} />)
+
+    const management = screen.getByRole('region', { name: '私人管理链接' })
+    expect(management).toHaveTextContent('请勿发给接收者')
+    expect(management).toHaveTextContent('丢失后无法自行找回')
+    expect(screen.getByRole('link', { name: '进入管理页' })).toHaveAttribute('href', managementUrl)
+    expect(screen.getByRole('link', { name: managementUrl })).toHaveAttribute('href', managementUrl)
+    expect(screen.getAllByRole('img')).toHaveLength(1)
+    expect(screen.getByRole('img')).toHaveAttribute('data-value', url)
+    if (kind === 'text') await waitFor(() => expect(writeText.mock.calls).toEqual([[url]]))
+    else expect(writeText).not.toHaveBeenCalled()
+
+    writeText.mockRejectedValueOnce(new Error('denied'))
+    fireEvent.click(screen.getByRole('button', { name: '复制管理链接' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('手动复制管理链接')
+    expect(screen.getByRole('img')).toHaveAttribute('data-value', url)
+    fireEvent.click(screen.getByRole('button', { name: '复制管理链接' }))
+    await screen.findByRole('button', { name: '管理链接已复制' })
+    expect(writeText).toHaveBeenLastCalledWith(managementUrl)
+    expect(screen.getByRole('button', { name: kind === 'text' ? '已复制' : '复制链接' })).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
   it.each([
     { kind: 'text', name: 'TypeScript', url: textUrl, label: '文本分享链接二维码', limitLabel: '2 次查看' },
     { kind: 'file', name: '项目说明.md', url: fileUrl, label: '文件分享链接二维码', limitLabel: '2 次下载' },

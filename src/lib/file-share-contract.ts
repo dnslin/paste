@@ -13,6 +13,7 @@ export interface FileShareMetadata {
 export interface CreatedFileShare {
   id: string
   url: string
+  managementUrl: string
   expiresAt: string
   downloadLimit: number | null
 }

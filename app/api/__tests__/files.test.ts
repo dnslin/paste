@@ -36,7 +36,7 @@ function form(bytes: Buffer | string = '文件内容', name = '交付 说明.md'
   return data;
 }
 async function seed(overrides: { password?: string; downloadLimit?: number | null; bytes?: Buffer; fileName?: string } = {}) {
-  return createFileShare({ fileName: overrides.fileName ?? '交付 说明.md', bytes: overrides.bytes ?? Buffer.from('完整文件内容'), ...overrides });
+  return createFileShare({ fileName: overrides.fileName ?? '交付 说明.md', bytes: overrides.bytes ?? Buffer.from('完整文件内容'), managementTokenHash: 'f'.repeat(64), ...overrides });
 }
 function row(id: string) { return db.select().from(fileShares).where(eq(fileShares.id, id)).get()!; }
 async function consume(response: Response) { return Buffer.from(await response.arrayBuffer()); }

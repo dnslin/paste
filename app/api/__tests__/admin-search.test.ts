@@ -185,7 +185,7 @@ describe('后台真实数据搜索与筛选', () => {
   it('文件筛选后删除末页记录，页码和全局占用同步更新', async () => {
     vi.stubEnv('ENCRYPTION_KEY', 'b'.repeat(64))
     for (const fileName of ['match-a.txt', 'match-b.txt', 'other.txt']) {
-      await createFileShare({ fileName, bytes: Buffer.from('file content') })
+      await createFileShare({ fileName, bytes: Buffer.from('file content'), managementTokenHash: 'f'.repeat(64) })
     }
     const last = await result('file', { q: 'match', page: '2', limit: '1' })
     expect(last).toMatchObject({ total: 2, page: 2 })

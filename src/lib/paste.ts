@@ -27,6 +27,16 @@ function requireActive(paste: Paste | undefined): Paste {
   return paste;
 }
 
+export function deletePaste(id: string): boolean {
+  return db.transaction((tx) => {
+    const result = tx.delete(pastes).where(eq(pastes.id, id)).run();
+    if (result.changes) {
+      tx.delete(passwordAttempts).where(and(eq(passwordAttempts.shareKind, 'text'), eq(passwordAttempts.shareId, id))).run();
+    }
+    return result.changes > 0;
+  }, { behavior: 'immediate' });
+}
+
 export async function readPaste(id: string, password: string | undefined, ip: string) {
   const paste = requireActive(db.select().from(pastes).where(eq(pastes.id, id)).get());
   const attemptId = await verifySharePassword('text', id, paste.passwordHash, password, ip);

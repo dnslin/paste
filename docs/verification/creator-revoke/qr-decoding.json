@@ -1,0 +1,20 @@
+[
+  {
+    "codes" : [
+      {
+        "confidence" : 1,
+        "payloadString" : "http://127.0.0.1:3104/xj9aHWEH"
+      }
+    ],
+    "imagePath" : "docs/verification/creator-revoke/text-created-desktop.png"
+  },
+  {
+    "codes" : [
+      {
+        "confidence" : 1,
+        "payloadString" : "http://127.0.0.1:3104/f/p7TR-8e5"
+      }
+    ],
+    "imagePath" : "docs/verification/creator-revoke/file-created-desktop.png"
+  }
+]

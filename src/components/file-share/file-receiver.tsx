@@ -11,10 +11,10 @@ import { formatBytes, formatExpiry } from './presentation'
 import { useFileDownload } from './use-file-download'
 
 const unavailableStates = {
-  not_found: { title: '分享不存在', icon: FileX },
+  not_found: { title: '分享已失效', icon: FileX },
   expired: { title: '分享已过期', icon: Clock },
   exhausted: { title: '下载机会已用尽', icon: FileX },
-  deleted: { title: '分享已删除', icon: FileX },
+  deleted: { title: '分享已失效', icon: FileX },
   error: { title: '暂时无法读取分享', icon: AlertCircle },
 }
 

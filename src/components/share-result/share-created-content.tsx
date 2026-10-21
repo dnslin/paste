@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useClipboard } from '@/components/paste/use-clipboard'
 import { formatExpiry } from '@/components/file-share/presentation'
+import { PrivateManagementLink } from './private-management-link'
 
 interface ShareCreatedContentProps {
   url: string
+  managementUrl?: string
   name: string
   kind: 'text' | 'file'
   expiresAt: string | null
@@ -19,7 +21,7 @@ interface ShareCreatedContentProps {
   autoCopy?: boolean
 }
 
-export function ShareCreatedContent({ url, name, kind, expiresAt, limit, hasPassword, onCreateAnother, autoCopy = false }: ShareCreatedContentProps) {
+export function ShareCreatedContent({ url, managementUrl, name, kind, expiresAt, limit, hasPassword, onCreateAnother, autoCopy = false }: ShareCreatedContentProps) {
   const { copy, status } = useClipboard(url)
   useEffect(() => { if (autoCopy) void copy() }, [autoCopy, copy])
 
@@ -50,6 +52,7 @@ export function ShareCreatedContent({ url, name, kind, expiresAt, limit, hasPass
       <p>{expiresAt === null ? '永不过期' : formatExpiry(expiresAt)}</p>
       <p>{limit === null ? '不限次数' : `${limit} 次${kind === 'file' ? '下载' : '查看'}`} · {hasPassword ? '密码保护 · 密码请单独提供' : '无密码'}</p>
     </div>
+    {managementUrl ? <PrivateManagementLink key={managementUrl} url={managementUrl} /> : null}
     <div className="grid grid-cols-2 gap-2 border-t border-(--border-subtle) pt-3">
       <Button variant="ghost" asChild className="h-11 text-(--text-secondary) transition-colors motion-reduce:transition-none"><a href={url}>查看分享</a></Button>
       <Button type="button" variant="ghost" onClick={onCreateAnother} className="h-11 text-(--text-secondary) transition-colors motion-reduce:transition-none">创建另一条</Button>

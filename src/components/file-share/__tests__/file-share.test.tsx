@@ -26,7 +26,7 @@ class UploadRequest {
 }
 
 const file = new File(['交付文档'], '项目说明.md', { type: 'text/markdown' })
-const created = { id: 'file123', url: 'http://localhost/f/file123', expiresAt: '2027-01-01T00:00:00.000Z', downloadLimit: 3 }
+const created = { id: 'file123', url: 'http://localhost/f/file123', managementUrl: 'http://localhost/manage/file/file123#private-test-token', expiresAt: '2027-01-01T00:00:00.000Z', downloadLimit: 3 }
 const metadata: FileShareMetadata = { id: 'file123', status: 'active', hasPassword: false, expiresAt: created.expiresAt, downloadsRemaining: 3, fileName: file.name, size: file.size }
 const fetchMock = vi.fn()
 const createObjectURL = vi.fn(() => 'blob:download')
@@ -298,6 +298,7 @@ describe('正式文件下载', () => {
 
   it.each(['expired', 'exhausted', 'deleted'] as const)('%s不提供下载，也不自动调用API', (status) => {
     render(<FileReceiver initialMetadata={{ ...metadata, status }} />)
+    if (status === 'deleted') expect(screen.getByRole('heading', { name: '分享已失效' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '下载文件' })).not.toBeInTheDocument()
     expect(screen.getByText('请联系分享者获取新链接。')).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
@@ -305,6 +306,7 @@ describe('正式文件下载', () => {
 
   it('分享不存在提示联系分享者，服务错误提示刷新重试', () => {
     const { rerender } = render(<FileReceiver initialMetadata={null} />)
+    expect(screen.getByRole('heading', { name: '分享已失效' })).toBeInTheDocument()
     expect(screen.getByText('请联系分享者获取新链接。')).toBeInTheDocument()
     rerender(<FileReceiver key="service-error" initialMetadata={null} initialError />)
     expect(screen.getByText('请稍后刷新页面重试。')).toBeInTheDocument()

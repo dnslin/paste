@@ -16,7 +16,7 @@ interface PasteViewerProps {
 }
 
 const unavailable = {
-  not_found: { icon: FileX, title: '内容不存在', description: '链接无效，或内容已被删除。' },
+  not_found: { icon: FileX, title: '分享已失效', description: '内容可能已过期、被撤销或已结束领取。' },
   expired: { icon: Clock, title: '内容已过期', description: null },
   destroyed: { icon: Flame, title: '查看次数已用完', description: null },
   error: { icon: AlertCircle, title: '暂时无法读取内容', description: '服务发生错误，请稍后刷新页面重试。' },
@@ -28,7 +28,7 @@ export function PasteViewer({ pasteId, initialStatus, hasPassword, language, bur
 
   if (initialStatus !== 'active' || unavailableMessage) {
     const { icon: Icon, title, description } = initialStatus === 'active'
-      ? { icon: FileX, title: unavailableMessage, description: null }
+      ? unavailable.not_found
       : unavailable[initialStatus]
     return <div className="flex min-h-100 flex-col items-center justify-center gap-3 text-center" role="status">
       <Icon className="size-12 text-(--text-secondary)" aria-hidden="true" />

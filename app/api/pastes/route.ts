@@ -9,6 +9,7 @@ import { defaultRateLimiter } from '@/lib/rate-limit';
 import { MAX_CONTENT_LENGTH, VALID_EXPIRES, getPasswordError } from '@/lib/paste-rules';
 import { normalizeLanguage } from '@/lib/languages';
 import { getClientIp, getPublicOrigin } from '@/lib/request-client';
+import { createManagementToken } from '@/lib/share-management';
 
 export async function POST(request: NextRequest) {
   if (!defaultRateLimiter.consume(getClientIp(request)).allowed) {
@@ -56,11 +57,14 @@ export async function POST(request: NextRequest) {
     const expiresAt = typeof expiresIn === 'number' ? new Date(Date.now() + expiresIn * 60000) : null;
     const { encrypted, iv } = encrypt(content);
     const id = generateId();
+    const { token, tokenHash } = createManagementToken();
     const url = new URL(id, `${getPublicOrigin(request)}/`).href;
+    const managementUrl = new URL(`/manage/text/${id}#${token}`, getPublicOrigin(request)).href;
     db.insert(pastes).values({ id, content: encrypted, language: lang, passwordHash, expiresAt,
+      managementTokenHash: tokenHash,
       burnCount: typeof burnAfterRead === 'number' ? burnAfterRead : null,
       createdAt: new Date(), iv, encrypted: true }).run();
-    return NextResponse.json(success({ id, url, expiresAt: expiresAt?.toISOString() ?? null }), { status: 201 });
+    return NextResponse.json(success({ id, url, managementUrl, expiresAt: expiresAt?.toISOString() ?? null }), { status: 201, headers: { 'Cache-Control': 'no-store' } });
   } catch (err) {
     console.error('Create paste failed:', err);
     return NextResponse.json(error(INTERNAL_ERROR, '创建失败，请稍后重试'), { status: 500 });

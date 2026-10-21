@@ -30,7 +30,7 @@ curl --fail-with-body https://paste.447654.xyz/api/pastes \
 | `expiresIn` | number / null | 分钟数：`5`、`30`、`60`、`1440`、`10080`、`43200`；省略或 `null` 为永久 |
 | `burnAfterRead` | number / null | `1`–`10`；省略或 `null` 为不限次数 |
 
-成功返回 `201`，`data` 包含 `id`、`url` 和 `expiresAt`。
+成功返回 `201`，`data` 包含 `id`、`url`、`managementUrl` 和 `expiresAt`。`url` 发给接收者，`managementUrl` 由创建者单独保存。
 
 ### 查询与领取
 
@@ -68,7 +68,7 @@ curl --fail-with-body https://paste.447654.xyz/api/files \
 | `expiresIn` | 分钟数：`5`、`30`、`60`、`1440`、`10080`；默认 `1440` |
 | `downloadLimit` | `off`、`1`、`3`、`5`、`10`；省略或 `off` 为不限次数 |
 
-成功返回 `201`，`data` 包含 `id`、`url`、`expiresAt` 和 `downloadLimit`。网页默认设置 3 次下载，API 省略 `downloadLimit` 时不限制次数。
+成功返回 `201`，`data` 包含 `id`、`url`、`managementUrl`、`expiresAt` 和 `downloadLimit`。网页默认设置 3 次下载，API 省略 `downloadLimit` 时不限制次数。
 
 允许 UTF-8 文本、PDF、PNG、JPEG、GIF、WebP 和 ZIP。文本扩展名清单以 [`FILE_EXTENSIONS`](../src/lib/file-rules.ts) 为准，零字节文本也可上传。服务端检查扩展名及文件内容特征，不信任浏览器提供的 MIME 类型。
 
@@ -103,7 +103,36 @@ curl --fail-with-body https://paste.447654.xyz/api/files/SHARE_ID/download \
 
 密码错误、文件缺失或加密认证失败不扣次数。服务器批准发送后，网络中断仍可能消耗一次。不支持 Range 请求和断点续传。
 
-## 管理接口
+## 创建者管理
+
+新建文本和文件均返回独立 `managementUrl`，形如 `https://paste.example/manage/text/SHARE_ID#TOKEN` 或 `/manage/file/SHARE_ID#TOKEN`。完整管理链接只随创建结果提供，需自行保存；丢失后不能找回，旧分享不补发。首版只支持撤销，不支持编辑、续期或恢复。
+
+管理网页从 URL 片段读取 `TOKEN`，通过请求头传给接口。普通分享链接和访问密码不提供管理权。
+
+| 方法 | 路径 | 行为 |
+| --- | --- | --- |
+| GET | `/api/manage/:kind/:id` | 验证管理凭证后读取摘要，不领取、不扣次数 |
+| DELETE | `/api/manage/:kind/:id` | 验证管理凭证后停止分享，成功返回 `{"revoked":true}` |
+
+`:kind` 为 `text` 或 `file`。请求使用 `Authorization: Bearer TOKEN`，不使用管理员 Cookie。创建成功与管理接口响应均为 `Cache-Control: no-store`。
+
+```bash
+curl --fail-with-body https://paste.example/api/manage/text/SHARE_ID \
+  -H 'Authorization: Bearer TOKEN'
+
+curl --fail-with-body --request DELETE https://paste.example/api/manage/text/SHARE_ID \
+  -H 'Authorization: Bearer TOKEN'
+```
+
+GET 的 `data` 包含 `kind`、`id`、`status`（`active`、`expired`、`exhausted`）、`createdAt`、`expiresAt`、`remaining`、`hasPassword`，以及文本的 `language` 或文件的 `fileName`。不返回正文、文件内容、密码、凭证摘要或存储路径。
+
+缺失／错误／跨条／跨类型凭证、旧分享无凭证、记录已删除时，统一返回 `404 MANAGEMENT_UNAVAILABLE`，提示“管理链接无效或分享已失效”。真实内部错误返回 `500 INTERNAL_ERROR` 并保留服务端诊断，不假报撤销成功。
+
+撤销后新的正文领取和下载被阻止，不能收回已经显示、复制、下载或已经开始传输的内容。文件访问停止后，磁盘清理失败不影响撤销成功，由现有清理机制重试；接口不承诺磁盘立即清空。
+
+再次撤销已清理的记录返回统一 404，不保留永久撤销原因。响应丢失时应先 GET 确认当前状态：仍有效才重试 DELETE；已不可用只能确认链接失效，不能准确推断结束原因。
+
+## 管理员接口
 
 通过 `POST /api/admin/login` 提交 JSON `{"password":"管理员密码"}`，成功后使用 `admin_session` Cookie。生产环境 Cookie 要求 HTTPS。
 

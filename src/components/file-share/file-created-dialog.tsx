@@ -14,7 +14,7 @@ interface FileCreatedDialogProps {
 }
 
 export function FileCreatedContent({ result, fileName, hasPassword, onCreateAnother }: Pick<FileCreatedDialogProps, 'result' | 'fileName' | 'hasPassword' | 'onCreateAnother'>) {
-  return <ShareCreatedContent url={result.url} name={fileName} kind="file" expiresAt={result.expiresAt}
+  return <ShareCreatedContent url={result.url} managementUrl={result.managementUrl} name={fileName} kind="file" expiresAt={result.expiresAt}
     limit={result.downloadLimit} hasPassword={hasPassword} onCreateAnother={onCreateAnother} />
 }
 

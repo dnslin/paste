@@ -11,7 +11,7 @@ import type { ApiResponse } from '@/lib/api-response'
 import { MAX_CONTENT_LENGTH, getPasswordError } from '@/lib/paste-rules'
 
 const initialOptions: PasteOptions = { password: '', expiresIn: 1440, burnAfterRead: null }
-type CreatedPaste = { id: string; url: string; expiresAt: string | null }
+type CreatedPaste = { id: string; url: string; managementUrl: string; expiresAt: string | null }
 
 export function PasteCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) => void }) {
   const [code, setCode] = useState('')
@@ -76,9 +76,9 @@ export function PasteCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) 
   if (result) return <section ref={(view) => { currentView.current = view }} aria-label="已创建的文本分享" className={`mx-auto max-w-md space-y-2 rounded-xl border border-(--border-default) bg-(--bg-surface) p-5 sm:p-6 ${dialogOpen ? 'invisible' : ''}`}>
     {!dialogOpen ? <>
       <h2 className="text-center text-xl leading-7 font-semibold">链接已生成</h2>
-      <PasteCreatedContent url={result.url} language={language} expiresAt={result.expiresAt} viewLimit={options.burnAfterRead} hasPassword={!!options.password} onCreateAnother={createAnother} />
+      <PasteCreatedContent url={result.url} managementUrl={result.managementUrl} language={language} expiresAt={result.expiresAt} viewLimit={options.burnAfterRead} hasPassword={!!options.password} onCreateAnother={createAnother} />
     </> : null}
-    <SuccessDialog open={dialogOpen} onOpenChange={setDialogOpen} url={result.url} language={language} expiresAt={result.expiresAt} viewLimit={options.burnAfterRead} hasPassword={!!options.password} onCreateAnother={createAnother} onCloseAutoFocus={restoreFocus} />
+    <SuccessDialog open={dialogOpen} onOpenChange={setDialogOpen} url={result.url} managementUrl={result.managementUrl} language={language} expiresAt={result.expiresAt} viewLimit={options.burnAfterRead} hasPassword={!!options.password} onCreateAnother={createAnother} onCloseAutoFocus={restoreFocus} />
   </section>
 
   return (

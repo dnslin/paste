@@ -72,7 +72,7 @@ describe('查看内容', () => {
     fetchMock.mockResolvedValue({ ok: false, status: 404, json: async () => ({ success: false, error: { code: 'NOT_FOUND', message } }) })
     render(<PasteViewer {...props} />)
     fireEvent.click(screen.getByRole('button', { name: '查看内容' }))
-    expect(await screen.findByRole('heading', { name: message })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '分享已失效' })).toBeInTheDocument()
     expect(screen.getByText('请联系分享者获取新链接。')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '查看内容' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '下载原文' })).not.toBeInTheDocument()
@@ -122,7 +122,7 @@ describe('查看内容', () => {
   })
 
   it.each([
-    ['not_found', '内容不存在'], ['expired', '内容已过期'], ['destroyed', '查看次数已用完'], ['error', '暂时无法读取内容'],
+    ['not_found', '分享已失效'], ['expired', '内容已过期'], ['destroyed', '查看次数已用完'], ['error', '暂时无法读取内容'],
   ] as const)('%s具有准确提示和返回首页入口', (status, title) => {
     render(<PasteViewer {...props} initialStatus={status} />)
     expect(screen.getByRole('heading', { name: title })).toBeInTheDocument()

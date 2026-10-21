@@ -1,0 +1,32 @@
+[
+  {
+    "width": 320,
+    "scrollWidth": 320,
+    "overflowControls": [],
+    "tableWidth": 286
+  },
+  {
+    "width": 390,
+    "scrollWidth": 390,
+    "overflowControls": [],
+    "tableWidth": 356
+  },
+  {
+    "width": 768,
+    "scrollWidth": 768,
+    "overflowControls": [],
+    "tableWidth": 718
+  },
+  {
+    "width": 1024,
+    "scrollWidth": 1024,
+    "overflowControls": [],
+    "tableWidth": 958
+  },
+  {
+    "width": 1440,
+    "scrollWidth": 1440,
+    "overflowControls": [],
+    "tableWidth": 1214
+  }
+]

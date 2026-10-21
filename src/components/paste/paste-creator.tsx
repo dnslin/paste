@@ -5,12 +5,13 @@ import { Loader2, Send } from 'lucide-react'
 import { CodeEditor } from './code-editor'
 import { LanguageSelector } from './language-selector'
 import { OptionsPanel, type PasteOptions } from './options-panel'
-import { CreatedLink, SuccessDialog } from './success-dialog'
+import { PasteCreatedContent, SuccessDialog } from './success-dialog'
 import { Button } from '@/components/ui/button'
 import type { ApiResponse } from '@/lib/api-response'
 import { MAX_CONTENT_LENGTH, getPasswordError } from '@/lib/paste-rules'
 
 const initialOptions: PasteOptions = { password: '', expiresIn: 1440, burnAfterRead: null }
+type CreatedPaste = { id: string; url: string; expiresAt: string | null }
 
 export function PasteCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) => void }) {
   const [code, setCode] = useState('')
@@ -18,7 +19,7 @@ export function PasteCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) 
   const [options, setOptions] = useState<PasteOptions>(initialOptions)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [result, setResult] = useState<{ id: string; url: string } | null>(null)
+  const [result, setResult] = useState<CreatedPaste | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const currentView = useRef<HTMLElement | null>(null)
   const focusNewForm = useRef(false)
@@ -37,7 +38,7 @@ export function PasteCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: code, language, password: options.password || undefined, expiresIn: options.expiresIn, burnAfterRead: options.burnAfterRead }),
       })
-      const data: ApiResponse<{ id: string; url: string }> = await res.json()
+      const data: ApiResponse<CreatedPaste> = await res.json()
       if (!data.success) {
         setError(data.error.message)
       } else if (!res.ok) {
@@ -74,11 +75,10 @@ export function PasteCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) 
 
   if (result) return <section ref={(view) => { currentView.current = view }} aria-label="已创建的文本分享" className="space-y-4 rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-4 sm:p-6">
     {!dialogOpen ? <>
-      <h2 className="font-medium">内容已创建</h2>
-      <CreatedLink url={result.url} />
-      <Button type="button" variant="ghost" onClick={createAnother} className="w-full">创建另一条</Button>
+      <h2 className="font-medium">链接已生成</h2>
+      <PasteCreatedContent url={result.url} language={language} expiresAt={result.expiresAt} viewLimit={options.burnAfterRead} hasPassword={!!options.password} onCreateAnother={createAnother} />
     </> : null}
-    <SuccessDialog open={dialogOpen} onOpenChange={setDialogOpen} url={result.url} onCreateAnother={createAnother} onCloseAutoFocus={restoreFocus} />
+    <SuccessDialog open={dialogOpen} onOpenChange={setDialogOpen} url={result.url} language={language} expiresAt={result.expiresAt} viewLimit={options.burnAfterRead} hasPassword={!!options.password} onCreateAnother={createAnother} onCloseAutoFocus={restoreFocus} />
   </section>
 
   return (
@@ -96,7 +96,7 @@ export function PasteCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) 
         {error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null}
         <Button type="submit" disabled={isInvalid || isLoading} className="h-11 w-full gap-2" size="lg">
           {isLoading ? <Loader2 className="size-4 motion-safe:animate-spin" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}
-          {isLoading ? '正在创建…' : '创建内容'}
+          {isLoading ? '正在生成链接…' : '生成链接'}
         </Button>
       </fieldset>
     </form>

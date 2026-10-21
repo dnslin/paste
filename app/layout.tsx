@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Paste",
-  description: "快速分享代码与文本",
+  description: "分享文本、代码和文件",
 };
 
 export default function RootLayout({

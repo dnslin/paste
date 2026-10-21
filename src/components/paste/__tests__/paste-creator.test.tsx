@@ -27,20 +27,21 @@ describe('创建内容', () => {
     render(<PasteCreator onBusyChange={busy} />)
     inputContent('本次提交的内容')
     fireEvent.change(screen.getByLabelText('密码保护'), { target: { value: 'original-password' } })
-    fireEvent.click(screen.getByRole('button', { name: '创建内容' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
 
     const controls = [
       screen.getByLabelText('代码或文本内容'),
       screen.getByLabelText('密码保护'),
       screen.getByRole('button', { name: '显示密码' }),
       screen.getByRole('combobox', { name: '代码语言' }),
-      screen.getByRole('combobox', { name: '过期时间' }),
+      screen.getByRole('combobox', { name: '有效期' }),
       screen.getByRole('combobox', { name: '查看次数限制' }),
+      screen.getByRole('button', { name: '分享设置' }),
       screen.getByRole('tab', { name: '编辑' }),
       screen.getByRole('tab', { name: '预览' }),
     ]
     controls.forEach((control) => expect(control).toBeDisabled())
-    for (const name of ['过期时间', '查看次数限制']) {
+    for (const name of ['有效期', '查看次数限制']) {
       const trigger = screen.getByRole('combobox', { name })
       trigger.hasPointerCapture = () => false
       const pointer = new MouseEvent('pointerdown', { bubbles: true, button: 0, ctrlKey: false })
@@ -56,7 +57,7 @@ describe('创建内容', () => {
     await act(async () => {
       if (outcome === 'network') reject(new Error('offline'))
       else resolve(Response.json(outcome === 'success'
-        ? { success: true, data: { id: 'abc123', url: 'http://localhost/abc123' } }
+        ? { success: true, data: { id: 'abc123', url: 'http://localhost/abc123', expiresAt: null } }
         : { success: false, error: { code: 'ERROR', message: '创建请求失败' } }, { status: outcome === 'success' ? 201 : 500 }))
     })
     expect(busy).toHaveBeenLastCalledWith(false)
@@ -70,22 +71,26 @@ describe('创建内容', () => {
     controls.forEach((control) => expect(control).toBeEnabled())
     expect(screen.getByLabelText('代码或文本内容')).toHaveValue('本次提交的内容')
     expect(screen.getByLabelText('密码保护')).toHaveValue('original-password')
-    fireEvent.keyDown(screen.getByRole('combobox', { name: '过期时间' }), { key: 'ArrowDown' })
+    fireEvent.keyDown(screen.getByRole('combobox', { name: '有效期' }), { key: 'ArrowDown' })
     expect(await screen.findByRole('listbox')).toBeInTheDocument()
   })
 
   it('关闭成功提示后仍可复制原链接，只有创建另一条才重置表单', async () => {
     const url = 'http://localhost/abc123'
-    fetchMock.mockResolvedValue(Response.json({ success: true, data: { id: 'abc123', url } }, { status: 201 }))
+    fetchMock.mockResolvedValue(Response.json({ success: true, data: { id: 'abc123', url, expiresAt: '2027-01-01T00:00:00.000Z' } }, { status: 201 }))
     render(<PasteCreator />)
     inputContent('已创建内容')
     fireEvent.change(screen.getByLabelText('密码保护'), { target: { value: 'private-password' } })
-    fireEvent.click(screen.getByRole('button', { name: '创建内容' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
     const dialog = await screen.findByRole('dialog')
+    expect(screen.getByRole('heading', { name: '链接已生成' })).toBeInTheDocument()
+    expect(screen.getByText(/到期（北京时间）/)).toHaveTextContent('1/1 08:00 到期（北京时间） · 不限次数 · 密码保护')
     await waitFor(() => expect(writeText).toHaveBeenCalledOnce())
     fireEvent.keyDown(dialog, { key: 'Escape' })
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
-    expect(screen.queryByRole('button', { name: '创建内容' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '链接已生成' })).toBeInTheDocument()
+    expect(screen.getByText(/到期（北京时间）/)).toHaveTextContent('1/1 08:00 到期（北京时间） · 不限次数 · 密码保护')
+    expect(screen.queryByRole('button', { name: '生成链接' })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: url })).toHaveAttribute('href', url)
     await waitFor(() => expect(screen.getByRole('button', { name: '复制链接' })).toHaveFocus())
     expect(writeText).toHaveBeenCalledOnce()
@@ -99,15 +104,15 @@ describe('创建内容', () => {
     expect(screen.getByLabelText('代码或文本内容')).toHaveValue('')
     expect(screen.getByLabelText('代码或文本内容')).toHaveFocus()
     expect(screen.getByLabelText('密码保护')).toHaveValue('')
-    expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeDisabled()
     expect(screen.queryByRole('link', { name: url })).not.toBeInTheDocument()
   })
 
   it('从成功弹窗直接创建另一条后，退出回焦点仍落在新编辑器', async () => {
-    fetchMock.mockResolvedValue(Response.json({ success: true, data: { id: 'abc123', url: 'http://localhost/abc123' } }, { status: 201 }))
+    fetchMock.mockResolvedValue(Response.json({ success: true, data: { id: 'abc123', url: 'http://localhost/abc123', expiresAt: null } }, { status: 201 }))
     render(<PasteCreator />)
     inputContent()
-    fireEvent.click(screen.getByRole('button', { name: '创建内容' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
     await screen.findByRole('dialog')
     fireEvent.click(screen.getByRole('button', { name: '创建另一条' }))
     await waitFor(() => expect(screen.getByLabelText('代码或文本内容')).toHaveFocus())
@@ -115,16 +120,16 @@ describe('创建内容', () => {
 
   it('禁用空内容和只有空白的提交', () => {
     render(<PasteCreator />)
-    expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeDisabled()
     inputContent('   \n')
-    expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeDisabled()
   })
 
   it('真实提交成功后首次挂载弹窗就自动复制可访问链接', async () => {
-    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ success: true, data: { id: 'abc123', url: 'http://localhost:3000/abc123' } }) })
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ success: true, data: { id: 'abc123', url: 'http://localhost:3000/abc123', expiresAt: null } }) })
     render(<PasteCreator />)
     inputContent()
-    fireEvent.click(screen.getByRole('button', { name: '创建内容' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
     expect(await screen.findByRole('dialog')).toBeInTheDocument()
     await waitFor(() => expect(writeText).toHaveBeenCalledWith('http://localhost:3000/abc123'))
     expect(screen.getByRole('link', { name: 'http://localhost:3000/abc123' })).toHaveAttribute('href', 'http://localhost:3000/abc123')
@@ -135,17 +140,17 @@ describe('创建内容', () => {
     fetchMock.mockResolvedValue({ ok: false, status, json: async () => ({ success: false, error: { code: 'ERROR', message: '创建请求失败' } }) })
     render(<PasteCreator />)
     inputContent('不能丢失的内容')
-    fireEvent.click(screen.getByRole('button', { name: '创建内容' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('创建请求失败')
     expect(screen.getByLabelText('代码或文本内容')).toHaveValue('不能丢失的内容')
-    expect(screen.getByRole('button', { name: '创建内容' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeEnabled()
   })
 
   it('网络错误可见且能再次提交', async () => {
     fetchMock.mockRejectedValue(new Error('offline'))
     render(<PasteCreator />)
     inputContent('保留内容')
-    fireEvent.click(screen.getByRole('button', { name: '创建内容' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('检查网络连接')
     expect(screen.getByLabelText('代码或文本内容')).toHaveValue('保留内容')
   })
@@ -153,16 +158,16 @@ describe('创建内容', () => {
   it('拒绝超长内容和超72字节/空白密码', () => {
     render(<PasteCreator />)
     inputContent('x'.repeat(MAX_CONTENT_LENGTH + 1))
-    expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeDisabled()
     expect(screen.getByText(/内容超过长度限制/)).toBeInTheDocument()
     inputContent('有效内容')
     fireEvent.change(screen.getByLabelText('密码保护'), { target: { value: '密'.repeat(25) } })
-    expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeDisabled()
     expect(screen.getByLabelText('密码保护')).toHaveAccessibleDescription(screen.getByRole('alert').textContent!)
     fireEvent.change(screen.getByLabelText('密码保护'), { target: { value: '   ' } })
-    expect(screen.getByRole('button', { name: '创建内容' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeDisabled()
     fireEvent.change(screen.getByLabelText('密码保护'), { target: { value: '密'.repeat(24) } })
-    expect(screen.getByRole('button', { name: '创建内容' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: '生成链接' })).toBeEnabled()
     expect(screen.getByLabelText('密码保护')).not.toHaveAttribute('aria-describedby')
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()

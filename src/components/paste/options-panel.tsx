@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { getPasswordError } from '@/lib/paste-rules'
 import { Eye, EyeOff, Lock, Clock, Flame } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { ShareSettings, formatSettingsSummary } from '@/components/share-settings'
 import {
   Select,
   SelectContent,
@@ -44,6 +45,7 @@ export function OptionsPanel({ value, onChange, disabled }: OptionsPanelProps) {
   const burnValue = value.burnAfterRead === null ? 'off' : String(value.burnAfterRead)
 
   return (
+    <ShareSettings summary={formatSettingsSummary(value.expiresIn, value.burnAfterRead, !!value.password, '查看')} disabled={disabled} invalid={!!passwordError}>
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {/* Password Protection */}
       <div className="space-y-2">
@@ -80,19 +82,19 @@ export function OptionsPanel({ value, onChange, disabled }: OptionsPanelProps) {
       <div className="space-y-2">
         <label id="expiry-label" className="flex items-center gap-2 text-sm font-medium text-(--text-secondary)">
           <Clock className="size-4" />
-          过期时间
+          有效期
         </label>
         <Select value={expiryValue} onValueChange={handleExpiryChange} disabled={disabled}>
           <SelectTrigger data-testid="expiry-select" aria-labelledby="expiry-label" className="w-full">
-            <SelectValue placeholder="选择过期时间" />
+            <SelectValue placeholder="选择有效期" />
           </SelectTrigger>
           <SelectContent className="animate-none!">
-            <SelectItem value="5">5分钟</SelectItem>
-            <SelectItem value="30">30分钟</SelectItem>
-            <SelectItem value="60">1小时</SelectItem>
-            <SelectItem value="1440">1天</SelectItem>
-            <SelectItem value="10080">7天</SelectItem>
-            <SelectItem value="43200">30天</SelectItem>
+            <SelectItem value="5">5 分钟</SelectItem>
+            <SelectItem value="30">30 分钟</SelectItem>
+            <SelectItem value="60">1 小时</SelectItem>
+            <SelectItem value="1440">1 天</SelectItem>
+            <SelectItem value="10080">7 天</SelectItem>
+            <SelectItem value="43200">30 天</SelectItem>
             <SelectItem value="never">永不过期</SelectItem>
           </SelectContent>
         </Select>
@@ -109,7 +111,7 @@ export function OptionsPanel({ value, onChange, disabled }: OptionsPanelProps) {
             <SelectValue placeholder="选择查看次数" />
           </SelectTrigger>
           <SelectContent className="animate-none!">
-            <SelectItem value="off">关闭</SelectItem>
+            <SelectItem value="off">不限次数</SelectItem>
             <SelectItem value="1">1 次</SelectItem>
             <SelectItem value="3">3 次</SelectItem>
             <SelectItem value="5">5 次</SelectItem>
@@ -118,5 +120,6 @@ export function OptionsPanel({ value, onChange, disabled }: OptionsPanelProps) {
         </Select>
       </div>
     </div>
+    </ShareSettings>
   )
 }

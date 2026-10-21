@@ -60,7 +60,7 @@ export function FileCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) =
 
   if (result && file) return <section ref={(view) => { currentView.current = view }} aria-label="已创建的文件分享" className="space-y-4 rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-4 sm:p-6">
     {!dialogOpen ? <>
-      <h2 className="font-medium">链接已创建</h2>
+      <h2 className="font-medium">链接已生成</h2>
       <FileCreatedContent result={result} fileName={file.name} hasPassword={!!options.password} onCreateAnother={createAnother} />
     </> : null}
     <FileCreatedDialog result={result} fileName={file.name} hasPassword={!!options.password} open={dialogOpen} onOpenChange={setDialogOpen} onCreateAnother={createAnother} onCloseAutoFocus={restoreFocus} />
@@ -82,7 +82,7 @@ export function FileCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) =
     <div className={upload.busy ? 'grid grid-cols-[1fr_auto] gap-3' : ''}>
       <Button type="submit" disabled={invalid || upload.busy} size="lg" className="h-11 w-full gap-2">
         {upload.busy ? <Loader2 className="size-4 motion-safe:animate-spin" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}
-        {upload.busy ? '正在创建分享…' : upload.error ? '重试上传' : '创建文件分享'}
+        {upload.busy ? '正在生成链接…' : '生成链接'}
       </Button>
       {upload.busy ? <Button type="button" variant="outline" className="h-11" onClick={upload.cancel}>取消</Button> : null}
     </div>

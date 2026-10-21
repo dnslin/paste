@@ -5,6 +5,7 @@ import { Clock, Download, Eye, EyeOff, Lock } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { getPasswordError } from '@/lib/paste-rules'
+import { ShareSettings, formatSettingsSummary } from '@/components/share-settings'
 import type { FileShareOptions } from './presentation'
 
 export function FileOptions({ value, onChange, disabled }: { value: FileShareOptions; onChange: (value: FileShareOptions) => void; disabled: boolean }) {
@@ -12,7 +13,8 @@ export function FileOptions({ value, onChange, disabled }: { value: FileShareOpt
   const [visible, setVisible] = useState(false)
   const passwordError = getPasswordError(value.password)
 
-  return <fieldset disabled={disabled} className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-3">
+  return <ShareSettings summary={formatSettingsSummary(value.expiresIn, value.downloadLimit, !!value.password, '下载')} disabled={disabled} invalid={!!passwordError}>
+    <fieldset disabled={disabled} className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-3">
     <legend className="sr-only">文件分享选项</legend>
     <div className="space-y-2">
       <label htmlFor={`${id}-password`} className="flex items-center gap-2 text-sm font-medium text-(--text-secondary)"><Lock className="size-4" aria-hidden="true" />密码保护</label>
@@ -40,4 +42,5 @@ export function FileOptions({ value, onChange, disabled }: { value: FileShareOpt
       </Select>
     </div>
   </fieldset>
+  </ShareSettings>
 }

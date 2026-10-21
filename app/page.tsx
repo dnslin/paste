@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-(--bg-base)">
       <div className="retro-grid" />
-      <main className="relative mx-auto flex min-h-screen max-w-225 flex-col items-center px-6 py-8">
+      <main className="relative mx-auto flex min-h-screen max-w-225 flex-col items-center px-4 py-8 sm:px-6">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3">
             <Logo />

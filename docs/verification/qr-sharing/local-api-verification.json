@@ -1,0 +1,20 @@
+{
+  "textUrl": "http://127.0.0.1:3334/9px4Ihcc",
+  "fileUrl": "http://127.0.0.1:3334/f/XJ2xPH7K",
+  "afterQrAndPageGet": {
+    "textRemaining": 3,
+    "fileRemaining": 3
+  },
+  "wrongPasswords": {
+    "status": 400,
+    "remainingUnchanged": true
+  },
+  "afterExplicitRead": {
+    "textRemaining": 2,
+    "fileRemaining": 2
+  },
+  "textContentExact": true,
+  "fileBytesExact": true,
+  "fileBytes": 109,
+  "fileNameExact": true
+}

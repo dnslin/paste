@@ -58,9 +58,9 @@ export function FileCreator({ onBusyChange }: { onBusyChange?: (busy: boolean) =
     focusCurrentView()
   }
 
-  if (result && file) return <section ref={(view) => { currentView.current = view }} aria-label="已创建的文件分享" className="space-y-4 rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-4 sm:p-6">
+  if (result && file) return <section ref={(view) => { currentView.current = view }} aria-label="已创建的文件分享" className={`mx-auto max-w-md space-y-2 rounded-xl border border-(--border-default) bg-(--bg-surface) p-5 sm:p-6 ${dialogOpen ? 'invisible' : ''}`}>
     {!dialogOpen ? <>
-      <h2 className="font-medium">链接已生成</h2>
+      <h2 className="text-center text-xl leading-7 font-semibold">链接已生成</h2>
       <FileCreatedContent result={result} fileName={file.name} hasPassword={!!options.password} onCreateAnother={createAnother} />
     </> : null}
     <FileCreatedDialog result={result} fileName={file.name} hasPassword={!!options.password} open={dialogOpen} onOpenChange={setDialogOpen} onCreateAnother={createAnother} onCloseAutoFocus={restoreFocus} />

@@ -1,0 +1,47 @@
+[
+  {
+    "path": "text-card-desktop.png",
+    "qrCodes": [
+      {
+        "confidence": 1,
+        "payloadString": "http://127.0.0.1:3331/prototype/qr-sharing#receive-text"
+      }
+    ]
+  },
+  {
+    "path": "text-modal-desktop.png",
+    "qrCodes": [
+      {
+        "confidence": 1,
+        "payloadString": "http://127.0.0.1:3331/prototype/qr-sharing#receive-text"
+      }
+    ]
+  },
+  {
+    "path": "text-modal-mobile.png",
+    "qrCodes": [
+      {
+        "confidence": 1,
+        "payloadString": "http://127.0.0.1:3331/prototype/qr-sharing#receive-text"
+      }
+    ]
+  },
+  {
+    "path": "file-card-mobile.png",
+    "qrCodes": [
+      {
+        "confidence": 1,
+        "payloadString": "http://127.0.0.1:3331/prototype/qr-sharing#receive-file"
+      }
+    ]
+  },
+  {
+    "path": "file-modal-mobile.png",
+    "qrCodes": [
+      {
+        "confidence": 1,
+        "payloadString": "http://127.0.0.1:3331/prototype/qr-sharing#receive-file"
+      }
+    ]
+  }
+]

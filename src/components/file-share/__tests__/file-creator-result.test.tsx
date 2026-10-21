@@ -1,7 +1,12 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { SVGProps } from 'react'
 import { FileCreator } from '../file-creator'
 import { ShareCreator } from '@/components/share-creator'
+
+vi.mock('qrcode.react', () => ({
+  QRCodeSVG: ({ value, role, title, 'aria-label': label }: { value: string; title?: string } & SVGProps<SVGSVGElement>) => <svg role={role} aria-label={label} data-value={value}><title>{title}</title></svg>,
+}))
 
 class UploadRequest {
   static requests: UploadRequest[] = []
@@ -13,9 +18,9 @@ class UploadRequest {
   send = vi.fn()
   abort = vi.fn()
   constructor() { UploadRequest.requests.push(this) }
-  succeed() {
+  succeed(result = created) {
     this.status = 201
-    this.responseText = JSON.stringify({ success: true, data: created })
+    this.responseText = JSON.stringify({ success: true, data: result })
     this.onload?.()
   }
 }
@@ -34,40 +39,54 @@ beforeEach(() => {
   Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
 })
 
-function createFile() {
+function createFile(result = created) {
   const input = screen.getByLabelText('选择分享文件')
   fireEvent.change(input, { target: { files: [file] } })
   fireEvent.change(within(input.closest('form')!).getByLabelText('密码保护'), { target: { value: 'private-password' } })
   fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
-  act(() => UploadRequest.requests.at(-1)!.succeed())
+  act(() => UploadRequest.requests.at(-1)!.succeed(result))
 }
 
 describe('创建成功结果保留', () => {
-  it('关闭文件成功弹窗后可复制和查看原结果，明确创建另一条才清空文件和选项', async () => {
+  it('关闭文件弹窗保留原链接二维码，创建另一条才清空并替换为新链接', async () => {
     render(<FileCreator />)
     createFile()
     expect(screen.getByRole('dialog')).toHaveTextContent(file.name)
+    expect(screen.getByRole('img', { name: '文件分享链接二维码' })).toHaveAttribute('data-value', created.url)
     expect(writeText).not.toHaveBeenCalled()
-    fireEvent.click(screen.getByRole('button', { name: '关闭成功提示' }))
+    fireEvent.click(screen.getByRole('button', { name: '关闭' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     await waitFor(() => expect(screen.getByRole('button', { name: '复制链接' })).toHaveFocus())
     expect(screen.queryByRole('button', { name: '生成链接' })).not.toBeInTheDocument()
     expect(screen.getByText(file.name)).toBeInTheDocument()
     expect(screen.getByText(/密码保护/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '查看分享' })).toHaveAttribute('href', created.url)
+    expect(screen.getByRole('img', { name: '文件分享链接二维码' })).toHaveAttribute('data-value', created.url)
     writeText.mockRejectedValueOnce(new Error('denied'))
     fireEvent.click(screen.getByRole('button', { name: '复制链接' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('手动复制链接')
     expect(screen.getByRole('link', { name: created.url })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: '文件分享链接二维码' })).toHaveAttribute('data-value', created.url)
     fireEvent.click(screen.getByRole('button', { name: '复制链接' }))
     expect(await screen.findByRole('button', { name: '已复制' })).toBeInTheDocument()
     expect(writeText).toHaveBeenLastCalledWith(created.url)
     expect(UploadRequest.requests).toHaveLength(1)
+    expect(UploadRequest.requests[0].open).toHaveBeenCalledWith('POST', '/api/files')
+    expect(fetchMock).not.toHaveBeenCalled()
     fireEvent.click(screen.getByRole('button', { name: '创建另一条' }))
     expect(screen.queryByText(file.name)).not.toBeInTheDocument()
     expect(screen.getByLabelText('密码保护')).toHaveValue('')
     expect(screen.getByRole('button', { name: '生成链接' })).toBeDisabled()
     expect(screen.getByRole('button', { name: '选择文件' })).toHaveFocus()
+    expect(screen.queryByRole('img', { name: '文件分享链接二维码' })).not.toBeInTheDocument()
+
+    const nextCreated = { ...created, id: 'file456', url: 'https://share.example.com/f/file456?source=api#created' }
+    createFile(nextCreated)
+    expect(screen.getByRole('img', { name: '文件分享链接二维码' })).toHaveAttribute('data-value', nextCreated.url)
+    expect(screen.queryByRole('link', { name: created.url })).not.toBeInTheDocument()
+    expect(UploadRequest.requests).toHaveLength(2)
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(writeText).toHaveBeenCalledTimes(2)
   })
 
   it('从文件成功弹窗直接创建另一条后，退出回焦点落在文件选择按钮', async () => {
@@ -96,16 +115,22 @@ describe('创建成功结果保留', () => {
     fireEvent.change(screen.getByLabelText('代码或文本内容'), { target: { value: '已分享文本' } })
     fireEvent.click(screen.getByRole('button', { name: '生成链接' }))
     const dialog = await screen.findByRole('dialog')
+    expect(screen.getByRole('img', { name: '文本分享链接二维码' })).toHaveAttribute('data-value', textUrl)
     await waitFor(() => expect(writeText).toHaveBeenCalledOnce())
     fireEvent.keyDown(dialog, { key: 'Escape' })
     fireEvent.mouseDown(screen.getByRole('tab', { name: '文件' }), { button: 0, ctrlKey: false })
     createFile()
+    expect(screen.getByRole('img', { name: '文件分享链接二维码' })).toHaveAttribute('data-value', created.url)
     fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' })
     fireEvent.mouseDown(screen.getByRole('tab', { name: '文本 / 代码' }), { button: 0, ctrlKey: false })
     expect(screen.getByRole('link', { name: textUrl })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: '文本分享链接二维码' })).toHaveAttribute('data-value', textUrl)
+    expect(screen.queryByRole('img', { name: '文件分享链接二维码' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '生成链接' })).not.toBeInTheDocument()
     fireEvent.mouseDown(screen.getByRole('tab', { name: '文件' }), { button: 0, ctrlKey: false })
     expect(screen.getByRole('link', { name: '查看分享' })).toHaveAttribute('href', created.url)
+    expect(screen.getByRole('img', { name: '文件分享链接二维码' })).toHaveAttribute('data-value', created.url)
+    expect(screen.queryByRole('img', { name: '文本分享链接二维码' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '生成链接' })).not.toBeInTheDocument()
     expect(writeText).toHaveBeenCalledOnce()
     expect(fetchMock).toHaveBeenCalledOnce()

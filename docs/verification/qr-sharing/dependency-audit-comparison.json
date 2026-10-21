@@ -1,0 +1,21 @@
+{
+  "current": {
+    "info": 0,
+    "low": 5,
+    "moderate": 19,
+    "high": 27,
+    "critical": 2
+  },
+  "baseline": {
+    "info": 0,
+    "low": 5,
+    "moderate": 19,
+    "high": 27,
+    "critical": 2
+  },
+  "addedAdvisories": [],
+  "qrAdvisories": [],
+  "criticalModules": [
+    "next"
+  ]
+}

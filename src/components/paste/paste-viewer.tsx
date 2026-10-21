@@ -4,9 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Flame, Clock, FileX, AlertCircle } from 'lucide-react'
 import { PasteAccessForm, type PasteContent } from './paste-access-form'
-import { CopyButton } from './copy-button'
-import { CodeDisplay } from './code-display'
-import { getLanguageName } from '@/lib/languages'
+import { PasteBody } from './paste-body'
 
 interface PasteViewerProps {
   pasteId: string
@@ -26,7 +24,6 @@ const unavailable = {
 
 export function PasteViewer({ pasteId, initialStatus, hasPassword, language, burnCount, initialContent }: PasteViewerProps) {
   const [paste, setPaste] = useState<PasteContent | null>(initialContent === undefined ? null : { content: initialContent, language, remainingViews: burnCount })
-  const [wrap, setWrap] = useState(false)
   const [unavailableMessage, setUnavailableMessage] = useState<string | null>(null)
 
   if (initialStatus !== 'active' || unavailableMessage) {
@@ -46,16 +43,9 @@ export function PasteViewer({ pasteId, initialStatus, hasPassword, language, bur
     <Link href="/" className="inline-block text-sm text-(--accent-primary) underline underline-offset-4">返回首页</Link>
     {paste ? <>
       {paste.remainingViews !== null ? <p role="status" className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
-        {paste.remainingViews === 0 ? '这是最后一次查看，当前页面仍可阅读和复制。' : `还可查看 ${paste.remainingViews} 次`}
+        {paste.remainingViews === 0 ? '这是最后一次查看，当前页面仍可阅读、复制和下载。' : `还可查看 ${paste.remainingViews} 次`}
       </p> : null}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="text-sm text-(--text-secondary)">{getLanguageName(paste.language)}</span>
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-sm text-(--text-secondary)"><input type="checkbox" checked={wrap} onChange={(event) => setWrap(event.target.checked)} />长行换行</label>
-          <CopyButton content={paste.content} />
-        </div>
-      </div>
-      <div className="overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-surface) py-4"><CodeDisplay code={paste.content} language={paste.language} wrap={wrap} /></div>
+      <PasteBody pasteId={pasteId} content={paste.content} language={paste.language} />
     </> : <PasteAccessForm pasteId={pasteId} hasPassword={hasPassword} burnCount={burnCount} onSuccess={setPaste} onUnavailable={setUnavailableMessage} />}
   </div>
 }

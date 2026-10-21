@@ -1,0 +1,267 @@
+{
+  "files": [
+    {
+      "language": "json",
+      "suggestedFilename": "paste-n7Kp2xQm.json",
+      "counter": "还可查看 2 次"
+    },
+    {
+      "language": "sql",
+      "suggestedFilename": "paste-n7Kp2xQm.sql",
+      "counter": "还可查看 2 次"
+    },
+    {
+      "language": "yaml",
+      "suggestedFilename": "paste-n7Kp2xQm.yaml",
+      "counter": "还可查看 2 次"
+    },
+    {
+      "language": "nginx",
+      "suggestedFilename": "paste-n7Kp2xQm.conf",
+      "counter": "还可查看 2 次"
+    },
+    {
+      "language": "plaintext",
+      "suggestedFilename": "paste-n7Kp2xQm.txt",
+      "counter": "还可查看 2 次"
+    }
+  ],
+  "layout": [
+    {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "controls": [
+        {
+          "label": "JSONSQLYAML 配置Nginx 配置纯文本",
+          "left": 294,
+          "right": 635,
+          "height": 44
+        },
+        {
+          "label": "已领取需要密码尚未领取最后一次不限次数已过期次数用尽",
+          "left": 647,
+          "right": 988,
+          "height": 44
+        },
+        {
+          "label": "模拟重新打开链接",
+          "left": 1000,
+          "right": 1146,
+          "height": 44
+        },
+        {
+          "label": "",
+          "left": 908,
+          "right": 952,
+          "height": 44
+        },
+        {
+          "label": "下载原文",
+          "left": 964,
+          "right": 1070,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "scrollWidth": 768,
+      "controls": [
+        {
+          "label": "JSONSQLYAML 配置Nginx 配置纯文本",
+          "left": 24,
+          "right": 299,
+          "height": 44
+        },
+        {
+          "label": "已领取需要密码尚未领取最后一次不限次数已过期次数用尽",
+          "left": 311,
+          "right": 586,
+          "height": 44
+        },
+        {
+          "label": "模拟重新打开链接",
+          "left": 598,
+          "right": 744,
+          "height": 44
+        },
+        {
+          "label": "",
+          "left": 572,
+          "right": 616,
+          "height": 44
+        },
+        {
+          "label": "下载原文",
+          "left": 628,
+          "right": 734,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "scrollWidth": 390,
+      "controls": [
+        {
+          "label": "JSONSQLYAML 配置Nginx 配置纯文本",
+          "left": 16,
+          "right": 189,
+          "height": 44
+        },
+        {
+          "label": "已领取需要密码尚未领取最后一次不限次数已过期次数用尽",
+          "left": 201,
+          "right": 374,
+          "height": 44
+        },
+        {
+          "label": "模拟重新打开链接",
+          "left": 16,
+          "right": 374,
+          "height": 44
+        },
+        {
+          "label": "",
+          "left": 216,
+          "right": 260,
+          "height": 44
+        },
+        {
+          "label": "下载原文",
+          "left": 268,
+          "right": 374,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "scrollWidth": 320,
+      "controls": [
+        {
+          "label": "JSONSQLYAML 配置Nginx 配置纯文本",
+          "left": 16,
+          "right": 154,
+          "height": 44
+        },
+        {
+          "label": "已领取需要密码尚未领取最后一次不限次数已过期次数用尽",
+          "left": 166,
+          "right": 304,
+          "height": 44
+        },
+        {
+          "label": "模拟重新打开链接",
+          "left": 16,
+          "right": 304,
+          "height": 44
+        },
+        {
+          "label": "",
+          "left": 101,
+          "right": 145,
+          "height": 44
+        },
+        {
+          "label": "下载原文",
+          "left": 153,
+          "right": 259,
+          "height": 44
+        }
+      ]
+    }
+  ],
+  "downloadBytes": [
+    {
+      "language": "json",
+      "byteLength": 222,
+      "exactMatch": true,
+      "hasAddedBOM": false,
+      "CRLF": false
+    },
+    {
+      "language": "sql",
+      "byteLength": 173,
+      "exactMatch": true,
+      "hasAddedBOM": false,
+      "CRLF": false
+    },
+    {
+      "language": "yaml",
+      "byteLength": 171,
+      "exactMatch": true,
+      "hasAddedBOM": false,
+      "CRLF": false
+    },
+    {
+      "language": "nginx",
+      "byteLength": 191,
+      "exactMatch": true,
+      "hasAddedBOM": false,
+      "CRLF": false
+    },
+    {
+      "language": "plaintext",
+      "byteLength": 195,
+      "exactMatch": true,
+      "hasAddedBOM": false,
+      "CRLF": true
+    }
+  ],
+  "password": {
+    "wrong": {
+      "error": "密码不正确，请重新输入。",
+      "hasDownload": false,
+      "count": "剩余 2 次，查看后扣 1 次。"
+    },
+    "correct": {
+      "count": "还可查看 1 次",
+      "copyFeedback": true
+    }
+  },
+  "lastView": {
+    "keyboardFocus": "下载原文",
+    "finalDownloads": [
+      "paste-n7Kp2xQm.yaml",
+      "paste-n7Kp2xQm.yaml"
+    ],
+    "lastMessage": "这是最后一次查看，当前页面仍可阅读、复制和下载。",
+    "reopened": {
+      "title": "查看次数已用完",
+      "hasDownload": false
+    },
+    "screenshotViewport": {
+      "width": 1920,
+      "height": 884,
+      "source": "actual screenshot dimensions"
+    },
+    "screenshot": "last-view-desktop.png"
+  },
+  "apiRequests": [],
+  "otherStates": {
+    "nowrap": {
+      "page": 320,
+      "viewport": 320,
+      "code": 286
+    },
+    "wrapped": {
+      "page": 320,
+      "viewport": 320,
+      "checked": true
+    },
+    "expired": {
+      "title": "内容已过期",
+      "hasDownload": false
+    },
+    "unlimitedBefore": {
+      "hasBody": true,
+      "hasClaim": false
+    },
+    "unlimitedAfter": {
+      "hasBody": true,
+      "hasDownload": true
+    }
+  },
+  "observedRuntimeErrors": []
+}

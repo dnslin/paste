@@ -1,0 +1,294 @@
+{
+  "protected": {
+    "id": "oCG0cwGY",
+    "getDidNotExposeBody": true,
+    "initialRemaining": 3,
+    "wrong": {
+      "error": "密码错误，还可尝试 4 次",
+      "hasDownload": false,
+      "remaining": 3
+    },
+    "correct": {
+      "remaining": 2,
+      "requestsBefore": 2,
+      "requestsAfter": 2,
+      "downloaded": [
+        {
+          "suggestedFilename": "paste-oCG0cwGY.json",
+          "byteLength": 73,
+          "exactMatch": true
+        },
+        {
+          "suggestedFilename": "paste-oCG0cwGY.json",
+          "byteLength": 73,
+          "exactMatch": true
+        }
+      ]
+    },
+    "laterExhaustion": {
+      "otherClaims": [
+        {
+          "status": 200,
+          "remaining": 1
+        },
+        {
+          "status": 200,
+          "remaining": 0
+        }
+      ],
+      "currentPageDownloadExact": true,
+      "currentPageVerifyRequests": 2,
+      "reopened": {
+        "title": "查看次数已用完",
+        "hasDownload": false
+      }
+    }
+  },
+  "lastView": {
+    "id": "Q7Ai-Ixu",
+    "initialRemaining": 1,
+    "getDidNotExposeBody": true,
+    "focus": "下载原文",
+    "files": [
+      {
+        "name": "paste-Q7Ai-Ixu.sql",
+        "byteLength": 52,
+        "exactMatch": true
+      },
+      {
+        "name": "paste-Q7Ai-Ixu.sql",
+        "byteLength": 52,
+        "exactMatch": true
+      }
+    ],
+    "verifyRequests": 1,
+    "lastText": "这是最后一次查看，当前页面仍可阅读、复制和下载。",
+    "screenshotViewport": {
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390
+    },
+    "remaining": 0,
+    "reopened": {
+      "title": "查看次数已用完",
+      "hasDownload": false
+    }
+  },
+  "expiry": {
+    "id": "qg57eOfE",
+    "inputAlias": "yml",
+    "canonicalLanguage": "yaml",
+    "initialStatus": "active",
+    "unlimited": true,
+    "initialDownloadExact": true,
+    "verifyRequests": 0,
+    "suggestedFilename": "paste-qg57eOfE.yaml",
+    "clockSetup": "Only this isolated API-created row expires_at moved to the past",
+    "currentPageDownloadAfterExpiryExact": true,
+    "status": "expired",
+    "reopened": {
+      "title": "内容已过期",
+      "hasDownload": false
+    }
+  },
+  "formats": [
+    {
+      "key": "jsonc",
+      "id": "l5FJaOgL",
+      "language": "jsonc",
+      "suggestedFilename": "paste-l5FJaOgL.jsonc",
+      "expectedFilename": "paste-l5FJaOgL.jsonc",
+      "byteLength": 59,
+      "exactMatch": true,
+      "hasBOM": false,
+      "hasCRLF": true,
+      "verifyRequestsBefore": 0,
+      "verifyRequestsAfter": 0
+    },
+    {
+      "key": "toml",
+      "id": "GvGkrrcw",
+      "language": "toml",
+      "suggestedFilename": "paste-GvGkrrcw.toml",
+      "expectedFilename": "paste-GvGkrrcw.toml",
+      "byteLength": 55,
+      "exactMatch": true,
+      "hasBOM": false,
+      "hasCRLF": false,
+      "verifyRequestsBefore": 0,
+      "verifyRequestsAfter": 0
+    },
+    {
+      "key": "ini",
+      "id": "iVEwN0SZ",
+      "language": "ini",
+      "suggestedFilename": "paste-iVEwN0SZ.ini",
+      "expectedFilename": "paste-iVEwN0SZ.ini",
+      "byteLength": 51,
+      "exactMatch": true,
+      "hasBOM": false,
+      "hasCRLF": true,
+      "verifyRequestsBefore": 0,
+      "verifyRequestsAfter": 0
+    },
+    {
+      "key": "nginx",
+      "id": "alISpAec",
+      "language": "nginx",
+      "suggestedFilename": "paste-alISpAec.conf",
+      "expectedFilename": "paste-alISpAec.conf",
+      "byteLength": 143,
+      "exactMatch": true,
+      "hasBOM": false,
+      "hasCRLF": false,
+      "verifyRequestsBefore": 0,
+      "verifyRequestsAfter": 0
+    },
+    {
+      "key": "javascript-txt",
+      "id": "S6PB8AGz",
+      "language": "javascript",
+      "suggestedFilename": "paste-S6PB8AGz.txt",
+      "expectedFilename": "paste-S6PB8AGz.txt",
+      "byteLength": 192,
+      "exactMatch": true,
+      "hasBOM": false,
+      "hasCRLF": true,
+      "verifyRequestsBefore": 0,
+      "verifyRequestsAfter": 0
+    }
+  ],
+  "layout": [
+    {
+      "width": 1440,
+      "height": 900,
+      "scrollWidth": 1440,
+      "controls": [
+        {
+          "name": "复制内容",
+          "left": 908,
+          "right": 952,
+          "height": 44
+        },
+        {
+          "name": "下载原文",
+          "left": 964,
+          "right": 1070,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "width": 1024,
+      "height": 900,
+      "scrollWidth": 1024,
+      "controls": [
+        {
+          "name": "复制内容",
+          "left": 700,
+          "right": 744,
+          "height": 44
+        },
+        {
+          "name": "下载原文",
+          "left": 756,
+          "right": 862,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "height": 900,
+      "scrollWidth": 768,
+      "controls": [
+        {
+          "name": "复制内容",
+          "left": 572,
+          "right": 616,
+          "height": 44
+        },
+        {
+          "name": "下载原文",
+          "left": 628,
+          "right": 734,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "controls": [
+        {
+          "name": "复制内容",
+          "left": 208,
+          "right": 252,
+          "height": 44
+        },
+        {
+          "name": "下载原文",
+          "left": 260,
+          "right": 366,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "height": 700,
+      "scrollWidth": 320,
+      "controls": [
+        {
+          "name": "复制内容",
+          "left": 109,
+          "right": 153,
+          "height": 44
+        },
+        {
+          "name": "下载原文",
+          "left": 161,
+          "right": 267,
+          "height": 44
+        }
+      ]
+    }
+  ],
+  "localFailure": {
+    "injection": "One URL.createObjectURL call deliberately made to throw; original API restored before retry",
+    "failed": {
+      "message": "下载未能发起，请重试。也可以复制当前正文。",
+      "bodyVisible": true
+    },
+    "copyFeedback": true,
+    "recovered": {
+      "hasError": false,
+      "verifyRequests": 0
+    },
+    "retryBytesExact": true
+  },
+  "deletion": {
+    "id": "S6PB8AGz",
+    "adminLoginStatus": 200,
+    "deleteStatus": 200,
+    "currentPageDownloadExact": true,
+    "reopened": {
+      "title": "内容不存在",
+      "hasDownload": false
+    }
+  },
+  "longLine": {
+    "width": 320,
+    "scrollWidth": 320,
+    "checked": false,
+    "codeClientWidth": 270,
+    "codeScrollWidth": 1214
+  },
+  "unlimitedReload": {
+    "hasClaim": false,
+    "verifyRequests": 0
+  },
+  "reviewUrl": "http://127.0.0.1:3340/l5FJaOgL",
+  "observedRuntimeErrors": []
+}

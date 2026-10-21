@@ -1,0 +1,90 @@
+{
+  "browser": "Chromium via ego-browser",
+  "build": "standalone production",
+  "checks": [
+    {
+      "kind": "text",
+      "defaultFocus": "继续分享",
+      "cancelFocus": "撤销分享",
+      "successFocus": "分享已撤销",
+      "receiverButtons": [],
+      "failedRetry": false
+    },
+    {
+      "kind": "file",
+      "defaultFocus": "继续分享",
+      "cancelFocus": "撤销分享",
+      "successFocus": "分享已撤销",
+      "receiverButtons": [],
+      "failedRetry": true
+    }
+  ],
+  "audit": {
+    "copies": [
+      "http://127.0.0.1:3104/prototype/creator-revoke#text/receive",
+      "http://127.0.0.1:3104/prototype/creator-revoke#text/manage",
+      "http://127.0.0.1:3104/prototype/creator-revoke#file/receive",
+      "http://127.0.0.1:3104/prototype/creator-revoke#file/manage"
+    ],
+    "apiRequests": [],
+    "errors": []
+  },
+  "responsive": [
+    {
+      "width": 320,
+      "viewport": 320,
+      "document": 320,
+      "clipped": []
+    },
+    {
+      "width": 768,
+      "viewport": 768,
+      "document": 768,
+      "clipped": []
+    },
+    {
+      "width": 1024,
+      "viewport": 1024,
+      "document": 1024,
+      "clipped": []
+    },
+    {
+      "width": 1440,
+      "viewport": 1440,
+      "document": 1440,
+      "clipped": []
+    }
+  ],
+  "states": {
+    "clipboardFailure": true,
+    "expired": true,
+    "exhausted": true,
+    "invalidNoMetadata": true,
+    "loadFailureRetry": true
+  },
+  "reducedMotionDialog": {
+    "left": 16,
+    "right": 304,
+    "top": 306,
+    "bottom": 594,
+    "animation": "enter"
+  },
+  "finalAudit": {
+    "copies": [
+      "http://127.0.0.1:3104/prototype/creator-revoke#text/receive",
+      "http://127.0.0.1:3104/prototype/creator-revoke#text/manage",
+      "http://127.0.0.1:3104/prototype/creator-revoke#file/receive",
+      "http://127.0.0.1:3104/prototype/creator-revoke#file/manage"
+    ],
+    "apiRequests": [],
+    "errors": []
+  },
+  "reducedMotion": {
+    "preference": true,
+    "duration": "0.15s",
+    "enterScale": "1",
+    "translateX": "0",
+    "translateY": "0"
+  },
+  "keyboardFlow": true
+}

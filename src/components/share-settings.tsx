@@ -21,7 +21,10 @@ export function ShareSettings({ summary, disabled, invalid = false, children }: 
   const [expanded, setExpanded] = useState(false)
   const summaryId = useId()
 
-  return <Collapsible open={expanded || invalid} onOpenChange={(open) => setExpanded(open || invalid)} disabled={disabled}
+  // Keep error-triggered expansion after the password becomes valid again.
+  if (invalid && !expanded) setExpanded(true)
+
+  return <Collapsible open={expanded} onOpenChange={(open) => setExpanded(open || invalid)} disabled={disabled}
     className="rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-3 sm:border-0 sm:bg-transparent sm:p-0">
     <CollapsibleTrigger asChild>
       <button type="button" aria-label="分享设置" aria-describedby={summaryId}

@@ -23,6 +23,35 @@ async function choose(name: string, option: string) {
 }
 
 describe('分享设置摘要', () => {
+  it.each([
+    { kind: '文本', Settings: TextSettings, error: '空白密码', invalidPassword: '   ', correctedPassword: 'valid-password' },
+    { kind: '文本', Settings: TextSettings, error: '超长密码', invalidPassword: '密'.repeat(25), correctedPassword: '' },
+    { kind: '文件', Settings: FileSettings, error: '空白密码', invalidPassword: '   ', correctedPassword: 'valid-password' },
+    { kind: '文件', Settings: FileSettings, error: '超长密码', invalidPassword: '密'.repeat(25), correctedPassword: '' },
+  ])('$kind：未点击展开按钮时，纠正$error后保持展开，主动收起才关闭', async ({ Settings, invalidPassword, correctedPassword }) => {
+    render(<Settings />)
+    const toggle = screen.getByRole('button', { name: '分享设置' })
+    const password = screen.getByLabelText('密码保护')
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+
+    // Desktop fields are visible without clicking the mobile-only trigger.
+    fireEvent.change(password, { target: { value: invalidPassword } })
+    expect(password).toHaveAttribute('aria-invalid', 'true')
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('alert')).toBeInTheDocument()
+
+    fireEvent.change(password, { target: { value: correctedPassword } })
+    await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument())
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(password).toHaveValue(correctedPassword)
+
+    fireEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(password).toHaveValue(correctedPassword)
+  })
+
   it('收起后保留文本选项，摘要跟随有效期、次数和密码更新', async () => {
     render(<TextSettings />)
     const toggle = screen.getByRole('button', { name: '分享设置' })

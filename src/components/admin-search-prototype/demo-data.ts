@@ -1,3 +1,5 @@
+import type { RecordFilterValues } from '@/components/admin/record-filters'
+
 export type RecordKind = 'text' | 'file'
 export type RecordStatus = 'active' | 'expired' | 'destroyed' | 'exhausted' | 'pending_delete' | 'delete_failed'
 
@@ -12,15 +14,6 @@ export interface DemoRecord {
   hasPassword: boolean
 }
 
-export interface RecordFilters {
-  q: string
-  status: string
-  from: string
-  to: string
-}
-
-export const EMPTY_FILTERS: RecordFilters = { q: '', status: '', from: '', to: '' }
-
 export const STATUS_LABELS: Record<RecordStatus, string> = {
   active: '可访问',
   expired: '已过期',
@@ -28,11 +21,6 @@ export const STATUS_LABELS: Record<RecordStatus, string> = {
   exhausted: '下载次数用尽',
   pending_delete: '等待清理',
   delete_failed: '清理失败',
-}
-
-export const STATUS_OPTIONS: Record<RecordKind, RecordStatus[]> = {
-  text: ['active', 'expired', 'destroyed'],
-  file: ['active', 'expired', 'exhausted', 'pending_delete', 'delete_failed'],
 }
 
 export const DEMO_RECORDS: DemoRecord[] = [
@@ -76,7 +64,7 @@ export const DEMO_RECORDS: DemoRecord[] = [
   { id: 'fL3gN6kP', kind: 'file', fileName: '项目目录.txt', size: 3654, createdAt: '2026-09-24T02:20:00Z', status: 'active', hasPassword: false },
 ]
 
-export function filterRecords(records: DemoRecord[], kind: RecordKind, filters: RecordFilters): DemoRecord[] {
+export function filterRecords(records: DemoRecord[], kind: RecordKind, filters: RecordFilterValues): DemoRecord[] {
   const query = filters.q.trim()
   const from = filters.from ? new Date(`${filters.from}T00:00:00+08:00`).getTime() : -Infinity
   const before = filters.to ? new Date(`${filters.to}T00:00:00+08:00`).getTime() + 24 * 60 * 60 * 1000 : Infinity

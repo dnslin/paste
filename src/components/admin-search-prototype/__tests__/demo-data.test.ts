@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { DEMO_RECORDS, EMPTY_FILTERS, filterRecords, type DemoRecord } from '../demo-data'
+import { EMPTY_RECORD_FILTERS } from '@/components/admin/record-filters'
+import { DEMO_RECORDS, filterRecords, type DemoRecord } from '../demo-data'
 
 const records: DemoRecord[] = [
   { id: 'AbC123xy', kind: 'text', language: 'TypeScript', createdAt: '2026-10-21T02:00:00Z', status: 'active', hasPassword: false },
@@ -16,20 +17,20 @@ describe('后台搜索原型数据', () => {
   })
 
   it('ID 支持片段且区分大小写，文本不搜索语言字段', () => {
-    expect(filterRecords(records, 'text', { ...EMPTY_FILTERS, q: 'AbC' }).map((item) => item.id)).toEqual(['AbC123xy'])
-    expect(filterRecords(records, 'text', { ...EMPTY_FILTERS, q: 'abc' }).map((item) => item.id)).toEqual(['abc123xy'])
-    expect(filterRecords(records, 'text', { ...EMPTY_FILTERS, q: 'TypeScript' })).toEqual([])
+    expect(filterRecords(records, 'text', { ...EMPTY_RECORD_FILTERS, q: 'AbC' }).map((item) => item.id)).toEqual(['AbC123xy'])
+    expect(filterRecords(records, 'text', { ...EMPTY_RECORD_FILTERS, q: 'abc' }).map((item) => item.id)).toEqual(['abc123xy'])
+    expect(filterRecords(records, 'text', { ...EMPTY_RECORD_FILTERS, q: 'TypeScript' })).toEqual([])
   })
 
   it('文件可按 ID 或文件名查找，文件名英文不区分大小写', () => {
-    expect(filterRecords(records, 'file', { ...EMPTY_FILTERS, q: 'AbC1' }).map((item) => item.id)).toEqual(['FileAbC1'])
-    expect(filterRecords(records, 'file', { ...EMPTY_FILTERS, q: 'readme' }).map((item) => item.id)).toEqual(['FileAbC1'])
-    expect(filterRecords(records, 'file', { ...EMPTY_FILTERS, q: '交付说明' })).toHaveLength(3)
+    expect(filterRecords(records, 'file', { ...EMPTY_RECORD_FILTERS, q: 'AbC1' }).map((item) => item.id)).toEqual(['FileAbC1'])
+    expect(filterRecords(records, 'file', { ...EMPTY_RECORD_FILTERS, q: 'readme' }).map((item) => item.id)).toEqual(['FileAbC1'])
+    expect(filterRecords(records, 'file', { ...EMPTY_RECORD_FILTERS, q: '交付说明' })).toHaveLength(3)
   })
 
   it('百分号与下划线按普通字符匹配', () => {
-    expect(filterRecords(records, 'file', { ...EMPTY_FILTERS, q: '100%_' }).map((item) => item.id)).toEqual(['FileAbC2'])
-    expect(filterRecords(records, 'file', { ...EMPTY_FILTERS, q: '100_完成' })).toEqual([])
+    expect(filterRecords(records, 'file', { ...EMPTY_RECORD_FILTERS, q: '100%_' }).map((item) => item.id)).toEqual(['FileAbC2'])
+    expect(filterRecords(records, 'file', { ...EMPTY_RECORD_FILTERS, q: '100_完成' })).toEqual([])
   })
 
   it('创建日期采用北京时间，起止同日包含该日完整边界', () => {
@@ -39,12 +40,12 @@ describe('后台搜索原型数据', () => {
       { ...records[0], id: 'end', createdAt: '2026-10-21T15:59:59.999Z' },
       { ...records[0], id: 'after', createdAt: '2026-10-21T16:00:00Z' },
     ]
-    expect(filterRecords(boundaryRecords, 'text', { ...EMPTY_FILTERS, from: '2026-10-21', to: '2026-10-21' }).map((item) => item.id)).toEqual(['end', 'start'])
+    expect(filterRecords(boundaryRecords, 'text', { ...EMPTY_RECORD_FILTERS, from: '2026-10-21', to: '2026-10-21' }).map((item) => item.id)).toEqual(['end', 'start'])
   })
 
   it('日期允许只填开始日或结束日', () => {
-    expect(filterRecords(records, 'text', { ...EMPTY_FILTERS, from: '2026-10-21' }).map((item) => item.id)).toEqual(['AbC123xy'])
-    expect(filterRecords(records, 'text', { ...EMPTY_FILTERS, to: '2026-10-20' }).map((item) => item.id)).toEqual(['abc123xy'])
+    expect(filterRecords(records, 'text', { ...EMPTY_RECORD_FILTERS, from: '2026-10-21' }).map((item) => item.id)).toEqual(['AbC123xy'])
+    expect(filterRecords(records, 'text', { ...EMPTY_RECORD_FILTERS, to: '2026-10-20' }).map((item) => item.id)).toEqual(['abc123xy'])
   })
 
   it('没有条件时返回当前类型全部记录，按创建时间及 ID 倒序且不改写数据', () => {
@@ -53,7 +54,7 @@ describe('后台搜索原型数据', () => {
       { ...records[0], id: 'latest', createdAt: '2026-10-21T11:00:00+08:00' },
       { ...records[0], id: 'zeta', createdAt: '2026-10-21T02:00:00Z' },
     ]
-    expect(filterRecords(input, 'text', EMPTY_FILTERS).map((item) => item.id)).toEqual(['latest', 'zeta', 'alpha'])
+    expect(filterRecords(input, 'text', EMPTY_RECORD_FILTERS).map((item) => item.id)).toEqual(['latest', 'zeta', 'alpha'])
     expect(input.map((item) => item.id)).toEqual(['alpha', 'latest', 'zeta'])
   })
 

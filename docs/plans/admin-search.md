@@ -149,6 +149,30 @@ git diff --check
 
 未验证 Safari、Firefox、实体手机或线上现存业务数据。原目录的其他任务、生产数据库及线上服务未修改；未合并、未推送或部署。
 
+## PR #36 的 P2 修复与复审（2026-10-21）
+
+针对原型与正式后台重复维护筛选表单的问题，原型直接复用现有 `RecordFilters`、`RecordFilterValues` 和 `EMPTY_RECORD_FILTERS`。`RecordsPanel` 从 68 行缩减至 35 行，只保留演示场景、已应用条件、筛选结果及分页。重复的草稿、日期错误、字段布局、状态选项、条件标签与重置函数已删除；空结果按钮通过原生 form reset 触发共用重置路径。没有增加包装组件或配置项。
+
+演示数据只 type-import 共用值类型，删除不再使用的重复类型、空条件和选项。示例记录、筛选算法、结果表格、正式表单、后台列表及 API 均未改动。条件标签沿用正式组件的位置，显示在结果数量之前；筛选、草稿、错误及分页行为保持。
+
+新增两条交互回归，覆盖未提交关键词/状态/日期随页签保留，以及清空条件同时清除草稿和日期错误、保留每页数量。现有测试断言未削弱；数据测试仅改为使用共用空条件。修改前后定向 3 文件、18 项均通过。
+
+| 本轮实际检查 | 结果 |
+| --- | --- |
+| `pnpm test` | 34 文件、285 项通过 |
+| `pnpm lint` | 通过 |
+| `pnpm exec tsc --noEmit --incremental false` | 通过 |
+| `pnpm build`（隔离源码副本，Node 24.18.1 / pnpm 11.19.0） | 默认 Turbopack 生产构建通过 |
+| `git diff --check` | 通过 |
+| 五轴质量 Agent 独立复审 | Approve，原型/表单/后台列表/页签/API 共 7 文件、55 项通过 |
+| 严格维护性 Agent 独立复审 | Approve，7 文件、55 项通过，P2 可关闭 |
+
+质量复审还在临时副本把空结果按钮的 reset 改为普通 button，原有清空恢复测试按预期失败，恢复后 7 项原型交互测试通过。两位 Agent 均未修改共享源码，未独立执行本轮全量、构建或浏览器检查。
+
+主 Agent 在新的隔离生产产物中使用 Chromium 核对 Enter 查询、空结果清空、文件名/状态/日期组合、反向日期保留结果、清空草稿及错误、页签保留草稿和页码、重置保留每页数、错误重试及加载禁用。原型仍无 `/api/` 请求。320/390/768/1024/1440px 均无页面横向溢出或控件越界，实际查看了本轮手机截图。未重做正式 API 的真实数据浏览器验收，正式接口未改；Safari、Firefox 和实体手机仍未验证。
+
+本轮仅提交修复、测试及本记录，并更新当前 PR；不合并或部署。
+
 ## 参考
 
 借鉴 [GitHub 的搜索与过滤](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/filtering-and-searching-issues-and-pull-requests) 将文本、状态和日期组合查询的习惯；不引入搜索语法学习成本。日期使用清楚的字段标签，参考 [GOV.UK 日期模式](https://design-system.service.gov.uk/patterns/dates/)。具体布局和组件仍以 Paste 现有后台为准。

@@ -1,0 +1,264 @@
+{
+  "file": {
+    "publicUrl": "http://127.0.0.1:3104/f/2IRVSmnc",
+    "reads": [
+      {
+        "status": 200,
+        "remaining": 1,
+        "cache": "no-store"
+      },
+      {
+        "status": 200,
+        "remaining": 1,
+        "cache": "no-store"
+      }
+    ],
+    "rejected": [
+      {
+        "method": "GET",
+        "credential": "missing",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "credential": "wrong",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "credential": "access-password",
+        "status": 404
+      },
+      {
+        "method": "DELETE",
+        "credential": "missing",
+        "status": 404
+      },
+      {
+        "method": "DELETE",
+        "credential": "wrong",
+        "status": 404
+      },
+      {
+        "method": "DELETE",
+        "credential": "access-password",
+        "status": 404
+      }
+    ],
+    "wrongKind": 404,
+    "defaultFocus": "继续分享",
+    "cancelRemaining": 1,
+    "revoked": true,
+    "oldReceiverBlocked": true,
+    "reloadUnavailable": true,
+    "reopenedGeneric": true
+  },
+  "text": {
+    "publicUrl": "http://127.0.0.1:3104/MLJPo0lP",
+    "reads": [
+      {
+        "status": 200,
+        "remaining": 1,
+        "cache": "no-store"
+      },
+      {
+        "status": 200,
+        "remaining": 1,
+        "cache": "no-store"
+      }
+    ],
+    "rejected": [
+      {
+        "method": "GET",
+        "credential": "missing",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "credential": "wrong",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "credential": "access-password",
+        "status": 404
+      },
+      {
+        "method": "DELETE",
+        "credential": "missing",
+        "status": 404
+      },
+      {
+        "method": "DELETE",
+        "credential": "wrong",
+        "status": 404
+      },
+      {
+        "method": "DELETE",
+        "credential": "access-password",
+        "status": 404
+      }
+    ],
+    "wrongKind": 404,
+    "defaultFocus": "继续分享",
+    "cancelRemaining": 1,
+    "revoked": true,
+    "oldReceiverBlocked": true,
+    "reloadUnavailable": true,
+    "reopenedGeneric": true
+  },
+  "fileDownloaded": {
+    "publicUrl": "http://127.0.0.1:3104/f/DT5ZIflA",
+    "bytes": 94,
+    "byteEqual": true,
+    "suggestedFilename": "项目交付说明与接口文档-创建者撤销正式浏览器验收-含长文件名与多项验收规则-20261021.txt",
+    "remainingBeforeRevoke": 2,
+    "crossShareStatus": 404,
+    "nextDownloadStatus": 404,
+    "localCopyStillReadable": true
+  },
+  "resultGeometry": [
+    {
+      "width": 1440,
+      "viewport": 1440,
+      "document": 1440,
+      "left": 496,
+      "right": 944,
+      "top": 16,
+      "bottom": 624,
+      "scrollWidth": 446,
+      "clientWidth": 446,
+      "scrollHeight": 834,
+      "clientHeight": 606
+    },
+    {
+      "width": 1024,
+      "viewport": 1024,
+      "document": 1024,
+      "left": 288,
+      "right": 736,
+      "top": 16,
+      "bottom": 624,
+      "scrollWidth": 446,
+      "clientWidth": 446,
+      "scrollHeight": 834,
+      "clientHeight": 606
+    },
+    {
+      "width": 768,
+      "viewport": 768,
+      "document": 768,
+      "left": 160,
+      "right": 608,
+      "top": 16,
+      "bottom": 624,
+      "scrollWidth": 446,
+      "clientWidth": 446,
+      "scrollHeight": 834,
+      "clientHeight": 606
+    },
+    {
+      "width": 320,
+      "viewport": 320,
+      "document": 320,
+      "left": 0,
+      "right": 320,
+      "top": 16,
+      "bottom": 624,
+      "scrollWidth": 318,
+      "clientWidth": 318,
+      "scrollHeight": 926,
+      "clientHeight": 606
+    }
+  ],
+  "textAlreadyDisplayed": {
+    "publicUrl": "http://127.0.0.1:3104/fa__9hDI",
+    "publicOnlyAutoCopy": true,
+    "privateCopyFailureRecovered": true,
+    "crossShareStatus": 404,
+    "keyboardFlow": true,
+    "oldPageRetainedContent": true,
+    "newMetadataStatus": 404,
+    "reloadUnavailable": true
+  },
+  "networkRecovery": {
+    "publicUrl": "http://127.0.0.1:3104/YWYAZ0Gi",
+    "noCredentialRequests": 0,
+    "failedLoadRetried": true,
+    "realDeleteResponseLost": true,
+    "serverAfterLoss": 404,
+    "methods": [
+      "GET",
+      "GET",
+      "DELETE",
+      "GET"
+    ],
+    "successNotAssumed": true
+  },
+  "managementGeometry": [
+    {
+      "width": 320,
+      "viewport": 320,
+      "document": 320,
+      "clipped": false
+    },
+    {
+      "width": 768,
+      "viewport": 768,
+      "document": 768,
+      "clipped": false
+    },
+    {
+      "width": 1024,
+      "viewport": 1024,
+      "document": 1024,
+      "clipped": false
+    },
+    {
+      "width": 1440,
+      "viewport": 1440,
+      "document": 1440,
+      "clipped": false
+    }
+  ],
+  "cleanup": {
+    "pastes": 0,
+    "files": 0,
+    "passwordAttempts": 0,
+    "storedFiles": 0
+  },
+  "longFilenameManagementGeometry": {
+    "viewport": 320,
+    "document": 320
+  },
+  "screenshotSamples": [
+    {
+      "kind": "text",
+      "publicUrl": "http://127.0.0.1:3104/xj9aHWEH",
+      "motion": {
+        "preference": true,
+        "enterScale": "1",
+        "translateX": "0",
+        "translateY": "0",
+        "top": 206,
+        "bottom": 494
+      },
+      "revoked": true
+    },
+    {
+      "kind": "file",
+      "publicUrl": "http://127.0.0.1:3104/f/p7TR-8e5",
+      "motion": {
+        "preference": true,
+        "enterScale": "1",
+        "translateX": "0",
+        "translateY": "0",
+        "top": 206,
+        "bottom": 494
+      },
+      "revoked": true
+    }
+  ],
+  "qrPayloadMatchesPublicUrl": true,
+  "sampleCount": 7
+}

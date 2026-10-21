@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Eye, Trash2, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -8,6 +8,7 @@ import type { ApiResponse } from '@/lib/api-response'
 import type { AdminFileItem, AdminFilesResponse } from '@/lib/admin/file-contract'
 import { formatBytes } from '@/components/file-share/presentation'
 import { Pagination } from './pagination'
+import { EMPTY_RECORD_FILTERS, RecordFilters, formatRecordCreatedAt, hasRecordFilters, recordFilterParams, type RecordFilterValues } from './record-filters'
 
 function statusLabel(item: AdminFileItem) {
   if (item.cleanupStatus === 'delete_failed') return '清理失败，等待重试'
@@ -18,7 +19,11 @@ function statusLabel(item: AdminFileItem) {
 }
 
 export function FilesTable() {
-  const [data, setData] = useState<AdminFilesResponse | null>(null)
+  const filterFormId = useId()
+  const [storedData, setData] = useState<AdminFilesResponse | null>(null)
+  const [filters, setFilters] = useState<RecordFilterValues>(EMPTY_RECORD_FILTERS)
+  const [resultFilters, setResultFilters] = useState(filters)
+  const data = resultFilters === filters ? storedData : null
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(15)
   const [refresh, setRefresh] = useState(0)
@@ -35,11 +40,14 @@ export function FilesTable() {
     const controller = new AbortController()
     async function load() {
       try {
-        const res = await fetch(`/api/admin/files?page=${page}&limit=${pageSize}`, { signal: controller.signal })
+        const params = new URLSearchParams({ page: String(page), limit: String(pageSize) })
+        for (const [key, value] of recordFilterParams(filters)) params.set(key, value)
+        const res = await fetch(`/api/admin/files?${params}`, { signal: controller.signal })
         const result: ApiResponse<AdminFilesResponse> = await res.json()
         if (controller.signal.aborted) return
         if (!res.ok || !result.success) throw new Error(result.success ? '无法加载文件记录' : result.error.message)
         setData(result.data)
+        setResultFilters(filters)
         setPage(result.data.page)
       } catch (err) {
         if (!controller.signal.aborted) setError(err instanceof Error ? err.message : '无法加载文件记录，请重试')
@@ -49,7 +57,15 @@ export function FilesTable() {
     }
     void load()
     return () => controller.abort()
-  }, [page, pageSize, refresh])
+  }, [page, pageSize, refresh, filters])
+
+  function applyFilters(next: RecordFilterValues) {
+    setLoading(true)
+    setError('')
+    setNotice('')
+    setFilters(next)
+    setPage(1)
+  }
 
   function reload() {
     setLoading(true)
@@ -101,11 +117,10 @@ export function FilesTable() {
   }
 
   return <div className="space-y-5" aria-busy={loading || acting}>
-    {data ? <div className="grid grid-cols-3 gap-4 border-y border-(--border-subtle) py-5">
+    {storedData ? <div className="grid grid-cols-2 gap-4 border-y border-(--border-subtle) py-5">
       {[
-        { label: '文件数量', value: data.total.toLocaleString() },
-        { label: '文件占用', value: formatBytes(data.storage.usedBytes) },
-        { label: '可用空间', value: formatBytes(Math.max(0, data.storage.limitBytes - data.storage.usedBytes - data.storage.reservedBytes)) },
+        { label: '文件占用', value: formatBytes(storedData.storage.usedBytes) },
+        { label: '可用空间', value: formatBytes(Math.max(0, storedData.storage.limitBytes - storedData.storage.usedBytes - storedData.storage.reservedBytes)) },
       ].map(({ label, value }) => <div key={label} className="min-w-0"><p className="text-xs text-(--text-secondary)">{label}</p><p className="mt-2 font-mono text-lg font-semibold tabular-nums sm:text-2xl">{value}</p></div>)}
     </div> : null}
     <div className="flex items-center justify-between gap-3">
@@ -115,32 +130,36 @@ export function FilesTable() {
         <Button variant="outline" size="sm" disabled={acting || loading} onClick={() => void cleanup()}>{action === 'cleanup' ? '正在清理…' : '清理失效文件'}</Button>
       </div>
     </div>
+    <RecordFilters id={filterFormId} kind="file" value={filters} disabled={loading || acting} onApply={applyFilters} />
     {error ? <div role="alert" className="flex items-center justify-between gap-3 text-sm text-red-400"><p>{error}</p><Button variant="outline" size="sm" onClick={reload}>重试</Button></div> : null}
     {notice ? <p role="status" className="text-sm text-(--text-secondary)">{notice}</p> : null}
     {loading && !data ? <p role="status" className="py-8 text-center text-sm text-(--text-secondary)">正在加载文件记录…</p> : null}
     {loading && data ? <p role="status" className="flex items-center gap-2 text-sm text-(--text-secondary)"><RefreshCw className="size-4 motion-safe:animate-spin" aria-hidden="true" />正在更新文件记录…</p> : null}
     {data ? <>
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm"><p role="status" aria-live="polite" className="font-medium">找到 {data.total} 条</p><p className="text-xs text-(--text-secondary)">按创建时间倒序</p></div>
       <div className="overflow-x-auto rounded-lg border border-(--border-subtle)">
-        <table className="w-full table-fixed text-left text-sm md:table-auto"><caption className="sr-only">文件分享与清理状态</caption>
+        <table className="w-full table-fixed text-left text-sm lg:table-auto"><caption className="sr-only">文件分享与清理状态</caption>
           <thead className="border-b border-(--border-subtle) text-xs text-(--text-secondary)"><tr>
-            <th scope="col" className="px-4 py-3 font-medium">文件</th><th scope="col" className="hidden px-3 py-3 font-medium md:table-cell">大小</th><th scope="col" className="hidden px-3 py-3 font-medium md:table-cell">状态</th><th scope="col" className="w-24 px-2 py-3 text-right font-medium md:w-auto md:px-4">操作</th>
+            <th scope="col" className="px-4 py-3 font-medium">文件</th><th scope="col" className="hidden px-3 py-3 font-medium lg:table-cell">大小</th><th scope="col" className="hidden px-3 py-3 font-medium lg:table-cell">状态</th><th scope="col" className="hidden px-3 py-3 font-medium lg:table-cell">创建时间（北京时间）</th><th scope="col" className="w-24 px-2 py-3 text-right font-medium lg:w-auto lg:px-4">操作</th>
           </tr></thead>
           <tbody className="divide-y divide-(--border-subtle)">{data.items.map((item) => <tr key={item.id}>
-            <td className="px-4 py-4 md:min-w-40"><p className="max-w-64 font-medium [overflow-wrap:anywhere]">{item.fileName}</p><p className="mt-1 font-mono text-xs text-(--text-secondary) [overflow-wrap:anywhere]">{item.id}</p><div className="mt-2 space-y-1 text-xs text-(--text-secondary) md:hidden"><p>{formatBytes(item.size)}</p><p>{statusLabel(item)}</p></div></td>
-            <td className="hidden whitespace-nowrap px-3 py-4 text-(--text-secondary) md:table-cell">{formatBytes(item.size)}</td>
-            <td className="hidden whitespace-nowrap px-3 py-4 text-(--text-secondary) md:table-cell">{statusLabel(item)}</td>
-            <td className="px-2 py-4 md:px-4"><div className="flex justify-end gap-1">
+            <td className="px-4 py-4 lg:min-w-40"><p className="max-w-64 font-medium [overflow-wrap:anywhere]">{item.fileName}</p><p className="mt-1 font-mono text-xs text-(--text-secondary) [overflow-wrap:anywhere]">{item.id}</p><div className="mt-2 space-y-1 text-xs text-(--text-secondary) lg:hidden"><p>{formatBytes(item.size)}</p><p>{statusLabel(item)}</p><p><time dateTime={item.createdAt}>{formatRecordCreatedAt(item.createdAt)}</time></p></div></td>
+            <td className="hidden whitespace-nowrap px-3 py-4 text-(--text-secondary) lg:table-cell">{formatBytes(item.size)}</td>
+            <td className="hidden whitespace-nowrap px-3 py-4 text-(--text-secondary) lg:table-cell">{statusLabel(item)}</td>
+            <td className="hidden whitespace-nowrap px-3 py-4 text-xs text-(--text-secondary) lg:table-cell"><time dateTime={item.createdAt}>{formatRecordCreatedAt(item.createdAt)}</time></td>
+            <td className="px-2 py-4 lg:px-4"><div className="flex justify-end gap-1">
               <Button variant="ghost" size="icon-sm" disabled={loading || acting} aria-label={`查看 ${item.fileName}`} onClick={() => { setActionError(''); setModal({ kind: 'detail', item }) }}><Eye aria-hidden="true" /></Button>
               <Button variant="ghost" size="icon-sm" disabled={loading || acting} aria-label={`删除 ${item.fileName}`} onClick={() => { setActionError(''); setModal({ kind: 'delete', item }) }}><Trash2 className="text-red-400" aria-hidden="true" /></Button>
             </div></td>
           </tr>)}</tbody>
         </table>
-        {data.items.length === 0 ? <p className="p-8 text-center text-sm text-(--text-secondary)">暂无文件分享</p> : null}
+        {data.items.length === 0 ? <div className="space-y-3 p-8 text-center text-sm text-(--text-secondary)"><p>{hasRecordFilters(filters) ? '没有匹配的分享' : '暂无文件分享'}</p>{hasRecordFilters(filters) ? <Button type="reset" form={filterFormId} variant="outline">清空筛选</Button> : null}</div> : null}
       </div>
       <Pagination page={data.page} totalPages={data.totalPages} total={data.total} pageSize={data.pageSize}
         onPageChange={(value) => { setLoading(true); setError(''); setPage(value) }}
         onPageSizeChange={(value) => { setLoading(true); setError(''); setPageSize(value); setPage(1) }} />
     </> : null}
+    <p className="text-xs leading-5 text-(--text-secondary)">文件占用为全部文件的用量。已成功清理或删除的文件不再保留记录。</p>
     <Dialog open={modal !== null} onOpenChange={(open) => { if (!open && !acting) setModal(null) }}>
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md motion-reduce:animate-none">
         <DialogHeader><DialogTitle>{modal?.kind === 'delete' ? '删除这条分享？' : '文件详情'}</DialogTitle><DialogDescription className={modal?.kind === 'delete' ? undefined : 'sr-only'}>{modal?.kind === 'delete' ? '删除后链接失效。' : '文件分享信息'}</DialogDescription></DialogHeader>

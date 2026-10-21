@@ -1,0 +1,13 @@
+{
+  "origin": "http://localhost:3336",
+  "counts": {
+    "text": 20,
+    "file": 18
+  },
+  "createdViaRealApis": true,
+  "historicalCreationTimesAdjusted": true,
+  "historicalDayTotal": 2,
+  "literalFileQueryTotal": 1,
+  "storageUnaffected": true,
+  "unauthenticatedStatus": 401
+}

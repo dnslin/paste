@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-21",
+  "browser": "Ego Lite Chromium",
+  "url": "http://127.0.0.1:3335/prototype/admin-search",
+  "idFragment": true,
+  "idCaseSensitive": true,
+  "queryAcrossPages": true,
+  "paginationRetainedByTab": true,
+  "filtersRetainedByTab": true,
+  "fileNameStatusAndDateCombined": true,
+  "cleanupStatusFilter": true,
+  "retryRetainsFilters": true,
+  "emptyResultsAndEmptyDataDistinct": true,
+  "detailReturnsFocus": true,
+  "keyboardSearchEnter": true,
+  "keyboardDateQuery": {
+    "values": [
+      "2026-10-21",
+      "2026-10-21"
+    ],
+    "count": "找到 3 条"
+  },
+  "reverseDate": {
+    "error": "开始日期不能晚于结束日期",
+    "retainedResults": "找到 3 条"
+  },
+  "searchTabMovesToStatus": true,
+  "reducedMotionSkeletonAnimation": "none",
+  "apiResourceRequests": [],
+  "layouts": "layout-verification.json",
+  "unverified": [
+    "Safari",
+    "Firefox",
+    "physical mobile device",
+    "production APIs and database filtering"
+  ]
+}

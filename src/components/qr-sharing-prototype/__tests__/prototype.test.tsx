@@ -69,7 +69,7 @@ describe('二维码分享原型', () => {
 
   it('查看分享进入已有接收原型，返回后仍展示原链接与二维码', async () => {
     render(<QrSharingPrototype />)
-    fireEvent.click(screen.getByRole('button', { name: '查看分享' }))
+    fireEvent.click(screen.getByRole('link', { name: '查看分享' }))
     expect(await screen.findByRole('heading', { name: '受密码保护的分享' })).toBeInTheDocument()
     expect(window.location.hash).toBe('#receive-text')
     fireEvent.click(screen.getByRole('button', { name: '返回首页' }))
@@ -81,7 +81,7 @@ describe('二维码分享原型', () => {
     writeText.mockRejectedValueOnce(new Error('denied'))
     render(<QrSharingPrototype />)
     fireEvent.click(screen.getByRole('button', { name: '复制链接' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('复制失败')
+    expect(await screen.findByRole('alert')).toHaveTextContent('浏览器拒绝了复制，请重试或手动复制链接。')
     expect(screen.getByRole('img', { name: '文本分享链接二维码' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '复制链接' }))
     expect(await screen.findByRole('button', { name: '已复制' })).toBeInTheDocument()

@@ -3,9 +3,8 @@
 import { useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import Image from 'next/image'
 import { Tabs } from 'radix-ui'
-import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ShareCreatedDialog } from '@/components/share-result/share-created-content'
 import { ShareReceiver } from '@/components/file-sharing-prototype/share-receiver'
 import { EXAMPLE_CONTENT, type PrototypeShare } from '@/components/file-sharing-prototype/model'
 import { ResultContent } from './result-content'
@@ -41,11 +40,6 @@ export function QrSharingPrototype() {
     navigate(`result-${value}`)
   }
 
-  function viewShare() {
-    setDialogOpen(false)
-    navigate(`receive-${kind}`)
-  }
-
   function createAnother() {
     setDialogOpen(false)
     setHasResult(false)
@@ -74,7 +68,7 @@ export function QrSharingPrototype() {
     <Tabs.Content value={kind} className="outline-none">
     <main className="relative mx-auto max-w-225 px-4 py-6 sm:py-8">
       {receiving ? <div className="mx-auto max-w-175">
-        <ShareReceiver key={kind} share={share} scenario="current" onBack={() => { setHasResult(true); navigate(`result-${kind}`) }} />
+        <ShareReceiver key={kind} share={share} scenario="current" onBack={() => { setDialogOpen(false); setHasResult(true); navigate(`result-${kind}`) }} />
       </div> : <>
         <header className="mb-6 text-center">
           <div className="flex items-center justify-center gap-2"><Image src="/logo.svg" alt="Paste" width={36} height={36} priority /><h1 className="text-3xl font-semibold tracking-tight">Paste</h1></div>
@@ -83,7 +77,7 @@ export function QrSharingPrototype() {
         <div ref={currentView} className={`mx-auto max-w-md space-y-2 rounded-xl border border-(--border-default) bg-(--bg-surface) p-5 sm:p-6 ${dialogOpen ? 'invisible' : ''}`}>
           {hasResult && !dialogOpen ? <>
             <h2 className="text-center text-xl leading-7 font-semibold">链接已生成</h2>
-            <ResultContent share={share} url={url} onView={viewShare} onCreateAnother={createAnother} />
+            <ResultContent share={share} url={url} onCreateAnother={createAnother} />
           </> : null}
           {!hasResult ? <>
             <h2 className="text-center font-medium">{kind === 'file' ? '示例文件已准备' : '示例文本已准备'}</h2>
@@ -94,12 +88,8 @@ export function QrSharingPrototype() {
       </>}
     </main>
     </Tabs.Content>
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogContent showCloseButton={false} onCloseAutoFocus={restoreFocus} className="max-h-[calc(100dvh-2rem)] gap-2 overflow-y-auto rounded-xl border-(--border-default) bg-(--bg-surface) p-5 sm:max-w-md sm:p-6 motion-reduce:animate-none">
-        <DialogHeader className="sm:text-center"><DialogTitle className="text-xl leading-7">链接已生成</DialogTitle><DialogDescription className="sr-only">分享链接和二维码</DialogDescription></DialogHeader>
-        <ResultContent share={share} url={url} autoCopy={kind === 'text'} onView={viewShare} onCreateAnother={createAnother} />
-        <DialogClose asChild><Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1 size-11 transition-colors motion-reduce:transition-none" aria-label="关闭"><X className="size-4" aria-hidden="true" /></Button></DialogClose>
-      </DialogContent>
-    </Dialog>
+    <ShareCreatedDialog open={dialogOpen && !receiving} onOpenChange={setDialogOpen} onCloseAutoFocus={restoreFocus}>
+      <ResultContent share={share} url={url} autoCopy={kind === 'text'} onCreateAnother={createAnother} />
+    </ShareCreatedDialog>
   </Tabs.Root>
 }

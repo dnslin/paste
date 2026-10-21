@@ -1,0 +1,20 @@
+[
+  {
+    "path": "/Users/dnslin/.codex/visualizations/2026/10/21/01a15d0f-e815-7430-a605-44b1c90deab6/paste-qr-production/local-text-modal.png",
+    "qrCodes": [
+      {
+        "confidence": 1,
+        "payloadString": "http://127.0.0.1:3334/9px4Ihcc"
+      }
+    ]
+  },
+  {
+    "path": "/Users/dnslin/.codex/visualizations/2026/10/21/01a15d0f-e815-7430-a605-44b1c90deab6/paste-qr-production/local-file-modal.png",
+    "qrCodes": [
+      {
+        "confidence": 1,
+        "payloadString": "http://127.0.0.1:3334/f/XJ2xPH7K"
+      }
+    ]
+  }
+]

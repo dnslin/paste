@@ -14,7 +14,8 @@ const resources = globalResources.fileResources ??= { uploads: 0, downloads: 0, 
 const orphanRetries = resources.orphanRetries ??= new Map<string, Set<string>>();
 
 export function getFileStorageDirectory(): string {
-  return path.resolve(process.env.FILE_STORAGE_DIR || path.join(process.cwd(), 'data', 'files'));
+  // Uploaded files are runtime data, not assets to copy into the build.
+  return path.resolve(/* turbopackIgnore: true */ process.env.FILE_STORAGE_DIR || path.join(process.cwd(), 'data', 'files'));
 }
 
 function storagePath(key: string): string {

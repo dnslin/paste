@@ -11,7 +11,8 @@ const globalForDb = globalThis as unknown as {
 };
 
 function createDb() {
-  const dbPath = path.join(process.cwd(), 'data', 'paste.db');
+  // The database is initialized at runtime, not copied from the build machine.
+  const dbPath = path.join(/* turbopackIgnore: true */ process.cwd(), 'data', 'paste.db');
   const dbDir = path.dirname(dbPath);
   
   if (!fs.existsSync(dbDir)) {

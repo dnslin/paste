@@ -99,8 +99,9 @@ describe('crypto', () => {
       
       const { encrypted, iv } = encrypt('secret data');
       const [ciphertext, authTag] = encrypted.split(':');
-      const tamperedCiphertext = 'ff' + ciphertext.slice(2);
-      const tamperedEncrypted = `${tamperedCiphertext}:${authTag}`;
+      const tamperedCiphertext = Buffer.from(ciphertext, 'hex');
+      tamperedCiphertext[0] ^= 1;
+      const tamperedEncrypted = `${tamperedCiphertext.toString('hex')}:${authTag}`;
       
       expect(() => decrypt(tamperedEncrypted, iv)).toThrow();
     });
@@ -111,8 +112,9 @@ describe('crypto', () => {
       
       const { encrypted, iv } = encrypt('secret data');
       const [ciphertext, authTag] = encrypted.split(':');
-      const tamperedAuthTag = 'ff' + authTag.slice(2);
-      const tamperedEncrypted = `${ciphertext}:${tamperedAuthTag}`;
+      const tamperedAuthTag = Buffer.from(authTag, 'hex');
+      tamperedAuthTag[0] ^= 1;
+      const tamperedEncrypted = `${ciphertext}:${tamperedAuthTag.toString('hex')}`;
       
       expect(() => decrypt(tamperedEncrypted, iv)).toThrow();
     });
@@ -122,9 +124,10 @@ describe('crypto', () => {
       const { encrypt, decrypt } = await import('../crypto');
       
       const { encrypted, iv } = encrypt('secret data');
-      const tamperedIv = 'ff' + iv.slice(2);
+      const tamperedIv = Buffer.from(iv, 'hex');
+      tamperedIv[0] ^= 1;
       
-      expect(() => decrypt(encrypted, tamperedIv)).toThrow();
+      expect(() => decrypt(encrypted, tamperedIv.toString('hex'))).toThrow();
     });
 
     it('should throw on invalid encrypted format', async () => {

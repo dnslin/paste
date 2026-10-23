@@ -3,3 +3,5 @@ allowBuilds:
   esbuild: true
   sharp: false
   unrs-resolver: false
+overrides:
+  'browserslist@<4.28.7': 4.28.7
